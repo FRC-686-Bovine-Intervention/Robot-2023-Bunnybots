@@ -6,8 +6,9 @@ package frc.robot;
 
 import com.ctre.phoenix6.signals.InvertedValue;
 
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 
 public final class Constants {
@@ -16,12 +17,12 @@ public final class Constants {
         REAL, SIM, REPLAY
     }
 
-    public static final Mode mode = Mode.REAL;
+    public static final Mode mode = Mode.SIM;
     ;
     public static final boolean tuningMode = true;    
 
-    public static final double loopPeriodSecs = 0.02;
-    public static final double loopFrequencyHz = 1.0/loopPeriodSecs;
+    public static final double dtSeconds = 0.02;
+    public static final double loopFrequencyHz = 1.0/dtSeconds;
     
     public static final class CANDevices {
 
@@ -91,14 +92,6 @@ public final class Constants {
             InvertedValue.Clockwise_Positive,           // back right
         };
         
-        public static final SwerveDriveKinematics kinematics = 
-            new SwerveDriveKinematics(
-                new Translation2d(+trackWidthYMeters / 2.0, +trackWidthXMeters / 2.0), //front left
-                new Translation2d(+trackWidthYMeters / 2.0, -trackWidthXMeters / 2.0), //front right
-                new Translation2d(-trackWidthYMeters / 2.0, +trackWidthXMeters / 2.0), //rear left
-                new Translation2d(-trackWidthYMeters / 2.0, -trackWidthXMeters / 2.0)  //rear right
-        );
-
         public static final double[] driveRealKps = {0.7, 0.4, 0.7, 0.7};
         public static final double[] driveRealKds = {3.5, 2.5, 3.7, 3.5};
 
@@ -111,6 +104,7 @@ public final class Constants {
         // tangential speed (m/s) = radial speed (rad/s) * radius (m)  
         public static final double maxTurnRateRadiansPerSec = maxDriveSpeedMetersPerSec / Math.hypot(trackWidthXMeters/2, trackWidthYMeters/2);
 
+        public static final double joystickSlewRateLimit = 1.0 / 0.25;     // full speed in 0.25 sec
         public static final double driveJoystickDeadbandPercent = 0.12;
         public static final double driveMaxJerk = 200.0;
 
@@ -129,69 +123,42 @@ public final class Constants {
 
    
 
-    // public static final class LEDConstants {
+    public static final class VisionConstants {
 
-    //     // Ports
-    //     public static final int ledPort = 0;
+        public static final String[] cameraNames = {
+            "FrontLeft",    // OV2311
+            "FrontRight",   // AR0144
+            "BackLeft",     // OV9281
+            "BackRight",    // OV9281
+            "limelight"
+        };
 
-    //     // LED Data
-    //     public static final int armLedCount = 123;
-    //     public static final int baseLedCount = 128;
+        // TODO: update Limelight webUI with camera position, AprilTags field locations
 
-    //     // Rainbow
-    //     public static final boolean dynamicRainbow = true;
-    //     public static final int dynamicRainbowSpeed = 1;
+        private static final double photonCamX = Units.inchesToMeters(10.375/2);
+        private static final double photonCamY = Units.inchesToMeters(10.00/2);
+        private static final double photonCamZ = Units.inchesToMeters(8.5);
+        private static final double photonCamPitch = Units.degreesToRadians(15.0);
 
-    //     // Pre-Match Climb Pattern
-    //     public static final int climbSpeed = 2;
-    //     public static final int climbMaxDelay = 40;
-    //     public static final int climbMinDelay = 20;
-    //     public static final int climbMaxLength = 10;
-    //     public static final int climbMinLength = 5;
+        private static final double limelightCamX = Units.inchesToMeters(18.25/2 - 3.25);
+        private static final double limelightCamY = Units.inchesToMeters(0);
+        private static final double limelightCamZ = Units.inchesToMeters(7.875);
+        private static final double limelightCamPitch = Units.degreesToRadians(5.0);
 
-    //     // Other
-    //     public static final Color activeSideFlashColor = new Color(0, 0, 0);
-    //     public static final Color intakeFlashColor = new Color(255, 255, 255);
-    //     public static final Color whistleFlashColor = new Color(255, 179, 0);
+        public static final Transform3d[] robotToCameras = {
+            new Transform3d(new Translation3d(-photonCamX, +photonCamY, photonCamZ), new Rotation3d(Units.degreesToRadians(+0.90), photonCamPitch, Units.degreesToRadians(-0.25))),
+            new Transform3d(new Translation3d(-photonCamX, -photonCamY, photonCamZ), new Rotation3d(0, photonCamPitch, Units.degreesToRadians(-0.85))),
+            new Transform3d(new Translation3d(+photonCamX, +photonCamY, photonCamZ), new Rotation3d(0, photonCamPitch, Units.degreesToRadians(180.0 - 1.48))),
+            new Transform3d(new Translation3d(+photonCamX, -photonCamY, photonCamZ), new Rotation3d(0, photonCamPitch, Units.degreesToRadians(180.0 - 0.40))),
+            new Transform3d(new Translation3d(limelightCamX, limelightCamY, limelightCamZ), new Rotation3d(0, limelightCamPitch, Units.degreesToRadians(-0.37)))
+        };
 
-    // }
-
-    // public static final class VisionConstants {
-
-    //     public static final String[] cameraNames = {
-    //         "FrontLeft", 
-    //         "FrontRight", 
-    //         "BackLeft", 
-    //         "BackRight"
-    //     };
-
-    //     public static final Transform3d[] vehicleToCameras = {//10 deg yaw, 5 deg pitch
-    //         new Transform3d(new Translation3d(0.03, 0.146, 0), new Rotation3d(0, Units.degreesToRadians(-5), Units.degreesToRadians(-10))),
-    //         new Transform3d(new Translation3d(0.03, -0.146, 0), new Rotation3d(0, Units.degreesToRadians(-5), Units.degreesToRadians(10))),
-    //         new Transform3d(new Translation3d(-0.03, 0.146, 0), new Rotation3d(0, Units.degreesToRadians(-5), Units.degreesToRadians(-175))),
-    //         new Transform3d(new Translation3d(-0.03, -0.146, 0), new Rotation3d(0, Units.degreesToRadians(-5), Units.degreesToRadians(175)))
-    //     };
-
-    //     public static final List<AprilTag> tags = new ArrayList<AprilTag>() {{
-    //         add(new AprilTag(1, new Pose3d(new Translation3d(15.51, 1.08, 0.46), new Rotation3d(new Quaternion(0, 0, 0, 1)))));
-    //         add(new AprilTag(2, new Pose3d(new Translation3d(15.51, 2.77, 0.46), new Rotation3d(new Quaternion(0, 0, 0, 1)))));
-    //         add(new AprilTag(3, new Pose3d(new Translation3d(15.51, 4.45, 0.46), new Rotation3d(new Quaternion(0, 0, 0, 1)))));
-    //         add(new AprilTag(4, new Pose3d(new Translation3d(16.18, 6.76, 0.70), new Rotation3d(new Quaternion(0, 0, 0, 1)))));
-    //         add(new AprilTag(5, new Pose3d(new Translation3d(0.36, 6.75, 0.70), new Rotation3d(new Quaternion(1, 0, 0, 0)))));
-    //         add(new AprilTag(6, new Pose3d(new Translation3d(1.03, 4.45, 0.46), new Rotation3d(new Quaternion(1, 0, 0, 0)))));
-    //         add(new AprilTag(7, new Pose3d(new Translation3d(1.03, 2.77, 0.46), new Rotation3d(new Quaternion(1, 0, 0, 0)))));
-    //         add(new AprilTag(8, new Pose3d(new Translation3d(1.03, 1.09, 0.46), new Rotation3d(new Quaternion(1, 0, 0, 0)))));
-    //     }};
-
-    //     public static final double fieldLength = 16.542;
-    //     public static final double fieldWidth = 8.014;
-
-    //     public static final double singleTagAmbiguityCutoff = 0.05;
-    //     public static final double minimumStdDev = 0.5;
-    //     public static final double stdDevEulerMultiplier = 0.3;
-    //     public static final double stdDevDistanceMultiplier = 0.4;
-
-    // }
+        // TODO: figure out vision stdDevs
+        public static final double singleTagAmbiguityCutoff = 0.05;
+        public static final double minimumStdDev = 0.5;
+        public static final double stdDevEulerMultiplier = 0.3;
+        public static final double stdDevDistanceMultiplier = 0.4;
+    }
 
     public static final class AutoConstants {
         
@@ -231,6 +198,36 @@ public final class Constants {
         public static final double initialBalanceSpeed = 1;
 
     }
+
+
+   // public static final class LEDConstants {
+
+    //     // Ports
+    //     public static final int ledPort = 0;
+
+    //     // LED Data
+    //     public static final int armLedCount = 123;
+    //     public static final int baseLedCount = 128;
+
+    //     // Rainbow
+    //     public static final boolean dynamicRainbow = true;
+    //     public static final int dynamicRainbowSpeed = 1;
+
+    //     // Pre-Match Climb Pattern
+    //     public static final int climbSpeed = 2;
+    //     public static final int climbMaxDelay = 40;
+    //     public static final int climbMinDelay = 20;
+    //     public static final int climbMaxLength = 10;
+    //     public static final int climbMinLength = 5;
+
+    //     // Other
+    //     public static final Color activeSideFlashColor = new Color(0, 0, 0);
+    //     public static final Color intakeFlashColor = new Color(255, 255, 255);
+    //     public static final Color whistleFlashColor = new Color(255, 179, 0);
+
+    // }
+    
+    
 
     // Not the robot main function. This is called by Gradle when deploying to
     // make sure nobody deploys sim code. 
