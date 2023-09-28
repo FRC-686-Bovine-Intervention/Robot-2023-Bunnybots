@@ -18,15 +18,13 @@ import frc.robot.commands.BasicDriveAutos;
 import frc.robot.commands.DriveInSquare;
 import frc.robot.commands.DriveStraightTrajectory;
 import frc.robot.commands.DriveWithJoysticks;
-import frc.robot.commands.DriveWithJoysticksCardinal;
-import frc.robot.commands.DriveWithPreciseFlick;
 import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
-import frc.robot.subsystems.drive.ModuleIOFalcon500;
+import frc.robot.subsystems.drive.ModuleIO550Falcon;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.SwerveJoysticks;
 import frc.robot.subsystems.leds.LEDFrameworkSystem;
@@ -69,10 +67,10 @@ public class RobotContainer {
             case REAL:
                 drive = new Drive(
                         new GyroIOPigeon2(),
-                        new ModuleIOFalcon500(DriveModulePosition.FRONT_LEFT),
-                        new ModuleIOFalcon500(DriveModulePosition.FRONT_RIGHT),
-                        new ModuleIOFalcon500(DriveModulePosition.BACK_LEFT),
-                        new ModuleIOFalcon500(DriveModulePosition.BACK_RIGHT));
+                        new ModuleIO550Falcon(DriveModulePosition.FRONT_LEFT),
+                        new ModuleIO550Falcon(DriveModulePosition.FRONT_RIGHT),
+                        new ModuleIO550Falcon(DriveModulePosition.BACK_LEFT),
+                        new ModuleIO550Falcon(DriveModulePosition.BACK_RIGHT));
 
                 ledSystem = new LEDFrameworkSystem();
                 break;

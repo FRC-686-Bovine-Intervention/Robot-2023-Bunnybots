@@ -1,12 +1,17 @@
 package frc.robot.subsystems.drive;
 
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxAbsoluteEncoder;
+import com.revrobotics.SparkMaxRelativeEncoder;
+import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
@@ -15,17 +20,19 @@ import frc.robot.Constants.CANDevices;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.DriveConstants.DriveModulePosition;
 
-public class ModuleIOFalcon500 implements ModuleIO {
+public class ModuleIO550Falcon implements ModuleIO {
     private final TalonFX  driveMotor;
-    private final TalonFX  turnMotor;
-    private final CANcoder turnEncoder;
+    private final CANSparkMax turnMotor;
+    private final AbsoluteEncoder turnAbsoluteEncoder;
+    private final RelativeEncoder turnRelativeEncoder;
     private final double initialOffsetRadians;
     private final InvertedValue driveInverted;
 
-    public ModuleIOFalcon500(DriveModulePosition position) {
+    public ModuleIO550Falcon(DriveModulePosition position) {
         driveMotor = new TalonFX(position.driveMotorID, CANDevices.driveCanBusName);
-        turnMotor = new TalonFX(position.turnMotorID, CANDevices.driveCanBusName);
-        turnEncoder = new CANcoder(position.turnEncoderID, CANDevices.driveCanBusName);
+        turnMotor = new CANSparkMax(position.turnMotorID, MotorType.kBrushless);
+        turnAbsoluteEncoder = turnMotor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
+        turnRelativeEncoder = turnMotor.getEncoder(SparkMaxRelativeEncoder.Type.kQuadrature, 8192);
         driveInverted = position.driveInverted;
         initialOffsetRadians = Units.rotationsToRadians(position.cancoderOffsetRotations);
 
@@ -43,30 +50,13 @@ public class ModuleIOFalcon500 implements ModuleIO {
         driveMotor.getConfigurator().apply(driveConfig);
 
         /** Configure Turn Motors */
-        var turnConfig = new TalonFXConfiguration();
-        // change factory defaults here
-        turnConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-        turnConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        turnConfig.MotorOutput.DutyCycleNeutralDeadband = 0.0;        
-        turnConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
-        turnConfig.CurrentLimits.SupplyCurrentThreshold = 30.0;
-        turnConfig.CurrentLimits.SupplyTimeThreshold = 0.5;
-        turnConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        turnMotor.getConfigurator().apply(turnConfig);
+        turnMotor.setInverted(false);
+        turnMotor.setIdleMode(IdleMode.kBrake);
+        turnMotor.setSmartCurrentLimit(40);
 
         setFramePeriods(driveMotor, true);
-        setFramePeriods(turnMotor, false);
 
         zeroEncoders();
-
-        /** Configure CANcoders */
-        var cancoderConfig = new CANcoderConfiguration(); 
-        // change factory defaults here
-        turnEncoder.getConfigurator().apply(cancoderConfig);
-        turnEncoder.getPosition().setUpdateFrequency(Constants.loopFrequencyHz);
-        turnEncoder.getVelocity().setUpdateFrequency(Constants.loopFrequencyHz);
-        turnEncoder.getSupplyVoltage().setUpdateFrequency(Constants.CANDevices.minCanUpdateRate);
-        turnEncoder.getFaultField().setUpdateFrequency(Constants.CANDevices.minCanUpdateRate);
     }
 
     public void updateInputs(ModuleIOInputs inputs) {
@@ -76,15 +66,15 @@ public class ModuleIOFalcon500 implements ModuleIO {
         inputs.driveAppliedVolts =      driveMotor.getSupplyVoltage().getValue();
         inputs.driveCurrentAmps =       driveMotor.getSupplyCurrent().getValue();
 
-        inputs.turnPositionRad =        MathUtil.angleModulus(Units.rotationsToRadians(turnEncoder.getPosition().getValue())) - initialOffsetRadians;
-        inputs.turnVelocityRadPerSec =  Units.rotationsToRadians(turnEncoder.getVelocity().getValue());
-        inputs.turnAppliedVolts =       turnMotor.getSupplyVoltage().getValue();
-        inputs.turnCurrentAmps =        turnMotor.getSupplyCurrent().getValue();
+        inputs.turnPositionRad =        MathUtil.angleModulus(Units.rotationsToRadians(turnRelativeEncoder.getPosition())) - initialOffsetRadians;
+        inputs.turnVelocityRadPerSec =  Units.rotationsToRadians(turnRelativeEncoder.getVelocity());
+        inputs.turnAppliedVolts =       turnMotor.getAppliedOutput();
+        inputs.turnCurrentAmps =        turnMotor.getOutputCurrent();
     }
 
     public void zeroEncoders() {
         driveMotor.setRotorPosition(0.0);
-        turnEncoder.setPosition(turnEncoder.getAbsolutePosition().getValue());
+        turnRelativeEncoder.setPosition(turnAbsoluteEncoder.getPosition());
     }
 
     public void setDriveVoltage(double volts) {
@@ -92,7 +82,7 @@ public class ModuleIOFalcon500 implements ModuleIO {
     }
 
     public void setTurnVoltage(double volts) {
-        turnMotor.setControl(new DutyCycleOut(volts / 12));
+        turnMotor.setVoltage(volts);
     }
 
     private static void setFramePeriods(TalonFX talon, boolean needMotorSensor) {
