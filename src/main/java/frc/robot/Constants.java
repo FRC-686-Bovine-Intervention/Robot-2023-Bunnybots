@@ -26,27 +26,40 @@ public final class Constants {
     
     public static final class CANDevices {
 
+        // Drive
         public static final String driveCanBusName = "rio";
 
-        // Front Left: Green
+        // | Front Left: Green
         public static final int frontLeftDriveMotorID  = 21;
         public static final int frontLeftTurnMotorID   = 22;
         public static final int frontLeftTurnEncoderID = 23;
 
-        // Front Right: Blue
+        // | Front Right: Blue
         public static final int frontRightDriveMotorID  = 31;
         public static final int frontRightTurnMotorID   = 32;
         public static final int frontRightTurnEncoderID = 33;
 
-        // Back Left: Red
+        // | Back Left: Red
         public static final int backLeftDriveMotorID  = 11;
         public static final int backLeftTurnMotorID   = 12;
         public static final int backLeftTurnEncoderID = 13;
 
-        // Back Right: Yellow
+        // | Back Right: Yellow
         public static final int backRightDriveMotorID  = 41;
         public static final int backRightTurnMotorID   = 42;
         public static final int backRightTurnEncoderID = 43;
+
+        // Arm
+        public static final String armCanBusName = "rio";
+
+        // | Elbow
+        public static final int elbowMotorID        = 01;
+        public static final int elbowEncoderID      = 01;
+
+        // | Manipulator
+        public static final int leftManipMotorID    = 01;
+        public static final int rightManipMotorID   = 01;
+
 
         public static final int pigeonCanID = 0;
         public static final int candleCanID = 0;
@@ -126,7 +139,9 @@ public final class Constants {
 
     }
 
-   
+    public static final class ArmConstants {
+        public static final double elbowMotorToJointGearRatio = 1;
+    }
 
     public static final class VisionConstants {
 

@@ -35,7 +35,7 @@ public class Drive extends SubsystemBase {
     private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
     private Rotation2d prevGyroYaw = new Rotation2d();
 
-    private final Module[] modules = new Module[DriveConstants.numDriveModules]; // FL, FR, BL, BR
+    private final Module[] modules = new Module[DriveModulePosition.values().length]; // FL, FR, BL, BR
 
     private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
 
@@ -55,10 +55,14 @@ public class Drive extends SubsystemBase {
 
     public Drive(GyroIO gyroIO, ModuleIO flModuleIO, ModuleIO frModuleIO, ModuleIO blModuleIO, ModuleIO brModuleIO) {
         this.gyroIO = gyroIO;
-        modules[DriveModulePosition.FRONT_LEFT.ordinal()] = new Module(flModuleIO, DriveModulePosition.FRONT_LEFT.ordinal());
-        modules[DriveModulePosition.FRONT_RIGHT.ordinal()] = new Module(frModuleIO, DriveModulePosition.FRONT_RIGHT.ordinal());
-        modules[DriveModulePosition.BACK_LEFT.ordinal()] = new Module(blModuleIO, DriveModulePosition.BACK_LEFT.ordinal());
-        modules[DriveModulePosition.BACK_RIGHT.ordinal()] = new Module(brModuleIO, DriveModulePosition.BACK_RIGHT.ordinal());
+        ModuleIO[] moduleIOs = new ModuleIO[]{flModuleIO, frModuleIO, blModuleIO, brModuleIO};
+        for(DriveModulePosition position : DriveModulePosition.values()) {
+            modules[position.ordinal()] = new Module(moduleIOs[position.ordinal()], position.ordinal());
+        }
+        // modules[DriveModulePosition.FRONT_LEFT.ordinal()] = new Module(flModuleIO, DriveModulePosition.FRONT_LEFT.ordinal());
+        // modules[DriveModulePosition.FRONT_RIGHT.ordinal()] = new Module(frModuleIO, DriveModulePosition.FRONT_RIGHT.ordinal());
+        // modules[DriveModulePosition.BACK_LEFT.ordinal()] = new Module(blModuleIO, DriveModulePosition.BACK_LEFT.ordinal());
+        // modules[DriveModulePosition.BACK_RIGHT.ordinal()] = new Module(brModuleIO, DriveModulePosition.BACK_RIGHT.ordinal());
         lastMovementTimer.start();
         for (var module : modules) {
             module.setBrakeMode(false);

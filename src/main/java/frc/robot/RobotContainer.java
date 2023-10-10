@@ -20,6 +20,9 @@ import frc.robot.commands.DriveStraightTrajectory;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
+import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.arm.ElbowIOFalcon;
+import frc.robot.subsystems.arm.ManipulatorIOTalon;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -45,6 +48,7 @@ public class RobotContainer {
     @SuppressWarnings("unused")
     private final Drive drive;
     private final Vision vision = new Vision();
+    private final Arm arm;
     private final LEDFrameworkSystem ledSystem;
 
     // Controller
@@ -73,6 +77,10 @@ public class RobotContainer {
                         new ModuleIO550Falcon(DriveModulePosition.BACK_RIGHT));
 
                 ledSystem = new LEDFrameworkSystem();
+                arm = new Arm(
+                    new ElbowIOFalcon(), 
+                    new ManipulatorIOTalon()
+                );
                 break;
 
             // Sim robot, instantiate physics sim IO implementations
@@ -85,6 +93,7 @@ public class RobotContainer {
                         new ModuleIOSim());
 
                 ledSystem = null;
+                arm = null;
                 break;
 
             default:
@@ -96,6 +105,7 @@ public class RobotContainer {
                         new ModuleIO() {});
 
                 ledSystem = null;
+                arm = null;
         }
 
         // Configure the button bindings
