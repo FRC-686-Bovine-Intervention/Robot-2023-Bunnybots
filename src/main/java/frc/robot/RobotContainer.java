@@ -20,9 +20,11 @@ import frc.robot.commands.DriveStraightTrajectory;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
-import frc.robot.subsystems.arm.Arm;
-import frc.robot.subsystems.arm.ElbowIOFalcon;
-import frc.robot.subsystems.arm.ManipulatorIOTalon;
+import frc.robot.subsystems.arm.arm.Arm;
+import frc.robot.subsystems.arm.arm.ArmIOFalcon;
+import frc.robot.subsystems.arm.arm.Arm.ArmPos;
+import frc.robot.subsystems.arm.manipulator.Manipulator;
+import frc.robot.subsystems.arm.manipulator.ManipulatorIOTalon;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -49,6 +51,7 @@ public class RobotContainer {
     private final Drive drive;
     private final Vision vision = new Vision();
     private final Arm arm;
+    private final Manipulator manip;
     private final LEDFrameworkSystem ledSystem;
 
     // Controller
@@ -77,10 +80,8 @@ public class RobotContainer {
                         new ModuleIO550Falcon(DriveModulePosition.BACK_RIGHT));
 
                 ledSystem = new LEDFrameworkSystem();
-                arm = new Arm(
-                    new ElbowIOFalcon(), 
-                    new ManipulatorIOTalon()
-                );
+                arm = new Arm(new ArmIOFalcon());
+                manip = new Manipulator(new ManipulatorIOTalon());
                 break;
 
             // Sim robot, instantiate physics sim IO implementations
@@ -94,6 +95,7 @@ public class RobotContainer {
 
                 ledSystem = null;
                 arm = null;
+                manip = null;
                 break;
 
             default:
@@ -106,6 +108,7 @@ public class RobotContainer {
 
                 ledSystem = null;
                 arm = null;
+                manip = null;
         }
 
         // Configure the button bindings
@@ -135,6 +138,7 @@ public class RobotContainer {
         //   driveController.y().onTrue(new InstantCommand(candleSystem::incrementAnimation, candleSystem).ignoringDisable(true));
         //   driveController.b().onTrue(new InstantCommand(candleSystem::decrementAnimation, candleSystem).ignoringDisable(true));
         // }
+        driveController.a().whileTrue(arm.setTargetPosAndWait(ArmPos.Ground).andThen(manip.intake())).onFalse(arm.setTargetPos(ArmPos.Defense));
     }
 
 
@@ -147,9 +151,9 @@ public class RobotContainer {
                 () -> -driveController.getLeftX(),  //   right is field +y axis
                 () -> -driveController.getRightX(), // turn axis
                 true,           // squareLinearInputs
-                true,             // squareTurnInputs    
+                true,             // squareTurnInputs
                 DriveConstants.joystickSlewRateLimit
-        ),                                  
+        ),
             () -> !driveController.getHID().getRightBumper(),   // field relative controls
             () -> driveController.getHID().getLeftBumper()      // precision speed
         ));
@@ -160,9 +164,9 @@ public class RobotContainer {
         //         () -> -driveController.getLeftX(),  //   right is field +y axis
         //         () -> -driveController.getRightX(), // turn axis
         //         true,           // squareLinearInputs
-        //         true,           // squareTurnInputs    
+        //         true,           // squareTurnInputs
         //         DriveConstants.joystickSlewRateLimit
-        //     ),                                  
+        //     ),
         //     () -> !driveController.getHID().getRightBumper(),   // field relative controls
         //     () -> driveController.getHID().getLeftBumper()      // precision speed
         // ));
@@ -176,16 +180,16 @@ public class RobotContainer {
         //         true,
         //         false,
         //         DriveConstants.joystickSlewRateLimit
-        //     ),         
+        //     ),
         //     () -> Drive.getCardinalDirectionFromJoystick(
-        //         () -> -driveController.getRightX(), 
+        //         () -> -driveController.getRightX(),
         //         () -> -driveController.getRightY()
         //     ),   // turn axis
         //     () -> driveController.getHID().getLeftBumper()    // precision speed
         // ));
 
         // drive.setDefaultCommand(new DriveWithPreciseFlick(
-        //     drive, 
+        //     drive,
         //     SwerveJoysticks.process(
         //         () -> -driveController.getLeftX(),
         //         () -> -driveController.getLeftY(),
@@ -193,13 +197,13 @@ public class RobotContainer {
         //         true,
         //         false,
         //         DriveConstants.joystickSlewRateLimit
-        //     ),  
+        //     ),
         //     DriveWithPreciseFlick.headingFromJoystick(
-        //         () -> -driveController.getRightX(), 
-        //         () -> -driveController.getRightY(), 
-        //         15, 
+        //         () -> -driveController.getRightX(),
+        //         () -> -driveController.getRightY(),
+        //         15,
         //         0.5
-        //     ), 
+        //     ),
         //     () -> driveController.getHID().getLeftBumper()
         // ));
     }
@@ -216,11 +220,11 @@ public class RobotContainer {
         autoChooser.addOption("Drive Forward", new AutoRoutine(AutoPosition.ORIGIN, BasicDriveAutos.driveForwardAuto(drive)));
         autoChooser.addOption("Drive Backward", new AutoRoutine(AutoPosition.ORIGIN, BasicDriveAutos.driveBackwardAuto(drive)));
         autoChooser.addOption("Drive Forward then Back", new AutoRoutine(AutoPosition.ORIGIN, BasicDriveAutos.driveForwardThenBackAuto(drive)));
-            
+
         autoChooser.addOption("Spin CCW", new AutoRoutine(AutoPosition.ORIGIN, BasicDriveAutos.spinCcwAuto(drive)));
         autoChooser.addOption("Spin CW", new AutoRoutine(AutoPosition.ORIGIN, BasicDriveAutos.spinCwAuto(drive)));
         autoChooser.addOption("Spin CCW then CW", new AutoRoutine(AutoPosition.ORIGIN, BasicDriveAutos.spinCcwThenCwAuto(drive)));
-            
+
         autoChooser.addOption(
             "Reset Odometry", new AutoRoutine(AutoPosition.ORIGIN, new InstantCommand(() -> drive.setPose(new Pose2d()))));
 
@@ -231,7 +235,7 @@ public class RobotContainer {
                 true,
                 new FeedForwardCharacterizationData("drive"),
                 drive::runCharacterizationVolts,
-                drive::getCharacterizationVelocity)));    
+                drive::getCharacterizationVelocity)));
     }
 
     private static class AutoRoutine {

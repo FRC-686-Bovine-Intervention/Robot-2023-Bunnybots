@@ -53,8 +53,8 @@ public final class Constants {
         public static final String armCanBusName = "rio";
 
         // | Elbow
-        public static final int elbowMotorID        = 01;
-        public static final int elbowEncoderID      = 01;
+        public static final int armMotorID        = 01;
+        public static final int armEncoderID      = 01;
 
         // | Manipulator
         public static final int leftManipMotorID    = 01;
