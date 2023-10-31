@@ -157,19 +157,19 @@ public class RobotContainer {
             () -> !driveController.getHID().getRightBumper(),   // field relative controls
             () -> driveController.getHID().getLeftBumper()      // precision speed
         ));
-        // drive.setDefaultCommand(new DriveWithJoysticks(
-        //     drive,
-        //     SwerveJoysticks.process(
-        //         () -> -driveController.getLeftY(),  // forward is field +x axis
-        //         () -> -driveController.getLeftX(),  //   right is field +y axis
-        //         () -> -driveController.getRightX(), // turn axis
-        //         true,           // squareLinearInputs
-        //         true,           // squareTurnInputs
-        //         DriveConstants.joystickSlewRateLimit
-        //     ),
-        //     () -> !driveController.getHID().getRightBumper(),   // field relative controls
-        //     () -> driveController.getHID().getLeftBumper()      // precision speed
-        // ));
+        drive.setDefaultCommand(new DriveWithJoysticks(
+            drive,
+            SwerveJoysticks.process(
+                () -> -driveController.getLeftY(),  // forward is field +x axis
+                () -> -driveController.getLeftX(),  //   right is field +y axis
+                () -> -driveController.getRightX(), // turn axis
+                true,           // squareLinearInputs
+                true,             // squareTurnInputs
+                DriveConstants.joystickSlewRateLimit
+        ),
+            driveController.rightBumper().negate(),   // field relative controls
+            driveController.leftBumper()      // precision speed
+        ));
 
         // drive.setDefaultCommand(new DriveWithJoysticksCardinal(
         //     drive,

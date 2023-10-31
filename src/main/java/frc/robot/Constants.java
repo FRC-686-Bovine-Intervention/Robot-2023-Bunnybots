@@ -19,11 +19,11 @@ public final class Constants {
 
     public static final Mode mode = Mode.SIM;
     ;
-    public static final boolean tuningMode = true;    
+    public static final boolean tuningMode = true;
 
     public static final double dtSeconds = 0.02;
     public static final double loopFrequencyHz = 1.0/dtSeconds;
-    
+
     public static final class CANDevices {
 
         // Drive
@@ -60,7 +60,7 @@ public final class Constants {
         public static final int pigeonCanID = 0;
         public static final int candleCanID = 0;
 
-        public static final double minCanUpdateRate = 4.0;        
+        public static final double minCanUpdateRate = 4.0;
     }
 
     public static final class DIOPorts {
@@ -68,17 +68,17 @@ public final class Constants {
         public static final int brakeSwitchPort = 1;
         public static final int ledSwitchPort = 2;
     }
-    
+
     public static final class DriveConstants {
         public static int numDriveModules = 4;
         public static enum DriveModulePosition {
             FRONT_LEFT  (CANDevices.frontLeftDriveMotorID, CANDevices.frontLeftTurnMotorID, InvertedValue.CounterClockwise_Positive,
             0.139160),
-            FRONT_RIGHT (CANDevices.frontLeftDriveMotorID, CANDevices.frontLeftTurnMotorID, InvertedValue.Clockwise_Positive,
+            FRONT_RIGHT (CANDevices.frontRightDriveMotorID, CANDevices.frontRightTurnMotorID, InvertedValue.Clockwise_Positive,
             0.315430),
-            BACK_LEFT   (CANDevices.frontLeftDriveMotorID, CANDevices.frontLeftTurnMotorID, InvertedValue.CounterClockwise_Positive,
+            BACK_LEFT   (CANDevices.backLeftDriveMotorID, CANDevices.backLeftTurnMotorID, InvertedValue.CounterClockwise_Positive,
             0.178467),
-            BACK_RIGHT  (CANDevices.frontLeftDriveMotorID, CANDevices.frontLeftTurnMotorID, InvertedValue.Clockwise_Positive,
+            BACK_RIGHT  (CANDevices.backRightDriveMotorID, CANDevices.backRightTurnMotorID, InvertedValue.Clockwise_Positive,
             0.177490);
             public final int driveMotorID;
             public final int turnMotorID;
@@ -113,7 +113,7 @@ public final class Constants {
 
 
         public static final double maxDriveSpeedMetersPerSec = 4;
-        // tangential speed (m/s) = radial speed (rad/s) * radius (m)  
+        // tangential speed (m/s) = radial speed (rad/s) * radius (m)
         public static final double maxTurnRateRadiansPerSec = maxDriveSpeedMetersPerSec / Math.hypot(trackWidthXMeters/2, trackWidthYMeters/2);
 
         public static final double joystickSlewRateLimit = 1.0 / 0.25;     // full speed in 0.25 sec
@@ -122,7 +122,7 @@ public final class Constants {
 
         public static final double precisionLinearMultiplier = 0.2;
         public static final double precisionTurnMulitiplier = 0.2;
-      
+
         public static final double poseMoveTranslationkP = 1;
         public static final double poseMoveTranslationMaxVel = 3;
         public static final double poseMoveTranslationMaxAccel = 3;
@@ -175,7 +175,7 @@ public final class Constants {
     }
 
     public static final class AutoConstants {
-        
+
         public static final double maxVel = 3;
         public static final double maxAccel = 3;
 
@@ -240,11 +240,11 @@ public final class Constants {
     //     public static final Color whistleFlashColor = new Color(255, 179, 0);
 
     // }
-    
-    
+
+
 
     // Not the robot main function. This is called by Gradle when deploying to
-    // make sure nobody deploys sim code. 
+    // make sure nobody deploys sim code.
     // Stolen from 6328 ;-)
     // See build.gradle
 

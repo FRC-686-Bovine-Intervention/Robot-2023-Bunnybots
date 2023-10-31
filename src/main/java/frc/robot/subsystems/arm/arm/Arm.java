@@ -14,8 +14,6 @@ public class Arm extends SubsystemBase {
     private final ArmIO armIO;
     private final ArmIOInputs armIOInputs = new ArmIOInputsAutoLogged();
 
-    // Elbow
-    // | States
     public enum ArmPos {
         Defense(0),
         Ground(0),
@@ -30,7 +28,7 @@ public class Arm extends SubsystemBase {
         public double getRads() {return val.get();}
     }
     public ArmPos targetPos = ArmPos.Defense;
-    // | PID
+
     private final LoggedTunableNumber armPIDkP =  new LoggedTunableNumber("Arm/PID/kP",  0);
     private final LoggedTunableNumber armPIDkI =  new LoggedTunableNumber("Arm/PID/kI",  0);
     private final LoggedTunableNumber armPIDkD =  new LoggedTunableNumber("Arm/PID/kD",  0);
@@ -46,7 +44,6 @@ public class Arm extends SubsystemBase {
         )
     );
 
-    // | Feedforward
     private final LoggedTunableNumber armFFkS =   new LoggedTunableNumber("Arm/FF/kS",   0);
     private final LoggedTunableNumber armFFkV =   new LoggedTunableNumber("Arm/FF/kV",   0);
     private SimpleMotorFeedforward armFF =        new SimpleMotorFeedforward(
@@ -77,7 +74,7 @@ public class Arm extends SubsystemBase {
 
         armIO.setArmVoltage(
             armFF.calculate(armIOInputs.armVelocityRadPerSec) +
-            armPID.calculate(armIOInputs.armPositionRad, 0)
+            armPID.calculate(armIOInputs.armPositionRad, targetPos.getRads())
         );
     }
 
@@ -88,7 +85,7 @@ public class Arm extends SubsystemBase {
         return setTargetPos(pos).andThen(new WaitUntilCommand(() -> isAtPos(pos)));
     }
 
-    public static final double kArmPosTolerance = 5;
+    public static final double kArmPosTolerance = Math.PI / 16;
     public boolean isAtPos(ArmPos pos) {
         return Math.abs(armIOInputs.armPositionRad - pos.getRads()) <= kArmPosTolerance;
     }
