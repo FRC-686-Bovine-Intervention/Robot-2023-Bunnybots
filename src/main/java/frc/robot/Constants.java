@@ -29,25 +29,21 @@ public final class Constants {
         // Drive
         public static final String driveCanBusName = "rio";
 
-        // | Front Left: Green
-        public static final int frontLeftDriveMotorID  = 21;
-        public static final int frontLeftTurnMotorID   = 22;
-        public static final int frontLeftTurnEncoderID = 23;
+        // | Front Left: Red
+        public static final int frontLeftDriveMotorID  = 11;
+        public static final int frontLeftTurnMotorID   = 12;
 
         // | Front Right: Blue
-        public static final int frontRightDriveMotorID  = 31;
-        public static final int frontRightTurnMotorID   = 32;
-        public static final int frontRightTurnEncoderID = 33;
+        public static final int frontRightDriveMotorID  = 21;
+        public static final int frontRightTurnMotorID   = 22;
 
-        // | Back Left: Red
-        public static final int backLeftDriveMotorID  = 11;
-        public static final int backLeftTurnMotorID   = 12;
-        public static final int backLeftTurnEncoderID = 13;
+        // | Back Left: Black
+        public static final int backLeftDriveMotorID  = 41;
+        public static final int backLeftTurnMotorID   = 42;
 
-        // | Back Right: Yellow
-        public static final int backRightDriveMotorID  = 41;
-        public static final int backRightTurnMotorID   = 42;
-        public static final int backRightTurnEncoderID = 43;
+        // | Back Right: White
+        public static final int backRightDriveMotorID  = 31;
+        public static final int backRightTurnMotorID   = 32;
 
         // Arm
         public static final String armCanBusName = "rio";
@@ -76,25 +72,23 @@ public final class Constants {
     public static final class DriveConstants {
         public static int numDriveModules = 4;
         public static enum DriveModulePosition {
-            FRONT_LEFT  (CANDevices.frontLeftDriveMotorID, CANDevices.frontLeftTurnMotorID, CANDevices.frontLeftTurnEncoderID, InvertedValue.CounterClockwise_Positive,
+            FRONT_LEFT  (CANDevices.frontLeftDriveMotorID, CANDevices.frontLeftTurnMotorID, InvertedValue.CounterClockwise_Positive,
             0.139160),
-            FRONT_RIGHT (CANDevices.frontLeftDriveMotorID, CANDevices.frontLeftTurnMotorID, CANDevices.frontLeftTurnEncoderID, InvertedValue.Clockwise_Positive,
+            FRONT_RIGHT (CANDevices.frontLeftDriveMotorID, CANDevices.frontLeftTurnMotorID, InvertedValue.Clockwise_Positive,
             0.315430),
-            BACK_LEFT   (CANDevices.frontLeftDriveMotorID, CANDevices.frontLeftTurnMotorID, CANDevices.frontLeftTurnEncoderID, InvertedValue.CounterClockwise_Positive,
+            BACK_LEFT   (CANDevices.frontLeftDriveMotorID, CANDevices.frontLeftTurnMotorID, InvertedValue.CounterClockwise_Positive,
             0.178467),
-            BACK_RIGHT  (CANDevices.frontLeftDriveMotorID, CANDevices.frontLeftTurnMotorID, CANDevices.frontLeftTurnEncoderID, InvertedValue.Clockwise_Positive,
+            BACK_RIGHT  (CANDevices.frontLeftDriveMotorID, CANDevices.frontLeftTurnMotorID, InvertedValue.Clockwise_Positive,
             0.177490);
             public final int driveMotorID;
             public final int turnMotorID;
-            public final int turnEncoderID;
             // motor direction to drive 'forward' (cancoders at angles given in cancoderOffsetRotations)
             public final InvertedValue driveInverted;
             // absolute position of cancoder when drive wheel is facing 'forward'
             public final double cancoderOffsetRotations;
-            DriveModulePosition(int driveMotorID, int turnMotorID, int turnEncoderID, InvertedValue driveInverted, double cancoderOffsetRotations) {
+            DriveModulePosition(int driveMotorID, int turnMotorID, InvertedValue driveInverted, double cancoderOffsetRotations) {
                 this.driveMotorID = driveMotorID;
                 this.turnMotorID = turnMotorID;
-                this.turnEncoderID = turnEncoderID;
                 this.driveInverted = driveInverted;
                 this.cancoderOffsetRotations = cancoderOffsetRotations;
             }
