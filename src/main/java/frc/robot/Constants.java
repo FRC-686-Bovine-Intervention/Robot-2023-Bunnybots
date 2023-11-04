@@ -17,8 +17,7 @@ public final class Constants {
         REAL, SIM, REPLAY
     }
 
-    public static final Mode mode = Mode.SIM;
-    ;
+    public static final Mode mode = Mode.REAL;
     public static final boolean tuningMode = true;
 
     public static final double dtSeconds = 0.02;
@@ -73,13 +72,13 @@ public final class Constants {
         public static int numDriveModules = 4;
         public static enum DriveModulePosition {
             FRONT_LEFT  (CANDevices.frontLeftDriveMotorID, CANDevices.frontLeftTurnMotorID, InvertedValue.CounterClockwise_Positive,
-            0.139160),
+            0.75),
             FRONT_RIGHT (CANDevices.frontRightDriveMotorID, CANDevices.frontRightTurnMotorID, InvertedValue.Clockwise_Positive,
-            0.315430),
+            0.5),
             BACK_LEFT   (CANDevices.backLeftDriveMotorID, CANDevices.backLeftTurnMotorID, InvertedValue.CounterClockwise_Positive,
-            0.178467),
+            0.5),
             BACK_RIGHT  (CANDevices.backRightDriveMotorID, CANDevices.backRightTurnMotorID, InvertedValue.Clockwise_Positive,
-            0.177490);
+            0.75);
             public final int driveMotorID;
             public final int turnMotorID;
             // motor direction to drive 'forward' (cancoders at angles given in cancoderOffsetRotations)

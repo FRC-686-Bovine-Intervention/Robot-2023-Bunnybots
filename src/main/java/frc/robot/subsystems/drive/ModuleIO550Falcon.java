@@ -7,11 +7,12 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
-import com.revrobotics.SparkMaxRelativeEncoder;
-import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.SparkMaxAlternateEncoder;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
@@ -24,7 +25,7 @@ public class ModuleIO550Falcon implements ModuleIO {
     private final TalonFX  driveMotor;
     private final CANSparkMax turnMotor;
     private final AbsoluteEncoder turnAbsoluteEncoder;
-    private final RelativeEncoder turnRelativeEncoder;
+    // private final RelativeEncoder turnRelativeEncoder;
     private final double initialOffsetRadians;
     private final InvertedValue driveInverted;
 
@@ -32,7 +33,7 @@ public class ModuleIO550Falcon implements ModuleIO {
         driveMotor = new TalonFX(position.driveMotorID, CANDevices.driveCanBusName);
         turnMotor = new CANSparkMax(position.turnMotorID, MotorType.kBrushless);
         turnAbsoluteEncoder = turnMotor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
-        turnRelativeEncoder = turnMotor.getEncoder(SparkMaxRelativeEncoder.Type.kQuadrature, 8192);
+        // turnRelativeEncoder = turnMotor.getAlternateEncoder(SparkMaxAlternateEncoder.Type.kQuadrature, 8192);
         driveInverted = position.driveInverted;
         initialOffsetRadians = Units.rotationsToRadians(position.cancoderOffsetRotations);
 
@@ -53,6 +54,7 @@ public class ModuleIO550Falcon implements ModuleIO {
         turnMotor.setInverted(false);
         turnMotor.setIdleMode(IdleMode.kBrake);
         turnMotor.setSmartCurrentLimit(40);
+        turnMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 20);
 
         setFramePeriods(driveMotor, true);
 
@@ -66,15 +68,15 @@ public class ModuleIO550Falcon implements ModuleIO {
         inputs.driveAppliedVolts =      driveMotor.getSupplyVoltage().getValue();
         inputs.driveCurrentAmps =       driveMotor.getSupplyCurrent().getValue();
 
-        inputs.turnPositionRad =        MathUtil.angleModulus(Units.rotationsToRadians(turnRelativeEncoder.getPosition())) - initialOffsetRadians;
-        inputs.turnVelocityRadPerSec =  Units.rotationsToRadians(turnRelativeEncoder.getVelocity());
+        inputs.turnPositionRad =        MathUtil.angleModulus(Units.rotationsToRadians(turnAbsoluteEncoder.getPosition())) - initialOffsetRadians;
+        inputs.turnVelocityRadPerSec =  Units.rotationsToRadians(turnAbsoluteEncoder.getVelocity());
         inputs.turnAppliedVolts =       turnMotor.getAppliedOutput();
         inputs.turnCurrentAmps =        turnMotor.getOutputCurrent();
     }
 
     public void zeroEncoders() {
         driveMotor.setRotorPosition(0.0);
-        turnRelativeEncoder.setPosition(turnAbsoluteEncoder.getPosition());
+        // turnRelativeEncoder.setPosition(turnAbsoluteEncoder.getPosition());
     }
 
     public void setDriveVoltage(double volts) {

@@ -23,7 +23,6 @@ public class DriveWithCustomFlick extends CommandBase {
 	private final Drive drive;
     private final Supplier<ProcessedJoysticks> joystickSupplier;
 	private final Supplier<Optional<Double>> headingSupplier; // rotation
-	private final BooleanSupplier precisionSupplier; // slow-down for precision positioning
 
 	private double desiredHeadingRadians;
 	private final double headingKp = 0.3 /* / DriveConstants.maxTurnRateRadiansPerSec */;
@@ -32,7 +31,10 @@ public class DriveWithCustomFlick extends CommandBase {
 	private final double headingTolerance = Units.degreesToRadians(1.0);
 	private final PIDController headingPID;
 
-	public static Supplier<Optional<Double>> headingFromJoystick(DoubleSupplier xSupplier, DoubleSupplier ySupplier, double cardinalSnapToleranceDegrees, double radialDeadband) {
+	private boolean precisionEnabled = false;
+	private boolean fieldOriented = true;
+
+	public static Supplier<Optional<Double>> headingFromJoystick(DoubleSupplier xSupplier, DoubleSupplier ySupplier, double radialDeadband) {
 		return new Supplier<Optional<Double>>() {
 			private final Timer preciseTurnTimer = new Timer();
 			private final double preciseTurnTimeThreshold = 0.5;
@@ -77,12 +79,11 @@ public class DriveWithCustomFlick extends CommandBase {
 	}
 
   	/** Creates a new DriveWithJoysticks. */
-	public DriveWithCustomFlick(Drive drive, Supplier<ProcessedJoysticks> joystickSupplier, Supplier<Optional<Double>> headingSupplier, BooleanSupplier precisionSupplier) {
+	public DriveWithCustomFlick(Drive drive, Supplier<ProcessedJoysticks> joystickSupplier, Supplier<Optional<Double>> headingSupplier) {
 		addRequirements(drive);
 		this.drive = drive;
         this.joystickSupplier = joystickSupplier;
         this.headingSupplier = headingSupplier;
-		this.precisionSupplier = precisionSupplier;
 
 		headingPID = new PIDController(headingKp, headingKd, headingKi);
 		headingPID.enableContinuousInput(-Math.PI, Math.PI);  // since gyro angle is not limited to [-pi, pi]
@@ -98,7 +99,6 @@ public class DriveWithCustomFlick extends CommandBase {
 	public void execute() {
 
         ProcessedJoysticks processedJoysticks = joystickSupplier.get();
-        boolean precision = precisionSupplier.getAsBoolean();
 
 		// update desired direction
 		Optional<Double> desiredHeading = headingSupplier.get();
@@ -116,7 +116,7 @@ public class DriveWithCustomFlick extends CommandBase {
         double vyMetersPerSecond = processedJoysticks.getY() * drive.getMaxLinearSpeedMetersPerSec();
         double omegaRadiansPerSecond = turnInput * drive.getMaxAngularSpeedRadiansPerSec();
 
-        if (precision) {
+        if (precisionEnabled) {
             vxMetersPerSecond *= DriveConstants.precisionLinearMultiplier;
             vyMetersPerSecond *= DriveConstants.precisionLinearMultiplier;
             omegaRadiansPerSecond *= DriveConstants.precisionTurnMulitiplier;
@@ -135,9 +135,15 @@ public class DriveWithCustomFlick extends CommandBase {
 		drive.driveVelocity(speeds);
 	}
 
-
 	@Override
 	public void end(boolean interrupted) {
 		drive.stop();
+	}
+
+	public void setPrecision(boolean precisionEnabled) {
+		this.precisionEnabled = precisionEnabled;
+	}
+	public void setFieldOriented(boolean fieldOriented) {
+		this.fieldOriented = fieldOriented;
 	}
 }

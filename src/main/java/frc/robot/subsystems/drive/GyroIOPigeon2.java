@@ -16,13 +16,13 @@ import frc.robot.Constants;
 /** IO implementation for Pigeon2 */
 public class GyroIOPigeon2 implements GyroIO {
   private final Pigeon2 pigeon = new Pigeon2(Constants.CANDevices.pigeonCanID, Constants.CANDevices.driveCanBusName);
-  
+
   public GyroIOPigeon2() {
-    var config = new Pigeon2Configuration(); 
+    var config = new Pigeon2Configuration();
     // change factory defaults here
-    config.MountPose.MountPoseYaw = 0;    // pigeon2 oriented with x forward, y left, z up
-    config.MountPose.MountPosePitch = 0;
-    config.MountPose.MountPoseRoll = 0;
+    config.MountPose.MountPoseYaw = 91.9501;    // pigeon2 oriented with x forward, y left, z up
+    config.MountPose.MountPosePitch = 0.47715;
+    config.MountPose.MountPoseRoll = -0.679168;
     pigeon.getConfigurator().apply(config);
 
     // set signals to an appropriate rate
@@ -33,11 +33,11 @@ public class GyroIOPigeon2 implements GyroIO {
 
   public void updateInputs(GyroIOInputs inputs) {
     inputs.connected = pigeon.getYaw().getError().isOK();
-  
+
     inputs.yawPositionRad =     Units.degreesToRadians( pigeon.getYaw().getValue());    // ccw+
     inputs.pitchPositionRad =   Units.degreesToRadians(-pigeon.getPitch().getValue());  // up+
     inputs.rollPositionRad =    Units.degreesToRadians(-pigeon.getRoll().getValue());   // ccw+
-  
+
     inputs.yawVelocityRadPerSec =   Units.degreesToRadians( pigeon.getAngularVelocityZ().getValue());   // ccw+
     inputs.pitchVelocityRadPerSec = Units.degreesToRadians(-pigeon.getAngularVelocityY().getValue());   // up+
     inputs.rollVelocityRadPerSec =  Units.degreesToRadians(-pigeon.getAngularVelocityX().getValue());   // ccw+

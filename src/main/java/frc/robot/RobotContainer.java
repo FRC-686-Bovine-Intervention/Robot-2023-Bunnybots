@@ -10,6 +10,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.DriveConstants;
@@ -17,12 +19,12 @@ import frc.robot.Constants.DriveConstants.DriveModulePosition;
 import frc.robot.commands.BasicDriveAutos;
 import frc.robot.commands.DriveInSquare;
 import frc.robot.commands.DriveStraightTrajectory;
-import frc.robot.commands.DriveWithJoysticks;
+import frc.robot.commands.DriveWithCustomFlick;
 import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.subsystems.arm.arm.Arm;
-import frc.robot.subsystems.arm.arm.ArmIOFalcon;
 import frc.robot.subsystems.arm.arm.Arm.ArmPos;
+import frc.robot.subsystems.arm.arm.ArmIOFalcon;
 import frc.robot.subsystems.arm.manipulator.Manipulator;
 import frc.robot.subsystems.arm.manipulator.ManipulatorIOTalon;
 import frc.robot.subsystems.drive.Drive;
@@ -49,7 +51,7 @@ public class RobotContainer {
     // Subsystems
     @SuppressWarnings("unused")
     private final Drive drive;
-    private final Vision vision = new Vision();
+    private final Vision vision = null;//new Vision();
     private final Arm arm;
     private final Manipulator manip;
     private final LEDFrameworkSystem ledSystem;
@@ -79,9 +81,9 @@ public class RobotContainer {
                         new ModuleIO550Falcon(DriveModulePosition.BACK_LEFT),
                         new ModuleIO550Falcon(DriveModulePosition.BACK_RIGHT));
 
-                ledSystem = new LEDFrameworkSystem();
-                arm = new Arm(new ArmIOFalcon());
-                manip = new Manipulator(new ManipulatorIOTalon());
+                ledSystem = null;//new LEDFrameworkSystem();
+                arm = null;//new Arm(new ArmIOFalcon());
+                manip = null;//new Manipulator(new ManipulatorIOTalon());
                 break;
 
             // Sim robot, instantiate physics sim IO implementations
@@ -133,79 +135,43 @@ public class RobotContainer {
      * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
-        // if (RobotBase.isReal()) {
-        //   driveController.x().onTrue(new InstantCommand(candleSystem::setColors, candleSystem).ignoringDisable(true));
-        //   driveController.y().onTrue(new InstantCommand(candleSystem::incrementAnimation, candleSystem).ignoringDisable(true));
-        //   driveController.b().onTrue(new InstantCommand(candleSystem::decrementAnimation, candleSystem).ignoringDisable(true));
-        // }
-        driveController.a().whileTrue(arm.setTargetPosAndWait(ArmPos.Ground).andThen(manip.intake())).onFalse(arm.setTargetPos(ArmPos.Defense));
+        // driveController.a().whileTrue(arm.setTargetPosAndWait(ArmPos.Ground).andThen(manip.intake())).onFalse(arm.setTargetPos(ArmPos.Defense));
+        driveController.leftBumper().whileTrue(new FunctionalCommand(
+            ()->{},
+            ()->{
+                if (CommandScheduler.getInstance().requiring(drive) instanceof DriveWithCustomFlick) {
+                    ((DriveWithCustomFlick)CommandScheduler.getInstance().requiring(drive)).setPrecision(true);
+                }
+            },
+            (Boolean i)->{
+                if (CommandScheduler.getInstance().requiring(drive) instanceof DriveWithCustomFlick) {
+                    ((DriveWithCustomFlick)CommandScheduler.getInstance().requiring(drive)).setPrecision(false);
+                }
+            },
+            ()->false
+        ));
     }
 
 
     private void configureSubsystems() {
-
-        drive.setDefaultCommand(new DriveWithJoysticks(
-            drive,
-            SwerveJoysticks.process(
-                () -> -driveController.getLeftY(),  // forward is field +x axis
-                () -> -driveController.getLeftX(),  //   right is field +y axis
-                () -> -driveController.getRightX(), // turn axis
-                true,           // squareLinearInputs
-                true,             // squareTurnInputs
-                DriveConstants.joystickSlewRateLimit
-        ),
-            () -> !driveController.getHID().getRightBumper(),   // field relative controls
-            () -> driveController.getHID().getLeftBumper()      // precision speed
-        ));
-        drive.setDefaultCommand(new DriveWithJoysticks(
-            drive,
-            SwerveJoysticks.process(
-                () -> -driveController.getLeftY(),  // forward is field +x axis
-                () -> -driveController.getLeftX(),  //   right is field +y axis
-                () -> -driveController.getRightX(), // turn axis
-                true,           // squareLinearInputs
-                true,             // squareTurnInputs
-                DriveConstants.joystickSlewRateLimit
-        ),
-            driveController.rightBumper().negate(),   // field relative controls
-            driveController.leftBumper()      // precision speed
-        ));
-
-        // drive.setDefaultCommand(new DriveWithJoysticksCardinal(
-        //     drive,
-        //     SwerveJoysticks.process(
-        //         () -> -driveController.getLeftX(),
-        //         () -> -driveController.getLeftY(),
-        //         () -> -driveController.getRightX(),
-        //         true,
-        //         false,
-        //         DriveConstants.joystickSlewRateLimit
-        //     ),
-        //     () -> Drive.getCardinalDirectionFromJoystick(
-        //         () -> -driveController.getRightX(),
-        //         () -> -driveController.getRightY()
-        //     ),   // turn axis
-        //     () -> driveController.getHID().getLeftBumper()    // precision speed
-        // ));
-
-        // drive.setDefaultCommand(new DriveWithPreciseFlick(
-        //     drive,
-        //     SwerveJoysticks.process(
-        //         () -> -driveController.getLeftX(),
-        //         () -> -driveController.getLeftY(),
-        //         () -> -driveController.getRightX(),
-        //         true,
-        //         false,
-        //         DriveConstants.joystickSlewRateLimit
-        //     ),
-        //     DriveWithPreciseFlick.headingFromJoystick(
-        //         () -> -driveController.getRightX(),
-        //         () -> -driveController.getRightY(),
-        //         15,
-        //         0.5
-        //     ),
-        //     () -> driveController.getHID().getLeftBumper()
-        // ));
+        drive.setDefaultCommand(
+            new DriveWithCustomFlick(
+                drive,
+                SwerveJoysticks.process(
+                    () -> driveController.getLeftY(),  // forward is field +x axis
+                    () -> driveController.getLeftX(),  //   right is field +y axis
+                    () -> 0,
+                    true,           // squareLinearInputs
+                    true,             // squareTurnInputs
+                    DriveConstants.joystickSlewRateLimit
+                ),
+                DriveWithCustomFlick.headingFromJoystick(
+                    () -> -driveController.getRightX(),
+                    () -> -driveController.getRightY(),
+                    0.05
+                )
+            )
+        );
     }
 
 
