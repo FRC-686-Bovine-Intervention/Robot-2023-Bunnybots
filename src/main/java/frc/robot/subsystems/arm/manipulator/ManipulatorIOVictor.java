@@ -6,22 +6,15 @@ import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import frc.robot.Constants.CANDevices;
 
 public class ManipulatorIOVictor implements ManipulatorIO {
-    private final VictorSPX leftMotor = new VictorSPX(CANDevices.leftManipMotorID);
-    private final VictorSPX rightMotor = new VictorSPX(CANDevices.rightManipMotorID);
+    private final VictorSPX manipMotor = new VictorSPX(CANDevices.leftManipMotorID);
+
     @Override
     public void updateInputs(ManipulatorIOInputs inputs) {
-        inputs.leftAppliedVolts = leftMotor.getMotorOutputVoltage();
-        // inputs.leftCurrentAmps = leftMotor
-
-        inputs.rightAppliedVolts = rightMotor.getMotorOutputVoltage();
-        // inputs.rightCurrentAmps = rightMotor
+        inputs.manipAppliedVolts = manipMotor.getMotorOutputVoltage();
+        // inputs.manipCurrentAmps = manipMotor
     }
     @Override
-    public void setLeftVoltage(double volts) {
-        leftMotor.set(ControlMode.PercentOutput, volts / 12);
-    }
-    @Override
-    public void setRightVoltage(double volts) {
-        rightMotor.set(ControlMode.PercentOutput, volts / 12);
+    public void setVoltage(double volts) {
+        manipMotor.set(ControlMode.PercentOutput, volts / 12);
     }
 }

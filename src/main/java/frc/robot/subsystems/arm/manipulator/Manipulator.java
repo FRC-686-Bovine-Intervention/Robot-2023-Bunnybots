@@ -27,12 +27,10 @@ public class Manipulator extends SubsystemBase {
         return new FunctionalCommand(
             ()->{},
             ()->{
-                manipIO.setLeftVoltage(manipIntakePower.get());
-                manipIO.setRightVoltage(manipIntakePower.get());
+                manipIO.setVoltage(manipIntakePower.get());
             },
             (Boolean interrupted)->{
-                manipIO.setLeftVoltage(0);
-                manipIO.setRightVoltage(0);
+                manipIO.setVoltage(0);
             },
             ()->false,
             this
@@ -42,12 +40,10 @@ public class Manipulator extends SubsystemBase {
         return new FunctionalCommand(
             ()->{},
             ()->{
-                manipIO.setLeftVoltage(manipScorePower.get());
-                manipIO.setRightVoltage(manipScorePower.get());
+                manipIO.setVoltage(manipScorePower.get());
             },
             (Boolean interrupted)->{
-                manipIO.setLeftVoltage(0);
-                manipIO.setRightVoltage(0);
+                manipIO.setVoltage(0);
             },
             ()->false,
             this
@@ -57,12 +53,10 @@ public class Manipulator extends SubsystemBase {
         return new FunctionalCommand(
             ()->{},
             ()->{
-                manipIO.setLeftVoltage(manipHedgePower.get());
-                manipIO.setRightVoltage(manipHedgePower.get());
+                manipIO.setVoltage(manipHedgePower.get());
             },
             (Boolean interrupted)->{
-                manipIO.setLeftVoltage(0);
-                manipIO.setRightVoltage(0);
+                manipIO.setVoltage(0);
             },
             ()->false,
             this
