@@ -168,7 +168,7 @@ public class RobotContainer {
                 DriveWithCustomFlick.headingFromJoystick(
                     () -> -driveController.getRightX(),
                     () -> -driveController.getRightY(),
-                    0.05
+                    0.5
                 )
             )
         );
