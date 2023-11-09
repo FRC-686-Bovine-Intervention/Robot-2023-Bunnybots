@@ -9,6 +9,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
@@ -37,6 +38,7 @@ import frc.robot.subsystems.drive.SwerveJoysticks;
 import frc.robot.subsystems.leds.LEDFrameworkSystem;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.Alert;
+import frc.robot.util.SwitchableChooser;
 import frc.robot.util.Alert.AlertType;
 import frc.robot.util.led.functions.Gradient;
 
@@ -60,7 +62,9 @@ public class RobotContainer {
     private final CommandXboxController driveController = new CommandXboxController(0);
 
     // Dashboard inputs
-    private final LoggedDashboardChooser<AutoRoutine> autoChooser = new LoggedDashboardChooser<>("Auto Routine");
+    private final SwitchableChooser autoChooser = new SwitchableChooser("Autonomous Mode");
+    private final SwitchableChooser sideChooser = new SwitchableChooser("Side");
+    private final SwitchableChooser pathChooser = new SwitchableChooser("Path");
 
     // TODO: add LED and Brake switches
     // private DigitalInput brakeSwitch = new
@@ -177,57 +181,10 @@ public class RobotContainer {
 
     private void configureAutos() {
         // Set up auto routines
-        autoChooser.addDefaultOption("Do Nothing",
-            new AutoRoutine(AutoPosition.ORIGIN, new InstantCommand()));
-
-        autoChooser.addOption("DriveStraightTraj", new AutoRoutine(AutoPosition.ORIGIN, new DriveStraightTrajectory(drive)));
-        autoChooser.addOption("Drive In Square", new AutoRoutine(AutoPosition.ORIGIN, new DriveInSquare(drive)));
-
-        autoChooser.addOption("Drive Forward", new AutoRoutine(AutoPosition.ORIGIN, BasicDriveAutos.driveForwardAuto(drive)));
-        autoChooser.addOption("Drive Backward", new AutoRoutine(AutoPosition.ORIGIN, BasicDriveAutos.driveBackwardAuto(drive)));
-        autoChooser.addOption("Drive Forward then Back", new AutoRoutine(AutoPosition.ORIGIN, BasicDriveAutos.driveForwardThenBackAuto(drive)));
-
-        autoChooser.addOption("Spin CCW", new AutoRoutine(AutoPosition.ORIGIN, BasicDriveAutos.spinCcwAuto(drive)));
-        autoChooser.addOption("Spin CW", new AutoRoutine(AutoPosition.ORIGIN, BasicDriveAutos.spinCwAuto(drive)));
-        autoChooser.addOption("Spin CCW then CW", new AutoRoutine(AutoPosition.ORIGIN, BasicDriveAutos.spinCcwThenCwAuto(drive)));
-
-        autoChooser.addOption(
-            "Reset Odometry", new AutoRoutine(AutoPosition.ORIGIN, new InstantCommand(() -> drive.setPose(new Pose2d()))));
-
-        autoChooser.addOption(
-            "Drive Characterization",
-            new AutoRoutine(AutoPosition.ORIGIN, new FeedForwardCharacterization(
-                drive,
-                true,
-                new FeedForwardCharacterizationData("drive"),
-                drive::runCharacterizationVolts,
-                drive::getCharacterizationVelocity)));
+        autoChooser.setOptions(new String[]{"None", "Competition"});
+        sideChooser.setOptions(new String[]{"Left", "Right"});
+        pathChooser.setOptions(new String[]{"Close", "Far"});
     }
-
-    private static class AutoRoutine {
-        public final AutoPosition position;
-        public final Command command;
-
-        public AutoRoutine(AutoPosition position, Command command) {
-            this.position = position;
-            this.command = command;
-        }
-    }
-
-    public static enum AutoPosition {
-        ORIGIN;
-
-        public Pose2d getPose() {
-            switch (this) {
-                case ORIGIN:
-                    return new Pose2d();
-                // other defined AutoPositions
-                default:
-                    return new Pose2d();
-            }
-        }
-    }
-
 
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -235,9 +192,10 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        AutoRoutine routine = autoChooser.get();
-        drive.setPose(routine.position.getPose());
-        return routine.command;
+        // AutoRoutine routine = autoChooser.get();
+        // drive.setPose(routine.position.getPose());
+        // return routine.command;
+        return null;
     }
 
     public void disabledInit() {
