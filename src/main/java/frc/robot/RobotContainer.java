@@ -17,6 +17,8 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.DriveConstants.DriveModulePosition;
+import frc.robot.auto.AutoSelector;
+import frc.robot.auto.ScoreHighThenBunny;
 import frc.robot.commands.BasicDriveAutos;
 import frc.robot.commands.DriveInSquare;
 import frc.robot.commands.DriveStraightTrajectory;
@@ -57,6 +59,8 @@ public class RobotContainer {
     private final Arm arm;
     private final Manipulator manip;
     private final LEDFrameworkSystem ledSystem;
+
+    private final AutoSelector autoSelector = new AutoSelector("Auto");
 
     // Controller
     private final CommandXboxController driveController = new CommandXboxController(0);
@@ -180,10 +184,7 @@ public class RobotContainer {
 
 
     private void configureAutos() {
-        // Set up auto routines
-        autoChooser.setOptions(new String[]{"None", "Competition"});
-        sideChooser.setOptions(new String[]{"Left", "Right"});
-        pathChooser.setOptions(new String[]{"Close", "Far"});
+        autoSelector.addRoutine(new ScoreHighThenBunny());
     }
 
     /**
@@ -195,7 +196,7 @@ public class RobotContainer {
         // AutoRoutine routine = autoChooser.get();
         // drive.setPose(routine.position.getPose());
         // return routine.command;
-        return null;
+        return autoSelector.getSelectedAutoCommand();
     }
 
     public void disabledInit() {
