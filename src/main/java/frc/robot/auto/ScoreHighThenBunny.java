@@ -17,15 +17,15 @@ import frc.robot.auto.AutoSelector.AutoRoutine;
 import frc.robot.subsystems.drive.Drive;
 
 public class ScoreHighThenBunny extends AutoRoutine {
-    final static PathPlannerPath leftStartCloseBurrow = PathPlannerPath.fromPathFile("leftStartCloseBurrow");
-    final static PathPlannerPath rightStartCloseBurrow = PathPlannerPath.fromPathFile("rightStartCloseBurrow");
-    final static PathPlannerPath rightStartFarBurrow = PathPlannerPath.fromPathFile("rightStartFarBurrow");
-    final static PathPlannerPath closeDenExit = PathPlannerPath.fromPathFile("closeDenExit");
-    final static PathPlannerPath farDenExit = PathPlannerPath.fromPathFile("farDenExit");
-    final static PathPlannerPath closeDenLeftYard = PathPlannerPath.fromPathFile("closeDenLeftYard");
-    final static PathPlannerPath farDenLeftYard = PathPlannerPath.fromPathFile("farDenLeftYard");
-    final static PathPlannerPath closeDenRightYard = PathPlannerPath.fromPathFile("closeDenRightYard");
-    final static PathPlannerPath farDenRightYard = PathPlannerPath.fromPathFile("farDenRightYard");
+    final static PathPlannerPath leftStartCloseBurrow = PathPlannerPath.fromPathFile("Left Start Close Burrow");
+    final static PathPlannerPath rightStartCloseBurrow = PathPlannerPath.fromPathFile("Right Start Close Burrow");
+    final static PathPlannerPath rightStartFarBurrow = PathPlannerPath.fromPathFile("Right Start Far Burrow");
+    final static PathPlannerPath closeDenExit = PathPlannerPath.fromPathFile("Close Den Exit");
+    final static PathPlannerPath farDenExit = PathPlannerPath.fromPathFile("Far Den Exit");
+    final static PathPlannerPath closeDenLeftYard = PathPlannerPath.fromPathFile("Close Den Left Yard");
+    final static PathPlannerPath farDenLeftYard = PathPlannerPath.fromPathFile("Far Den Left Yard");
+    final static PathPlannerPath closeDenRightYard = PathPlannerPath.fromPathFile("Close Den Right Yard");
+    final static PathPlannerPath farDenRightYard = PathPlannerPath.fromPathFile("Far Den Right Yard");
     final static HolonomicPathFollowerConfig config = new HolonomicPathFollowerConfig(Constants.DriveConstants.maxDriveSpeedMetersPerSec, 0.46, new ReplanningConfig());
     private enum LeftRight {
         Left,
@@ -91,7 +91,7 @@ public class ScoreHighThenBunny extends AutoRoutine {
                         autoCommand = autoCommand.andThen(new FollowPathHolonomic(farDenRightYard, RobotState.getInstance()::getPose, drive::getChassisSpeeds, drive::driveVelocity, config, drive));
                     }
                 }
-                return Commands.none();
+                return autoCommand;
             }
         );
     }

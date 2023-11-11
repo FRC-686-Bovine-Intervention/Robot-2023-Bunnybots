@@ -1,0 +1,53 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.6876375964285666,
+        "y": 9.24927586023066
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 3.7738196077502213,
+        "y": 2.363055149142189
+      },
+      "isLocked": false
+    },
+    {
+      "anchor": {
+        "x": 6.8457913016350656,
+        "y": 2.33525450032875
+      },
+      "prevControl": {
+        "x": 2.9954014409739718,
+        "y": 2.2518525538884395
+      },
+      "nextControl": null,
+      "isLocked": false
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.05,
+      "rotationDegrees": 135.0
+    }
+  ],
+  "constraintZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3,
+    "maxAcceleration": 3,
+    "maxAngularVelocity": 540,
+    "maxAngularAcceleration": 720
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 90.0
+  },
+  "reversed": false,
+  "folder": "Score Then Bunny",
+  "previewStartingState": {
+    "rotation": 135.0,
+    "velocity": 0
+  }
+}
