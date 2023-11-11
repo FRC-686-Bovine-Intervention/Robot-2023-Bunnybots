@@ -25,12 +25,12 @@ public class RobotState {
         if (instance == null)
             instance = new RobotState();
         return instance;
-    }    
+    }
 
     private SwerveDrivePoseEstimator poseEstimator;
     private Field2d field = new Field2d();
 
-    public void initializePoseEstimator(      
+    public void initializePoseEstimator(
             SwerveDriveKinematics kinematics,
             Rotation2d gyroAngle,
             SwerveModulePosition[] modulePositions,
@@ -50,7 +50,7 @@ public class RobotState {
     }
 
     public Pose2d getPose() {
-        return poseEstimator.getEstimatedPosition();    
+        return poseEstimator.getEstimatedPosition();
     }
 
     public void setPose(Rotation2d rotation, SwerveModulePosition[] modulePositions, Pose2d fieldToVehicle) {

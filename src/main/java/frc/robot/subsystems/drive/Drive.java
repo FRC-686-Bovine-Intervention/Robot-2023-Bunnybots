@@ -38,6 +38,12 @@ public class Drive extends SubsystemBase {
     private final Module[] modules = new Module[DriveModulePosition.values().length]; // FL, FR, BL, BR
 
     private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
+    private SwerveModuleState[] lastMeasuredStates = new SwerveModuleState[] {
+        new SwerveModuleState(),
+        new SwerveModuleState(),
+        new SwerveModuleState(),
+        new SwerveModuleState()
+    };
 
     private boolean isCharacterizing = false;
     private double characterizationVolts = 0.0;
@@ -141,6 +147,7 @@ public class Drive extends SubsystemBase {
             measuredStates[i] = modules[i].getState();
         }
         Logger.getInstance().recordOutput("SwerveStates/Measured", measuredStates);
+        lastMeasuredStates = measuredStates;
 
         // Update odometry
         Rotation2d gyroAngle;
@@ -231,7 +238,7 @@ public class Drive extends SubsystemBase {
             continuousSpeeds.vyMetersPerSecond,
             continuousSpeeds.omegaRadiansPerSecond,
             dtSeconds);
-    }    
+    }
 
 
 
@@ -385,6 +392,10 @@ public class Drive extends SubsystemBase {
         return avgDist / DriveConstants.numDriveModules;
     }
 
+    public ChassisSpeeds getChassisSpeeds() {
+        return kinematics.toChassisSpeeds(lastMeasuredStates);
+    }
+
     /** Runs forwards at the commanded voltage. */
     public void runCharacterizationVolts(double volts) {
         isCharacterizing = true;
@@ -419,7 +430,7 @@ public class Drive extends SubsystemBase {
     }
 
     // turn stick must exceed this threshold to change desired heading
-    private static final double cardinalStickThreshold = 0.5; 
+    private static final double cardinalStickThreshold = 0.5;
 
     // use joystick to select cardinal direction
     public static Optional<CardinalDirection> getCardinalDirectionFromJoystick(DoubleSupplier xSupplier,
