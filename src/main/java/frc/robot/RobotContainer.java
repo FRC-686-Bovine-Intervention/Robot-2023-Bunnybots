@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -40,7 +38,6 @@ import frc.robot.subsystems.drive.SwerveJoysticks;
 import frc.robot.subsystems.leds.LEDFrameworkSystem;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.Alert;
-import frc.robot.util.SwitchableChooser;
 import frc.robot.util.Alert.AlertType;
 import frc.robot.util.led.functions.Gradient;
 
@@ -64,11 +61,6 @@ public class RobotContainer {
 
     // Controller
     private final CommandXboxController driveController = new CommandXboxController(0);
-
-    // Dashboard inputs
-    private final SwitchableChooser autoChooser = new SwitchableChooser("Autonomous Mode");
-    private final SwitchableChooser sideChooser = new SwitchableChooser("Side");
-    private final SwitchableChooser pathChooser = new SwitchableChooser("Path");
 
     // TODO: add LED and Brake switches
     // private DigitalInput brakeSwitch = new
