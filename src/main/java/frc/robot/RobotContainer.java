@@ -176,7 +176,7 @@ public class RobotContainer {
 
 
     private void configureAutos() {
-        autoSelector.addRoutine(new ScoreHighThenBunny());
+        autoSelector.addRoutine(new ScoreHighThenBunny(drive));
     }
 
     /**

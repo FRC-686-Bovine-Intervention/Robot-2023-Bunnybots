@@ -3,25 +3,30 @@ package frc.robot.auto;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.commands.FollowPathHolonomic;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Constants;
+import frc.robot.RobotState;
 import frc.robot.auto.AutoSelector.AutoQuestion;
 import frc.robot.auto.AutoSelector.AutoRoutine;
+import frc.robot.subsystems.drive.Drive;
 
 public class ScoreHighThenBunny extends AutoRoutine {
-    PathPlannerPath leftStartCloseBurrow = PathPlannerPath.fromPathFile("leftStartCloseBurrow");
-    PathPlannerPath rightStartCloseBurrow = PathPlannerPath.fromPathFile("rightStartCloseBurrow");
-    PathPlannerPath rightStartFarBurrow = PathPlannerPath.fromPathFile("rightStartFarBurrow");
-    PathPlannerPath closeDenExit = PathPlannerPath.fromPathFile("closeDenExit");
-    PathPlannerPath farDenExit = PathPlannerPath.fromPathFile("farDenExit");
-    PathPlannerPath closeDenLeftYard = PathPlannerPath.fromPathFile("closeDenLeftYard");
-    PathPlannerPath farDenLeftYard = PathPlannerPath.fromPathFile("farDenLeftYard");
-    PathPlannerPath closeDenRightYard = PathPlannerPath.fromPathFile("closeDenRightYard");
-    PathPlannerPath farDenRightYard = PathPlannerPath.fromPathFile("farDenRightYard");
+    final static PathPlannerPath leftStartCloseBurrow = PathPlannerPath.fromPathFile("leftStartCloseBurrow");
+    final static PathPlannerPath rightStartCloseBurrow = PathPlannerPath.fromPathFile("rightStartCloseBurrow");
+    final static PathPlannerPath rightStartFarBurrow = PathPlannerPath.fromPathFile("rightStartFarBurrow");
+    final static PathPlannerPath closeDenExit = PathPlannerPath.fromPathFile("closeDenExit");
+    final static PathPlannerPath farDenExit = PathPlannerPath.fromPathFile("farDenExit");
+    final static PathPlannerPath closeDenLeftYard = PathPlannerPath.fromPathFile("closeDenLeftYard");
+    final static PathPlannerPath farDenLeftYard = PathPlannerPath.fromPathFile("farDenLeftYard");
+    final static PathPlannerPath closeDenRightYard = PathPlannerPath.fromPathFile("closeDenRightYard");
+    final static PathPlannerPath farDenRightYard = PathPlannerPath.fromPathFile("farDenRightYard");
+    final static HolonomicPathFollowerConfig config = new HolonomicPathFollowerConfig(Constants.DriveConstants.maxDriveSpeedMetersPerSec, 0.46, new ReplanningConfig());
     private enum LeftRight {
         Left,
         Right,
@@ -31,7 +36,7 @@ public class ScoreHighThenBunny extends AutoRoutine {
         Far,
     }
 
-    public ScoreHighThenBunny() {
+    public ScoreHighThenBunny(Drive drive) {
         super(
             "Score High then Bunny",
             List.of(
@@ -54,36 +59,36 @@ public class ScoreHighThenBunny extends AutoRoutine {
                 CloseFar den = CloseFar.valueOf(responses.get(2));
                 LeftRight yard = LeftRight.valueOf(responses.get(3));
                 if (startPosition == LeftRight.Left){
-                    autoCommand = autoCommand.andThen(new FollowPathHolonomic(leftStartCloseBurrow));
+                    autoCommand = autoCommand.andThen(new FollowPathHolonomic(leftStartCloseBurrow, RobotState.getInstance()::getPose, drive::getChassisSpeeds, drive::driveVelocity, config, drive));
                 }
                 else{
                     if (burrow == CloseFar.Close){
-                        autoCommand = autoCommand.andThen(new FollowPathHolonomic(rightStartCloseBurrow));
+                        autoCommand = autoCommand.andThen(new FollowPathHolonomic(rightStartCloseBurrow, RobotState.getInstance()::getPose, drive::getChassisSpeeds, drive::driveVelocity, config, drive));
                     }
                     else{
-                        autoCommand = autoCommand.andThen(new FollowPathHolonomic(rightStartFarBurrow));
+                        autoCommand = autoCommand.andThen(new FollowPathHolonomic(rightStartFarBurrow, RobotState.getInstance()::getPose, drive::getChassisSpeeds, drive::driveVelocity, config, drive));
                     }
                 }
                 if (den == CloseFar.Close){
-                    autoCommand = autoCommand.andThen(new FollowPathHolonomic(closeDenExit));
+                    autoCommand = autoCommand.andThen(new FollowPathHolonomic(closeDenExit, RobotState.getInstance()::getPose, drive::getChassisSpeeds, drive::driveVelocity, config, drive));
                 }
                 else{
-                    autoCommand = autoCommand.andThen(new FollowPathHolonomic(farDenExit));
+                    autoCommand = autoCommand.andThen(new FollowPathHolonomic(farDenExit, RobotState.getInstance()::getPose, drive::getChassisSpeeds, drive::driveVelocity, config, drive));
                 }
                 if (yard == LeftRight.Left){
                     if (den == CloseFar.Close){
-                        autoCommand = autoCommand.andThen(new FollowPathHolonomic(closeDenLeftYard));
+                        autoCommand = autoCommand.andThen(new FollowPathHolonomic(closeDenLeftYard, RobotState.getInstance()::getPose, drive::getChassisSpeeds, drive::driveVelocity, config, drive));
                     }
                     else{
-                        autoCommand = autoCommand.andThen(new FollowPathHolonomic(farDenLeftYard));
+                        autoCommand = autoCommand.andThen(new FollowPathHolonomic(farDenLeftYard, RobotState.getInstance()::getPose, drive::getChassisSpeeds, drive::driveVelocity, config, drive));
                     }
                 }
                 else{
                     if (den == CloseFar.Close){
-                        autoCommand = autoCommand.andThen(new FollowPathHolonomic(closeDenRightYard));
+                        autoCommand = autoCommand.andThen(new FollowPathHolonomic(closeDenRightYard, RobotState.getInstance()::getPose, drive::getChassisSpeeds, drive::driveVelocity, config, drive));
                     }
                     else{
-                        autoCommand = autoCommand.andThen(new FollowPathHolonomic(farDenRightYard));
+                        autoCommand = autoCommand.andThen(new FollowPathHolonomic(farDenRightYard, RobotState.getInstance()::getPose, drive::getChassisSpeeds, drive::driveVelocity, config, drive));
                     }
                 }
                 return Commands.none();
