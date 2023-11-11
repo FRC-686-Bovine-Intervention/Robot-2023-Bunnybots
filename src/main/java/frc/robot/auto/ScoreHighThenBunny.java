@@ -33,7 +33,10 @@ public class ScoreHighThenBunny extends AutoRoutine {
                 new AutoQuestion("Den Exit",        (a)->new String[]{CloseFar.Close.name(), CloseFar.Far.name()}),
                 new AutoQuestion("Yard Side",       (a)->new String[]{LeftRight.Left.name(), LeftRight.Right.name()})
             ),
-            (responses)->Commands.none()
+            (responses)->{
+
+                return Commands.none();
+            }
         );
     }
 }
