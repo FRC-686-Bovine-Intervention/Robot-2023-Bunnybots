@@ -39,10 +39,10 @@ public class DriveWithCustomFlick extends CommandBase {
 			private final Timer preciseTurnTimer = new Timer();
 			private final double preciseTurnTimeThreshold = 0.5;
 			private final double[] snapPoints = new double[]{
-				Math.PI * 0,
-				Math.PI * 0.5,
-				Math.PI * 0.75,
-				Math.PI * 1.5,
+				Units.degreesToRadians(0),
+				Units.degreesToRadians(90),
+				Units.degreesToRadians(180),
+				Units.degreesToRadians(270),
 			};
 			@Override
 			public Optional<Double> get() {

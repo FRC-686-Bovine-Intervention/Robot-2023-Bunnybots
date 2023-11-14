@@ -3,39 +3,39 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.5902306782529039,
-        "y": 4.221038851801612
+        "x": 0.7309319733129576,
+        "y": 7.617970118251481
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.459726580813176,
-        "y": 4.208051107829653
+        "x": 3.283655469407191,
+        "y": 7.688320765776003
       },
       "isLocked": false
     },
     {
       "anchor": {
-        "x": 3.122853989333871,
-        "y": 5.929554577530836
+        "x": 3.132904081838161,
+        "y": 6.140606520120917
       },
       "prevControl": {
-        "x": 3.154565629387389,
-        "y": 4.098391479148761
+        "x": 3.132904081838161,
+        "y": 7.43706845317427
       },
       "nextControl": {
-        "x": 3.0911948294986846,
-        "y": 7.757687247999293
+        "x": 3.132904081838161,
+        "y": 5.274839027835838
       },
       "isLocked": false
     },
     {
       "anchor": {
-        "x": 0.8113327133472742,
-        "y": 7.65817048826864
+        "x": 3.8665608346512985,
+        "y": 4.894395049589012
       },
       "prevControl": {
-        "x": 3.3022708470312754,
-        "y": 7.221700301897668
+        "x": 3.082653619316713,
+        "y": 4.813994309554696
       },
       "nextControl": null,
       "isLocked": false
@@ -43,26 +43,26 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 1.55,
-      "rotationDegrees": 180.0
+      "waypointRelativePos": 0.15,
+      "rotationDegrees": 135.0
     }
   ],
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3,
+    "maxVelocity": 1.0,
     "maxAcceleration": 3,
-    "maxAngularVelocity": 540,
+    "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": 135.0
+    "velocity": 1.0,
+    "rotation": 90.0
   },
   "reversed": false,
   "folder": "Score Then Bunny",
   "previewStartingState": {
-    "rotation": 180.0,
+    "rotation": 135.0,
     "velocity": 0
   }
 }

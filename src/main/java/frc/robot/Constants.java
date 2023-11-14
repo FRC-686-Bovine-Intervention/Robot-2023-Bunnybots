@@ -96,11 +96,11 @@ public final class Constants {
         // weight with battery and bumpers
         public static final double weightKg = Units.lbsToKilograms(58.0);
 
-        public static final double trackWidthXMeters = Units.inchesToMeters(12.00); // distance between the front and back wheels
-        public static final double trackWidthYMeters = Units.inchesToMeters(12.00); // distance between the left and right wheels
-        public static final double wheelRadiusMeters = Units.inchesToMeters(2.056);
+        public static final double trackWidthXMeters = Units.inchesToMeters(25.5); // distance between the front and back wheels
+        public static final double trackWidthYMeters = Units.inchesToMeters(25.5); // distance between the left and right wheels
+        public static final double wheelRadiusMeters = Units.inchesToMeters(1.5);
 
-        public static final double driveWheelGearReduction = 1.0 / ((15.0/60.0)*(28.0/16.0)*(14.0/50.0));
+        public static final double driveWheelGearReduction = 1.0 / ((14.0/22.0)*(15.0/45.0));
         public static final double turnWheelGearReduction = 1.0 / ((15.0/32.0)*(10.0/60.0));
 
         public static final double[] driveRealKps = {0.7, 0.4, 0.7, 0.7};
