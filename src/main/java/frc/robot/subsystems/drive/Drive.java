@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.DriveConstants.DriveModulePosition;
+import frc.robot.util.LoggedTunableNumber;
 import frc.robot.RobotState;
 
 public class Drive extends SubsystemBase {
@@ -58,7 +59,7 @@ public class Drive extends SubsystemBase {
     private Timer lastMovementTimer = new Timer(); // used for brake mode
 
     private Twist2d fieldVelocity = new Twist2d();
-
+    LoggedTunableNumber rotationCorrection = new LoggedTunableNumber("Rotation Correction", 0.02);
     public Drive(GyroIO gyroIO, ModuleIO flModuleIO, ModuleIO frModuleIO, ModuleIO blModuleIO, ModuleIO brModuleIO) {
         this.gyroIO = gyroIO;
         ModuleIO[] moduleIOs = new ModuleIO[]{flModuleIO, frModuleIO, blModuleIO, brModuleIO};
@@ -116,7 +117,7 @@ public class Drive extends SubsystemBase {
              */
 
             // TODO: replace with ChassisSpeeds.discretize when available in 2024
-            ChassisSpeeds correctedSpeeds = ChassisSpeedsdiscretize(setpoint, Constants.dtSeconds);
+            ChassisSpeeds correctedSpeeds = ChassisSpeedsdiscretize(setpoint, rotationCorrection.get());
             SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(correctedSpeeds);
             SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, DriveConstants.maxDriveSpeedMetersPerSec);
 
