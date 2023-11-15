@@ -8,7 +8,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants.CANDevices;
-import frc.robot.Constants.DriveConstants;
 
 public class ArmIOFalcon implements ArmIO {
     private final TalonFX armMotor = new TalonFX(CANDevices.armMotorID, CANDevices.armCanBusName);
@@ -26,8 +25,8 @@ public class ArmIOFalcon implements ArmIO {
 
     @Override
     public void updateInputs(ArmIOInputs inputs) {
-        inputs.armPositionRad =       Units.rotationsToRadians(armMotor.getPosition().getValue()) / DriveConstants.driveWheelGearReduction;
-        inputs.armVelocityRadPerSec = Units.rotationsToRadians(armMotor.getVelocity().getValue()) / DriveConstants.driveWheelGearReduction;
+        inputs.armPositionRad =       Units.rotationsToRadians(armEncoder.getPosition().getValue());
+        inputs.armVelocityRadPerSec = Units.rotationsToRadians(armEncoder.getVelocity().getValue());
         inputs.armAppliedVolts =      armMotor.getSupplyVoltage().getValue();
         inputs.armCurrentAmps =       armMotor.getSupplyCurrent().getValue();
         inputs.armTempCelcius =       armMotor.getDeviceTemp().getValue();

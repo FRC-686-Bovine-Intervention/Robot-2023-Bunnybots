@@ -25,11 +25,10 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.DriveConstants.DriveModulePosition;
-import frc.robot.util.LoggedTunableNumber;
 import frc.robot.RobotState;
+import frc.robot.util.LoggedTunableNumber;
 
 public class Drive extends SubsystemBase {
     private final GyroIO gyroIO;
@@ -48,6 +47,7 @@ public class Drive extends SubsystemBase {
 
     private boolean isCharacterizing = false;
     private double characterizationVolts = 0.0;
+    private final LoggedTunableNumber rotationCorrection = new LoggedTunableNumber("Rotation Correction", 0.25);
 
     private ChassisSpeeds setpoint = new ChassisSpeeds();
     private SwerveModuleState[] lastSetpointStates = new SwerveModuleState[] {
@@ -59,7 +59,7 @@ public class Drive extends SubsystemBase {
     private Timer lastMovementTimer = new Timer(); // used for brake mode
 
     private Twist2d fieldVelocity = new Twist2d();
-    LoggedTunableNumber rotationCorrection = new LoggedTunableNumber("Rotation Correction", 0.02);
+
     public Drive(GyroIO gyroIO, ModuleIO flModuleIO, ModuleIO frModuleIO, ModuleIO blModuleIO, ModuleIO brModuleIO) {
         this.gyroIO = gyroIO;
         ModuleIO[] moduleIOs = new ModuleIO[]{flModuleIO, frModuleIO, blModuleIO, brModuleIO};
@@ -117,6 +117,7 @@ public class Drive extends SubsystemBase {
              */
 
             // TODO: replace with ChassisSpeeds.discretize when available in 2024
+            System.out.println(rotationCorrection.get());
             ChassisSpeeds correctedSpeeds = ChassisSpeedsdiscretize(setpoint, rotationCorrection.get());
             SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(correctedSpeeds);
             SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, DriveConstants.maxDriveSpeedMetersPerSec);
