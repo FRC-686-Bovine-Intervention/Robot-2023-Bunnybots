@@ -60,6 +60,7 @@ public class AutoSelector extends VirtualSubsystem {
                 questionPublishers.get(i).set(questions.get(i).name);
                 responseChoosers.get(i).setOptions(questions.get(i).getOptionNames());
                 currentResponses.add(responseChoosers.get(i).get());
+                questions.get(i).setResponse(responseChoosers.get(i).get());
             } else {
                 questionPublishers.get(i).set("");
                 responseChoosers.get(i).setOptions(new String[] {});
