@@ -3,6 +3,7 @@ package frc.robot.auto;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -57,7 +58,7 @@ public class AutoSelector extends VirtualSubsystem {
         for (int i = 0; i < responseChoosers.size(); i++) {
             if(i < questions.size()) {
                 questionPublishers.get(i).set(questions.get(i).name);
-                responseChoosers.get(i).setOptions(questions.get(i).responseGenerator.apply(currentResponses));
+                responseChoosers.get(i).setOptions(questions.get(i).getOptionNames());
                 currentResponses.add(responseChoosers.get(i).get());
             } else {
                 questionPublishers.get(i).set("");
@@ -76,22 +77,41 @@ public class AutoSelector extends VirtualSubsystem {
         return lastRoutine.autoCommandGenerator.apply(lastResponses);
     }
 
-    public static class AutoQuestion {
+    public static class AutoQuestion<T extends Enum<T>> {
         public final String name;
-        public final Function<List<String>, String[]> responseGenerator;
+        private final Supplier<T[]> optionSupplier;
+        private T response;
 
-        public AutoQuestion(String name, Function<List<String>, String[]> responseGenerator) {
+        public AutoQuestion(String name, Supplier<T[]> optionSupplier) {
             this.name = name;
-            this.responseGenerator = responseGenerator;
+            this.optionSupplier = optionSupplier;
+            this.response = this.optionSupplier.get()[0];
+        }
+
+        public T getResponse() {
+            return response;
+        }
+
+        public void setResponse(String newResponse) {
+            response = Enum.valueOf(response.getDeclaringClass(), newResponse);
+        }
+
+        public String[] getOptionNames() {
+            var options = optionSupplier.get();
+            var optionNames = new String[options.length];
+            for(int i = 0; i < optionNames.length; i++) {
+                optionNames[i] = options[i].name();
+            }
+            return optionNames;
         }
     }
 
     public static class AutoRoutine {
         public final String name;
-        public final List<AutoQuestion> questions;
+        public final List<AutoQuestion<?>> questions;
         public final Function<List<String>, ? extends Command> autoCommandGenerator;
 
-        public AutoRoutine(String name, List<AutoQuestion> questions, Function<List<String>, ? extends Command> autoCommandGenerator) {
+        public AutoRoutine(String name, List<AutoQuestion<?>> questions, Function<List<String>, ? extends Command> autoCommandGenerator) {
             this.name = name;
             this.questions = questions;
             this.autoCommandGenerator = autoCommandGenerator;

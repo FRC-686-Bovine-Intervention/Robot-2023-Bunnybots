@@ -22,6 +22,18 @@ import frc.robot.util.pathplannerBackport.FollowPathHolonomic;
 public class ScoreHighThenBunny extends AutoRoutine {
     private static final RobotState robotState = RobotState.getInstance();
 
+    private static final AutoQuestion<LeftRight> startPositionQuestion = new AutoQuestion<>("Start position", () -> LeftRight.values());
+    private static final AutoQuestion<CloseFar> burrowApproachQuestion = new AutoQuestion<>("Burrow Approach", () -> {
+        List<CloseFar> a = new ArrayList<>();
+        a.add(CloseFar.Close);
+        if(startPositionQuestion.getResponse().equals(LeftRight.Right)) {
+            a.add(CloseFar.Far);
+        }
+        return a.toArray(CloseFar[]::new);
+    });
+    private static final AutoQuestion<CloseFar> denExitQuestion = new AutoQuestion<>("Den Exit", () -> CloseFar.values());
+    private static final AutoQuestion<LeftRight> yardSideQuestion = new AutoQuestion<>("Yard Side", () -> LeftRight.values());
+
     private static final HolonomicPathFollowerConfig config = new HolonomicPathFollowerConfig(Constants.DriveConstants.maxDriveSpeedMetersPerSec, 0.46, new ReplanningConfig());
     private static final String path1format = "A%s Start %s Burrow";
     private static final String path2format = "A%s Den Exit";
@@ -41,17 +53,10 @@ public class ScoreHighThenBunny extends AutoRoutine {
             "Score High then Bunny",
 
             List.of(
-                new AutoQuestion("Start position",  (a)->new String[]{LeftRight.Left.name(), LeftRight.Right.name()}),
-                new AutoQuestion("Burrow Approach", (responses)->{
-                    List<String> a = new ArrayList<>();
-                    a.add(CloseFar.Close.name());
-                    if(responses.get(0).equals(LeftRight.Right.name())) {
-                        a.add(CloseFar.Far.name());
-                    }
-                    return a.toArray(String[]::new);
-                }),
-                new AutoQuestion("Den Exit",        (a)->new String[]{CloseFar.Close.name(), CloseFar.Far.name()}),
-                new AutoQuestion("Yard Side",       (a)->new String[]{LeftRight.Left.name(), LeftRight.Right.name()})
+                startPositionQuestion,
+                burrowApproachQuestion,
+                denExitQuestion,
+                yardSideQuestion
             ),
 
             (responses)->{
