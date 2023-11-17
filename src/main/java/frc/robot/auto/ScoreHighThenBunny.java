@@ -59,11 +59,11 @@ public class ScoreHighThenBunny extends AutoRoutine {
                 yardSideQuestion
             ),
 
-            (responses)->{
-                LeftRight startPosition =   LeftRight.valueOf(responses.get(0));
-                CloseFar burrow =           CloseFar.valueOf(responses.get(1));
-                CloseFar den =              CloseFar.valueOf(responses.get(2));
-                LeftRight yard =            LeftRight.valueOf(responses.get(3));
+            () -> {
+                LeftRight startPosition =  startPositionQuestion.getResponse();
+                CloseFar  burrow        =  burrowApproachQuestion.getResponse();
+                CloseFar  den           =  denExitQuestion.getResponse();
+                LeftRight yard          =  yardSideQuestion.getResponse();
 
                 var path1 = PathPlannerPath.fromPathFile(String.format(path1format, startPosition.name(), burrow.name()));
                 var path2 = PathPlannerPath.fromPathFile(String.format(path2format, den.name()));

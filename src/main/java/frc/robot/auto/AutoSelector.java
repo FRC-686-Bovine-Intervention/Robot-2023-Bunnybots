@@ -2,7 +2,6 @@ package frc.robot.auto;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -20,11 +19,11 @@ public class AutoSelector extends VirtualSubsystem {
     private final List<StringPublisher> questionPublishers;
     private final List<SwitchableChooser> responseChoosers;
     private final String key;
-
-    private static final AutoRoutine defaultRoutine = new AutoRoutine("Do Nothing", List.of(), (responses)->Commands.none());
+    
+    private static final AutoRoutine defaultRoutine = new AutoRoutine("Do Nothing", List.of(), ()->Commands.none());
+    private final String questionPlaceHolder = "NA"; 
 
     private AutoRoutine lastRoutine;
-    private List<String> lastResponses;
 
     public AutoSelector(String key) {
         this.key = key;
@@ -41,7 +40,7 @@ public class AutoSelector extends VirtualSubsystem {
                 NetworkTableInstance.getDefault()
                     .getStringTopic("/SmartDashboard/" + key + "/Question #" + Integer.toString(i + 1))
                     .publish();
-            publisher.set("NA");
+            publisher.set(questionPlaceHolder);
             questionPublishers.add(publisher);
             responseChoosers.add(new SwitchableChooser(key + "/Question #" + Integer.toString(i + 1) + " Chooser"));
         }
@@ -62,12 +61,11 @@ public class AutoSelector extends VirtualSubsystem {
                 currentResponses.add(responseChoosers.get(i).get());
                 questions.get(i).setResponse(responseChoosers.get(i).get());
             } else {
-                questionPublishers.get(i).set("");
+                questionPublishers.get(i).set(questionPlaceHolder);
                 responseChoosers.get(i).setOptions(new String[] {});
             }
         }
         lastRoutine = selectedRoutine;
-        lastResponses = currentResponses;
     }
 
     public AutoRoutine getSelectedRoutine() {
@@ -75,7 +73,7 @@ public class AutoSelector extends VirtualSubsystem {
     }
 
     public Command getSelectedAutoCommand() {
-        return lastRoutine.autoCommandGenerator.apply(lastResponses);
+        return lastRoutine.autoCommandGenerator.get();
     }
 
     public static class AutoQuestion<T extends Enum<T>> {
@@ -110,9 +108,9 @@ public class AutoSelector extends VirtualSubsystem {
     public static class AutoRoutine {
         public final String name;
         public final List<AutoQuestion<?>> questions;
-        public final Function<List<String>, ? extends Command> autoCommandGenerator;
+        public final Supplier<? extends Command> autoCommandGenerator;
 
-        public AutoRoutine(String name, List<AutoQuestion<?>> questions, Function<List<String>, ? extends Command> autoCommandGenerator) {
+        public AutoRoutine(String name, List<AutoQuestion<?>> questions, Supplier<? extends Command> autoCommandGenerator) {
             this.name = name;
             this.questions = questions;
             this.autoCommandGenerator = autoCommandGenerator;
