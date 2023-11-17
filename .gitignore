@@ -172,3 +172,6 @@ out/
 *-window.json
 
 /**/BuildConstants.java
+
+# Allow photonvision settings
+!photonvision-settings*
