@@ -4,27 +4,18 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.DriveConstants.DriveModulePosition;
 import frc.robot.auto.AutoSelector;
 import frc.robot.auto.ScoreHighThenBunny;
-import frc.robot.commands.BasicDriveAutos;
-import frc.robot.commands.DriveInSquare;
-import frc.robot.commands.DriveStraightTrajectory;
 import frc.robot.commands.DriveWithCustomFlick;
-import frc.robot.commands.FeedForwardCharacterization;
-import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.subsystems.arm.arm.Arm;
-import frc.robot.subsystems.arm.arm.Arm.ArmPos;
 import frc.robot.subsystems.arm.arm.ArmIOFalcon;
 import frc.robot.subsystems.arm.manipulator.Manipulator;
 import frc.robot.subsystems.arm.manipulator.ManipulatorIOTalon;
@@ -39,6 +30,7 @@ import frc.robot.subsystems.leds.LEDFrameworkSystem;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
+import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.led.functions.Gradient;
 
 /**
@@ -82,8 +74,8 @@ public class RobotContainer {
                         new ModuleIO550Falcon(DriveModulePosition.BACK_RIGHT));
 
                 ledSystem = null;//new LEDFrameworkSystem();
-                arm = null;//new Arm(new ArmIOFalcon());
-                manip = null;//new Manipulator(new ManipulatorIOTalon());
+                arm = new Arm(new ArmIOFalcon());
+                manip = new Manipulator(new ManipulatorIOTalon());
                 break;
 
             // Sim robot, instantiate physics sim IO implementations
@@ -127,7 +119,6 @@ public class RobotContainer {
         }
     }
 
-
     /**
      * Use this method to define your button->command mappings. Buttons can be
      * created by instantiating a {@link GenericHID} or one of its subclasses
@@ -150,6 +141,12 @@ public class RobotContainer {
             },
             ()->false
         ));
+
+        driveController.a().whileTrue(arm.setArmVolts(1));
+        driveController.y().whileTrue(arm.setArmVolts(-1));
+
+        driveController.b().whileTrue(manip.intake());
+        driveController.x().whileTrue(manip.score());
     }
 
 

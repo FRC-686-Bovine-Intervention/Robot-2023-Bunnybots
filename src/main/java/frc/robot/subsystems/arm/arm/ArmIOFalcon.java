@@ -2,9 +2,9 @@ package frc.robot.subsystems.arm.arm;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants.CANDevices;
@@ -15,7 +15,7 @@ public class ArmIOFalcon implements ArmIO {
 
     public ArmIOFalcon() {
         var armMotorConfig = new TalonFXConfiguration();
-
+        armMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         armMotor.getConfigurator().apply(armMotorConfig);
 
         var armEncoderConfig = new CANcoderConfiguration();
@@ -34,7 +34,7 @@ public class ArmIOFalcon implements ArmIO {
 
     @Override
     public void setArmVoltage(double volts) {
-        armMotor.setControl(new DutyCycleOut(volts / 12));
+        armMotor.setVoltage(volts);
     }
 
     @Override

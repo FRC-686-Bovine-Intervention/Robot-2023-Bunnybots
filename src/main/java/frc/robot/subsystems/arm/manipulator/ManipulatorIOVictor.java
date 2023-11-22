@@ -6,7 +6,7 @@ import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import frc.robot.Constants.CANDevices;
 
 public class ManipulatorIOVictor implements ManipulatorIO {
-    private final VictorSPX manipMotor = new VictorSPX(CANDevices.leftManipMotorID);
+    private final VictorSPX manipMotor = new VictorSPX(CANDevices.manipMotorID);
 
     @Override
     public void updateInputs(ManipulatorIOInputs inputs) {

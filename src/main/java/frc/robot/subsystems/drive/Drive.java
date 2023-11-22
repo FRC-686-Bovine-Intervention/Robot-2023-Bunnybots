@@ -117,7 +117,6 @@ public class Drive extends SubsystemBase {
              */
 
             // TODO: replace with ChassisSpeeds.discretize when available in 2024
-            System.out.println(rotationCorrection.get());
             ChassisSpeeds correctedSpeeds = ChassisSpeedsdiscretize(setpoint, rotationCorrection.get());
             SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(correctedSpeeds);
             SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, DriveConstants.maxDriveSpeedMetersPerSec);

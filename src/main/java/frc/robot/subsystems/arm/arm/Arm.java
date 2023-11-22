@@ -1,18 +1,20 @@
 package frc.robot.subsystems.arm.arm;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
-import frc.robot.subsystems.arm.arm.ArmIO.ArmIOInputs;
 import frc.robot.util.LoggedTunableNumber;
 
 public class Arm extends SubsystemBase {
     private final ArmIO armIO;
-    private final ArmIOInputs armIOInputs = new ArmIOInputsAutoLogged();
+    private final ArmIOInputsAutoLogged armIOInputs = new ArmIOInputsAutoLogged();
 
     public enum ArmPos {
         Defense(0),
@@ -70,12 +72,13 @@ public class Arm extends SubsystemBase {
     @Override
     public void periodic() {
         armIO.updateInputs(armIOInputs);
+        Logger.getInstance().processInputs("Arm", armIOInputs);
         updateTunables();
 
-        armIO.setArmVoltage(
-            armFF.calculate(armIOInputs.armVelocityRadPerSec) +
-            armPID.calculate(armIOInputs.armPositionRad, targetPos.getRads())
-        );
+        // armIO.setArmVoltage(
+        //     armFF.calculate(armIOInputs.armVelocityRadPerSec) +
+        //     armPID.calculate(armIOInputs.armPositionRad, targetPos.getRads())
+        // );
     }
 
     public Command setTargetPos(ArmPos pos) {
@@ -83,6 +86,20 @@ public class Arm extends SubsystemBase {
     }
     public Command setTargetPosAndWait(ArmPos pos) {
         return setTargetPos(pos).andThen(new WaitUntilCommand(() -> isAtPos(pos)));
+    }
+    private final LoggedTunableNumber armvolts = new LoggedTunableNumber("Arm Volts", 0.25);
+    public Command setArmVolts(double dir) {
+        return new FunctionalCommand(
+            () -> {},
+            () -> {
+                armIO.setArmVoltage(armvolts.get() * dir);
+            },
+            (i) -> {
+                armIO.setArmVoltage(0);
+            },
+            () -> false,
+            this
+        );
     }
 
     public static final double kArmPosTolerance = Math.PI / 16;

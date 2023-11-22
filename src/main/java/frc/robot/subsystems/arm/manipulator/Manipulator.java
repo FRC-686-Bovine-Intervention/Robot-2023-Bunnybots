@@ -1,14 +1,15 @@
 package frc.robot.subsystems.arm.manipulator;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.arm.manipulator.ManipulatorIO.ManipulatorIOInputs;
 import frc.robot.util.LoggedTunableNumber;
 
 public class Manipulator extends SubsystemBase {
     private final ManipulatorIO manipIO;
-    private final ManipulatorIOInputs manipIOInputs = new ManipulatorIOInputsAutoLogged();
+    private final ManipulatorIOInputsAutoLogged manipIOInputs = new ManipulatorIOInputsAutoLogged();
 
     private final LoggedTunableNumber manipIntakePower = new LoggedTunableNumber("Arm/Manipulator/Intake Power", -0.5);
     private final LoggedTunableNumber manipScorePower = new LoggedTunableNumber("Arm/Manipulator/Scoring Power", +1.0);
@@ -21,6 +22,7 @@ public class Manipulator extends SubsystemBase {
     @Override
     public void periodic() {
         manipIO.updateInputs(manipIOInputs);
+        Logger.getInstance().processInputs("Manip", manipIOInputs);
     }
 
     public Command intake() {
@@ -30,7 +32,7 @@ public class Manipulator extends SubsystemBase {
                 manipIO.setVoltage(manipIntakePower.get());
             },
             (Boolean interrupted)->{
-                manipIO.setVoltage(0);
+                manipIO.setVoltage(-0.25);
             },
             ()->false,
             this
