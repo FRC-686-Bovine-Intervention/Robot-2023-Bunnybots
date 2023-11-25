@@ -20,6 +20,8 @@ public interface ArmIO {
             public void setArmVoltage(double volts) {}
             @Override
             public void zeroEncoders() {}
+            @Override
+            public void setBrakeMode(boolean enabled) {}
         };
     }
 
@@ -28,4 +30,6 @@ public interface ArmIO {
     public void setArmVoltage(double volts);
 
     public void zeroEncoders();
+
+    public void setBrakeMode(boolean enabled);
 }

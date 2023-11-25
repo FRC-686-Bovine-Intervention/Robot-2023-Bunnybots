@@ -239,6 +239,11 @@ public final class Constants {
 
     // }
 
+    public static final class OverrideConstants {
+        public static final int armBrakeModeButton = 3;
+        public static final int driveBrakeModeButton = 9;
+    }
+
 
 
     // Not the robot main function. This is called by Gradle when deploying to

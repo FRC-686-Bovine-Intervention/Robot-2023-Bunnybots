@@ -2,6 +2,8 @@ package frc.robot.subsystems.arm.arm;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.CoastOut;
+import com.ctre.phoenix6.controls.StaticBrake;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -40,5 +42,10 @@ public class ArmIOFalcon implements ArmIO {
     @Override
     public void zeroEncoders() {
         armEncoder.setPosition(armEncoder.getAbsolutePosition().getValue());
+    }
+
+    @Override
+    public void setBrakeMode(boolean enabled) {
+        armMotor.setControl(enabled ? new StaticBrake() : new CoastOut());
     }
 }

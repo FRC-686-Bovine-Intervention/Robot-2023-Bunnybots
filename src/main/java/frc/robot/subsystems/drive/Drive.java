@@ -273,6 +273,12 @@ public class Drive extends SubsystemBase {
         driveVelocity(new ChassisSpeeds());
     }
 
+    public void setBrakeMode(boolean enabled) {
+        for (var module : modules) {
+            module.setBrakeMode(enabled);
+        }
+    }
+
     /**
      * Stops the drive and turns the modules to an X arrangement to resist movement.
      * The modules will

@@ -1,7 +1,10 @@
 package frc.robot.subsystems.drive;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.CoastOut;
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.NeutralOut;
+import com.ctre.phoenix6.controls.StaticBrake;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -108,5 +111,15 @@ public class ModuleIO550Falcon implements ModuleIO {
         // talon.setStatusFramePeriod(StatusFrameEnhanced.Status_14_Turn_PIDF1, 255, 1000);
 
         talon.getPosition().setUpdateFrequency(Constants.loopFrequencyHz);
+    }
+
+    @Override
+    public void setDriveBrakeMode(boolean enable) {
+        driveMotor.setControl(enable ? new StaticBrake() : new CoastOut());
+    }
+
+    @Override
+    public void setTurnBrakeMode(boolean enable) {
+        turnMotor.setIdleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
     }
 }

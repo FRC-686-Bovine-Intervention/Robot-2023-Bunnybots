@@ -106,4 +106,8 @@ public class Arm extends SubsystemBase {
     public boolean isAtPos(ArmPos pos) {
         return Math.abs(armIOInputs.armPositionRad - pos.getRads()) <= kArmPosTolerance;
     }
+
+    public void setBrakeMode(boolean enabled) {
+        armIO.setBrakeMode(enabled);
+    }
 }
