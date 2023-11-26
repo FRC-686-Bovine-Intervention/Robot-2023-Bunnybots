@@ -273,7 +273,7 @@ public class Drive extends SubsystemBase {
         driveVelocity(new ChassisSpeeds());
     }
 
-    public void setBrakeMode(boolean enabled) {
+    public void setBrakeMode(Boolean enabled) {
         for (var module : modules) {
             module.setBrakeMode(enabled);
         }

@@ -5,9 +5,14 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.util.LoggedTunableNumber;
@@ -17,11 +22,13 @@ public class Arm extends SubsystemBase {
     private final ArmIOInputsAutoLogged armIOInputs = new ArmIOInputsAutoLogged();
 
     public enum ArmPos {
-        Defense(0),
-        Ground(0),
-        Hedge(0),
-        Low(0),
-        High(0),
+        Defense     (+0),
+        Ground      (+2.371534),
+        Hedge       (+2.133767),
+        LowFront    (+1.93588),
+        HighFront   (+0.89124),
+        LowBack     (-1.852874),
+        HighBack    (-0.89124),
         ;
         private final LoggedTunableNumber val;
         ArmPos(double defaultRads) {
@@ -31,11 +38,11 @@ public class Arm extends SubsystemBase {
     }
     public ArmPos targetPos = ArmPos.Defense;
 
-    private final LoggedTunableNumber armPIDkP =  new LoggedTunableNumber("Arm/PID/kP",  0);
+    private final LoggedTunableNumber armPIDkP =  new LoggedTunableNumber("Arm/PID/kP",  10);
     private final LoggedTunableNumber armPIDkI =  new LoggedTunableNumber("Arm/PID/kI",  0);
     private final LoggedTunableNumber armPIDkD =  new LoggedTunableNumber("Arm/PID/kD",  0);
-    private final LoggedTunableNumber armPIDkV =  new LoggedTunableNumber("Arm/PID/kV",  0);
-    private final LoggedTunableNumber armPIDkA =  new LoggedTunableNumber("Arm/PID/kA",  0);
+    private final LoggedTunableNumber armPIDkV =  new LoggedTunableNumber("Arm/PID/kV",  3);
+    private final LoggedTunableNumber armPIDkA =  new LoggedTunableNumber("Arm/PID/kA",  15);
     private final ProfiledPIDController armPID =  new ProfiledPIDController(
         armPIDkP.get(),
         armPIDkI.get(),
@@ -65,49 +72,49 @@ public class Arm extends SubsystemBase {
         }
     }
 
+    private static final ShuffleboardTab SBTab = Shuffleboard.getTab("Arm");
+    private static final GenericEntry enablePID = SBTab.add("Disable PID", false).withWidget(BuiltInWidgets.kToggleSwitch).getEntry();
     public Arm(ArmIO armIO) {
         this.armIO = armIO;
+        for(ArmPos pos : ArmPos.values()) {
+            SBTab.add(pos.name(), setTargetPos(pos));
+        }
     }
 
     @Override
     public void periodic() {
         armIO.updateInputs(armIOInputs);
         Logger.getInstance().processInputs("Arm", armIOInputs);
+        Logger.getInstance().recordOutput("Arm", targetPos.name());
         updateTunables();
+        var pidVolts = armPID.calculate(armIOInputs.armPositionRad, targetPos.getRads());
 
-        // armIO.setArmVoltage(
-        //     armFF.calculate(armIOInputs.armVelocityRadPerSec) +
-        //     armPID.calculate(armIOInputs.armPositionRad, targetPos.getRads())
-        // );
+        if(!enablePID.getBoolean(false)) {
+            armIO.setArmVoltage(pidVolts);
+        }
     }
 
-    public Command setTargetPos(ArmPos pos) {
+    public CommandBase setTargetPos(ArmPos pos) {
         return new InstantCommand(() -> targetPos = pos, this);
     }
-    public Command setTargetPosAndWait(ArmPos pos) {
+    public CommandBase setTargetPosAndWait(ArmPos pos) {
         return setTargetPos(pos).andThen(new WaitUntilCommand(() -> isAtPos(pos)));
     }
-    private final LoggedTunableNumber armvolts = new LoggedTunableNumber("Arm Volts", 0.25);
-    public Command setArmVolts(double dir) {
-        return new FunctionalCommand(
-            () -> {},
-            () -> {
-                armIO.setArmVoltage(armvolts.get() * dir);
-            },
-            (i) -> {
-                armIO.setArmVoltage(0);
-            },
-            () -> false,
+    private final LoggedTunableNumber armvolts = new LoggedTunableNumber("Arm Volts", 2);
+    public CommandBase setArmVolts(double dir) {
+        return new StartEndCommand(
+            () -> armIO.setArmVoltage(armvolts.get() * dir),
+            () -> armIO.setArmVoltage(0),
             this
         );
     }
 
-    public static final double kArmPosTolerance = Math.PI / 16;
+    public static final double kArmPosTolerance = Units.degreesToRadians(5);
     public boolean isAtPos(ArmPos pos) {
         return Math.abs(armIOInputs.armPositionRad - pos.getRads()) <= kArmPosTolerance;
     }
 
-    public void setBrakeMode(boolean enabled) {
+    public void setBrakeMode(Boolean enabled) {
         armIO.setBrakeMode(enabled);
     }
 }

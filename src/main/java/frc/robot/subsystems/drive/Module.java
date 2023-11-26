@@ -115,7 +115,7 @@ public class Module {
     }
 
     /** Sets whether brake mode is enabled. */
-    public void setBrakeMode(boolean enabled) {
+    public void setBrakeMode(Boolean enabled) {
         io.setDriveBrakeMode(enabled);
         io.setTurnBrakeMode(enabled);
     }

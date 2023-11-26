@@ -9,7 +9,7 @@ import frc.robot.Constants.CANDevices;
 public class ManipulatorIOTalon implements ManipulatorIO {
     private final TalonSRX manipMotor = new TalonSRX(CANDevices.manipMotorID);
     public ManipulatorIOTalon() {
-        manipMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 20, 40, 1));
+        manipMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 10, 40, 1));
     }
     @Override
     public void updateInputs(ManipulatorIOInputs inputs) {

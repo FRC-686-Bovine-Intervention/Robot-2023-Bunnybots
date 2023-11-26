@@ -13,9 +13,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
-import com.revrobotics.SparkMaxAlternateEncoder;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
@@ -114,12 +112,13 @@ public class ModuleIO550Falcon implements ModuleIO {
     }
 
     @Override
-    public void setDriveBrakeMode(boolean enable) {
-        driveMotor.setControl(enable ? new StaticBrake() : new CoastOut());
+    public void setDriveBrakeMode(Boolean enable) {
+        driveMotor.setControl(enable == null ? new NeutralOut() : (enable.booleanValue() ? new StaticBrake() : new CoastOut()));
     }
 
     @Override
-    public void setTurnBrakeMode(boolean enable) {
-        turnMotor.setIdleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
+    public void setTurnBrakeMode(Boolean enable) {
+        if(enable == null) return;
+        turnMotor.setIdleMode(enable.booleanValue() ? IdleMode.kBrake : IdleMode.kCoast);
     }
 }

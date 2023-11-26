@@ -3,7 +3,7 @@ package frc.robot.subsystems.drive;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ModuleIO {
-    
+
     @AutoLog
     public static class ModuleIOInputs {
         public double drivePositionRad = 0.0;
@@ -32,11 +32,11 @@ public interface ModuleIO {
     public default void setTurnVoltage(double volts) {}
 
     /** Enable or disable brake mode on the drive motor. */
-    public default void setDriveBrakeMode(boolean enable) {}
+    public default void setDriveBrakeMode(Boolean enable) {}
 
     /** Enable or disable brake mode on the turn motor. */
-    public default void setTurnBrakeMode(boolean enable) {}
+    public default void setTurnBrakeMode(Boolean enable) {}
 
     /** Zero drive encoders */
-    public default void zeroEncoders() {}    
+    public default void zeroEncoders() {}
 }

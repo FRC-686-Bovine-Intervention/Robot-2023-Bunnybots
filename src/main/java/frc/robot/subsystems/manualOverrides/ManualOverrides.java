@@ -1,34 +1,83 @@
 package frc.robot.subsystems.manualOverrides;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj2.command.Subsystem;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.subsystems.arm.arm.Arm;
 import frc.robot.subsystems.drive.Drive;
-import frc.robot.util.DisabledInstantCommand;
 import frc.robot.util.VirtualSubsystem;
 
 public class ManualOverrides extends VirtualSubsystem {
-    private DigitalInput ArmBrakeModeSwitch = new DigitalInput(Constants.OverrideConstants.armBrakeModeButton);
-    private DigitalInput DriveBrakeModeSwitch = new DigitalInput(Constants.OverrideConstants.armBrakeModeButton);
+    private final Arm arm;
+    private final Drive drive;
 
-    private Arm armSubsystem;
-    private Drive driveSubsystem;
+    private final DigitalInput armBrakeSwitch = new DigitalInput(Constants.OverrideConstants.armBrakeModeButton);
+    private boolean lastArmBrakeSwitch = false;
+    private final Timer armBrakeHoldTimer = new Timer();
+    private Boolean armOverridingBrake = null;
 
-    public ManualOverrides(Arm armSubsystem, Drive driveSubsystem) {
-        this.armSubsystem = armSubsystem;
-        this.driveSubsystem = driveSubsystem;
+    private final DigitalInput driveBrakeSwitch = new DigitalInput(Constants.OverrideConstants.driveBrakeModeButton);
+    private boolean lastDriveBrakeSwitch = false;
+    private final Timer driveBrakeHoldTimer = new Timer();
+    private Boolean driveOverridingBreak = null;
+
+    public ManualOverrides(Arm arm, Drive drive) {
+        this.arm = arm;
+        this.drive = drive;
     }
 
     @Override
     public void periodic() {
-        new Trigger(ArmBrakeModeSwitch::get)
-            .toggleOnTrue(new DisabledInstantCommand(() -> this.armSubsystem.setBrakeMode(false), new Subsystem[0]))
-            .toggleOnFalse(new DisabledInstantCommand(() -> this.armSubsystem.setBrakeMode(true), new Subsystem[0]));
+        if(DriverStation.isEnabled()) {
+            armOverridingBrake = null;
+            driveOverridingBreak = null;
+            return;
+        }
 
-        new Trigger(DriveBrakeModeSwitch::get)
-            .toggleOnTrue(new DisabledInstantCommand(() -> this.driveSubsystem.setBrakeMode(false), new Subsystem[0]))
-            .toggleOnFalse(new DisabledInstantCommand(() -> this.driveSubsystem.setBrakeMode(true), new Subsystem[0]));
+        var armBrakeSwitchVal = !armBrakeSwitch.get();
+        var driveBrakeSwitchVal = !driveBrakeSwitch.get();
+        Logger.getInstance().recordOutput("Manual Overrides/Arm Brake", armBrakeSwitchVal);
+        Logger.getInstance().recordOutput("Manual Overrides/Drive Brake", driveBrakeSwitchVal);
+
+        if(armBrakeSwitchVal && !lastArmBrakeSwitch) {
+            armBrakeHoldTimer.restart();
+        }
+        if(!armBrakeSwitchVal && lastArmBrakeSwitch) {
+            armBrakeHoldTimer.stop();
+            if(armBrakeHoldTimer.hasElapsed(1)) {
+                armOverridingBrake = true;
+            } else {
+                if(armOverridingBrake == null) {
+                    armOverridingBrake = false;
+                } else {
+                    armOverridingBrake = null;
+                }
+            }
+        }
+
+        if(driveBrakeSwitchVal && !lastDriveBrakeSwitch) {
+            driveBrakeHoldTimer.restart();
+        }
+        if(!driveBrakeSwitchVal && lastDriveBrakeSwitch) {
+            driveBrakeHoldTimer.stop();
+            if(driveBrakeHoldTimer.hasElapsed(1)) {
+                driveOverridingBreak = true;
+            } else {
+                if(driveOverridingBreak == null) {
+                    driveOverridingBreak = false;
+                } else {
+                    driveOverridingBreak = null;
+                }
+            }
+        }
+
+        arm.setBrakeMode(armOverridingBrake);
+        drive.setBrakeMode(driveOverridingBreak);
+
+        lastArmBrakeSwitch = armBrakeSwitchVal;
+        lastDriveBrakeSwitch = driveBrakeSwitchVal;
     }
 }

@@ -11,8 +11,8 @@ public class Manipulator extends SubsystemBase {
     private final ManipulatorIO manipIO;
     private final ManipulatorIOInputsAutoLogged manipIOInputs = new ManipulatorIOInputsAutoLogged();
 
-    private final LoggedTunableNumber manipIntakePower = new LoggedTunableNumber("Arm/Manipulator/Intake Power", -0.5);
-    private final LoggedTunableNumber manipScorePower = new LoggedTunableNumber("Arm/Manipulator/Scoring Power", +1.0);
+    private final LoggedTunableNumber manipIntakePower = new LoggedTunableNumber("Arm/Manipulator/Intake Power", -0.75);
+    private final LoggedTunableNumber manipScorePower = new LoggedTunableNumber("Arm/Manipulator/Scoring Power", +0.75);
     private final LoggedTunableNumber manipHedgePower = new LoggedTunableNumber("Arm/Manipulator/Hedge Power",   +0.5);
 
     public Manipulator(ManipulatorIO manipIO) {

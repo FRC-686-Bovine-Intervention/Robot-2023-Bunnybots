@@ -27,10 +27,10 @@ import frc.robot.subsystems.drive.ModuleIO550Falcon;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.SwerveJoysticks;
 import frc.robot.subsystems.leds.LEDFrameworkSystem;
+import frc.robot.subsystems.manualOverrides.ManualOverrides;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
-import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.led.functions.Gradient;
 
 /**
@@ -44,9 +44,12 @@ public class RobotContainer {
     // Subsystems
     @SuppressWarnings("unused")
     private final Drive drive;
+    @SuppressWarnings("unused")
     private final Vision vision = null;//new Vision();
     private final Arm arm;
     private final Manipulator manip;
+    @SuppressWarnings("unused")
+    private final ManualOverrides manuOverrides;
     private final LEDFrameworkSystem ledSystem;
 
     private final AutoSelector autoSelector = new AutoSelector("Auto");
@@ -73,10 +76,11 @@ public class RobotContainer {
                         new ModuleIO550Falcon(DriveModulePosition.BACK_LEFT),
                         new ModuleIO550Falcon(DriveModulePosition.BACK_RIGHT));
 
-                ledSystem = null;//new LEDFrameworkSystem();
                 arm = new Arm(new ArmIOFalcon());
                 manip = new Manipulator(new ManipulatorIOTalon());
-                break;
+                manuOverrides = new ManualOverrides(arm, drive);
+                ledSystem = null;//new LEDFrameworkSystem();
+            break;
 
             // Sim robot, instantiate physics sim IO implementations
             case SIM:
@@ -86,11 +90,11 @@ public class RobotContainer {
                         new ModuleIOSim(),
                         new ModuleIOSim(),
                         new ModuleIOSim());
-
-                ledSystem = null;
                 arm = null;
                 manip = null;
-                break;
+                manuOverrides = null;
+                ledSystem = null;
+            break;
 
             default:
                 drive = new Drive(
@@ -99,10 +103,11 @@ public class RobotContainer {
                         new ModuleIO() {},
                         new ModuleIO() {},
                         new ModuleIO() {});
-
-                ledSystem = null;
                 arm = null;
                 manip = null;
+                manuOverrides = null;
+                ledSystem = null;
+            break;
         }
 
         // Configure the button bindings
@@ -142,8 +147,8 @@ public class RobotContainer {
             ()->false
         ));
 
-        driveController.a().whileTrue(arm.setArmVolts(1));
-        driveController.y().whileTrue(arm.setArmVolts(-1));
+        driveController.a().whileTrue(arm.setArmVolts(-1));
+        driveController.y().whileTrue(arm.setArmVolts(1));
 
         driveController.b().whileTrue(manip.intake());
         driveController.x().whileTrue(manip.score());
