@@ -4,17 +4,20 @@
 
 package frc.robot;
 
+import java.util.ArrayList;
+
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.DriveConstants.DriveModulePosition;
 import frc.robot.auto.AutoSelector;
+import frc.robot.auto.AutoSelector.AutoRoutine;
 import frc.robot.auto.ScoreHighThenBunny;
 import frc.robot.commands.DriveWithCustomFlick;
+import frc.robot.commands.FeedForwardCharacterization;
+import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.subsystems.arm.arm.Arm;
 import frc.robot.subsystems.arm.arm.ArmIOFalcon;
 import frc.robot.subsystems.arm.manipulator.Manipulator;
@@ -132,21 +135,6 @@ public class RobotContainer {
      */
     private void configureButtonBindings() {
         // driveController.a().whileTrue(arm.setTargetPosAndWait(ArmPos.Ground).andThen(manip.intake())).onFalse(arm.setTargetPos(ArmPos.Defense));
-        driveController.leftBumper().whileTrue(new FunctionalCommand(
-            ()->{},
-            ()->{
-                if (CommandScheduler.getInstance().requiring(drive) instanceof DriveWithCustomFlick) {
-                    ((DriveWithCustomFlick)CommandScheduler.getInstance().requiring(drive)).setPrecision(true);
-                }
-            },
-            (Boolean i)->{
-                if (CommandScheduler.getInstance().requiring(drive) instanceof DriveWithCustomFlick) {
-                    ((DriveWithCustomFlick)CommandScheduler.getInstance().requiring(drive)).setPrecision(false);
-                }
-            },
-            ()->false
-        ));
-
         driveController.a().whileTrue(arm.setArmVolts(-1));
         driveController.y().whileTrue(arm.setArmVolts(1));
 
@@ -171,7 +159,8 @@ public class RobotContainer {
                     () -> -driveController.getRightX(),
                     () -> -driveController.getRightY(),
                     0.85
-                )
+                ),
+                driveController.leftBumper()
             )
         );
     }
@@ -179,6 +168,17 @@ public class RobotContainer {
 
     private void configureAutos() {
         autoSelector.addRoutine(new ScoreHighThenBunny(drive));
+        autoSelector.addRoutine(new AutoRoutine(
+            "Drive Characterization",
+            new ArrayList<>(0),
+            () -> new FeedForwardCharacterization(
+                drive,
+                true,
+                new FeedForwardCharacterizationData("drive"),
+                drive::runCharacterizationVolts,
+                drive::getCharacterizationVelocity
+            )
+        ));
     }
 
     /**

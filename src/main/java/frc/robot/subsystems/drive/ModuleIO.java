@@ -37,6 +37,8 @@ public interface ModuleIO {
     /** Enable or disable brake mode on the turn motor. */
     public default void setTurnBrakeMode(Boolean enable) {}
 
+    public default void stop() {}
+
     /** Zero drive encoders */
     public default void zeroEncoders() {}
 }

@@ -41,8 +41,8 @@ public class Module {
         wheelRadius.initDefault(Constants.DriveConstants.wheelRadiusMeters);
         driveKp.initDefault(0.1);
         driveKd.initDefault(0.0);
-        driveKs.initDefault(0.14456);
-        driveKv.initDefault(0.14931);
+        driveKs.initDefault(0.18507);
+        driveKv.initDefault(0.08005);
         turnKp.initDefault(5.0);
         turnKd.initDefault(0.0);
     }
@@ -110,8 +110,7 @@ public class Module {
 
     /** Disables all outputs to motors. */
     public void stop() {
-        io.setTurnVoltage(0.0);
-        io.setDriveVoltage(0.0);
+        io.stop();
     }
 
     /** Sets whether brake mode is enabled. */

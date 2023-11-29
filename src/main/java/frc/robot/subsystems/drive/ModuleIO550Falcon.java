@@ -2,9 +2,9 @@ package frc.robot.subsystems.drive;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.CoastOut;
-import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.StaticBrake;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -81,7 +81,7 @@ public class ModuleIO550Falcon implements ModuleIO {
     }
 
     public void setDriveVoltage(double volts) {
-        driveMotor.setControl(new DutyCycleOut(volts / 12));
+        driveMotor.setVoltage(volts);
     }
 
     public void setTurnVoltage(double volts) {
@@ -120,5 +120,14 @@ public class ModuleIO550Falcon implements ModuleIO {
     public void setTurnBrakeMode(Boolean enable) {
         if(enable == null) return;
         turnMotor.setIdleMode(enable.booleanValue() ? IdleMode.kBrake : IdleMode.kCoast);
+    }
+
+    @Override
+    public void stop() {
+        var driveRequest = driveMotor.getAppliedControl();
+        if(driveRequest instanceof VoltageOut) {
+            driveMotor.setControl(new NeutralOut());
+        }
+        setTurnVoltage(0);
     }
 }
