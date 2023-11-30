@@ -170,8 +170,11 @@ out/
 
 # Simulation GUI and other tools window save file
 *-window.json
+simgui*.json
+networktables.json
 
 /**/BuildConstants.java
+*.wpilog
 
 # Allow photonvision settings
 !photonvision-settings*
