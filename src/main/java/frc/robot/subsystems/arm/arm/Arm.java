@@ -7,17 +7,26 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.util.LoggedTunableNumber;
 
 public class Arm extends SubsystemBase {
     private final ArmIO armIO;
     private final ArmIOInputsAutoLogged armIOInputs = new ArmIOInputsAutoLogged();
 
-    public enum ArmPos {
+    private final Mechanism2d armMech = new Mechanism2d(1, 1, new Color8Bit(Color.kBlack));
+    public final MechanismLigament2d measuredArmLig = new MechanismLigament2d("Arm Measured", 0.485775, 0, 5, new Color8Bit(Color.kLightBlue));
+    public final MechanismLigament2d setpointArmLig = new MechanismLigament2d("Arm Setpoint", 0.485775, 0, 5, new Color8Bit(Color.kLightGreen));
+
+    public static enum ArmPos {
         Defense     (+0),
         Ground      (+2.371534),
         Hedge       (+2.133767),
@@ -39,6 +48,7 @@ public class Arm extends SubsystemBase {
     private final LoggedTunableNumber armPIDkD =  new LoggedTunableNumber("Arm/PID/kD",  0);
     private final LoggedTunableNumber armPIDkV =  new LoggedTunableNumber("Arm/PID/kV",  3);
     private final LoggedTunableNumber armPIDkA =  new LoggedTunableNumber("Arm/PID/kA",  15);
+    private final LoggedTunableNumber armPIDToleranceDeg = new LoggedTunableNumber("Arm/PID/Tolerance (Deg)",  5);
     private final ProfiledPIDController armPID =  new ProfiledPIDController(
         armPIDkP.get(),
         armPIDkI.get(),
@@ -56,20 +66,29 @@ public class Arm extends SubsystemBase {
         if(armPIDkV.hasChanged(hashCode()) || armPIDkA.hasChanged(hashCode())) {
             armPID.setConstraints(new Constraints(armPIDkV.get(), armPIDkA.get()));
         }
+        if(armPIDToleranceDeg.hasChanged(hashCode())) {
+            armPID.setTolerance(Units.degreesToRadians(armPIDToleranceDeg.get()));
+        }
     }
 
     private static final ShuffleboardTab SBTab = Shuffleboard.getTab("Arm");
     public Arm(ArmIO armIO) {
         this.armIO = armIO;
+        SBTab.add("Arm Subsystem", this);
         for(ArmPos pos : ArmPos.values()) {
             SBTab.add(pos.name(), setArmPos(pos));
         }
+        var mechRoot = armMech.getRoot("Pivot", 0.5, 0.5).append(new MechanismLigament2d("Fixed", 0, 90, 0, new Color8Bit(Color.kBlack)));
+        mechRoot.append(measuredArmLig);
+        mechRoot.append(setpointArmLig);
     }
 
     @Override
     public void periodic() {
         armIO.updateInputs(armIOInputs);
         Logger.getInstance().processInputs("Arm", armIOInputs);
+        measuredArmLig.setAngle(-Units.radiansToDegrees(armIOInputs.armPositionRad));
+        Logger.getInstance().recordOutput("Mechanism2d/Arm Side Profile", armMech);
         updateTunables();
     }
 
@@ -79,12 +98,15 @@ public class Arm extends SubsystemBase {
             () -> armIO.setArmVoltage(manualArmVolts.get() * dir),
             () -> armIO.setArmVoltage(0),
             this
-        );
+        ).withName("Manual Volts: " + (manualArmVolts.get() * dir));
     }
 
-    public static final double kArmPosTolerance = Units.degreesToRadians(5);
+    public CommandBase waitUntilAtGoal() {
+        return new WaitUntilCommand(armPID::atGoal);
+    }
+
     public boolean isAtPos(ArmPos pos) {
-        return Math.abs(armIOInputs.armPositionRad - pos.getRads()) <= kArmPosTolerance;
+        return Math.abs(armIOInputs.armPositionRad - pos.getRads()) <= Units.degreesToRadians(armPIDToleranceDeg.get());
     }
 
     public void setBrakeMode(Boolean enabled) {
@@ -95,8 +117,11 @@ public class Arm extends SubsystemBase {
         return new ProfiledPIDCommand(
             armPID,
             () -> armIOInputs.armPositionRad, pos.getRads(),
-            (output, setpoint) -> armIO.setArmVoltage(output),
+            (output, setpoint) -> {
+                armIO.setArmVoltage(output);
+                setpointArmLig.setAngle(-Units.radiansToDegrees(setpoint.position));
+            },
             this
-        );
+        ).withName(pos.name());
     }
 }

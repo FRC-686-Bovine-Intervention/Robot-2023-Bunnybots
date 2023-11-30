@@ -2,7 +2,7 @@ package frc.robot.util.led.animation;
 
 import java.util.ArrayList;
 
-import frc.robot.util.led.strips.LEDStrip.HardwareStrip;
+import frc.robot.util.led.strips.hardware.HardwareStrip;
 
 public class LEDManager {
     private static LEDManager instance;

@@ -1,23 +1,24 @@
-package frc.robot.util.led.strips;
+package frc.robot.util.led.strips.hardware;
 
 import com.ctre.phoenix.led.CANdle;
 
-import frc.robot.util.led.LEDColor.RawLEDColor;
-import frc.robot.util.led.strips.LEDStrip.HardwareStrip;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
+import frc.robot.util.led.strips.LEDStrip;
 
 public class CANdleStrip implements HardwareStrip {
     private final CANdle candle;
     private final int length;
-    private final RawLEDColor[] ledBuffer;
-    private final RawLEDColor[] diffBuffer;
+    private final Color8Bit[] ledBuffer;
+    private final Color8Bit[] diffBuffer;
     private static final int LEDsPerFrame = 60;
     private int bufferPos = 0;
 
     public CANdleStrip(CANdle candle, int offboardStripLength) {
         this.candle = candle;
         this.length = Math.max(offboardStripLength, 0) + 8;
-        this.ledBuffer = new RawLEDColor[this.length];
-        this.diffBuffer = new RawLEDColor[this.length];
+        this.ledBuffer = new Color8Bit[this.length];
+        this.diffBuffer = new Color8Bit[this.length];
     }
 
     @Override
@@ -26,10 +27,11 @@ public class CANdleStrip implements HardwareStrip {
     }
 
     @Override
-    public void setLED(int ledIndex, RawLEDColor color) {
+    public void setLED(int ledIndex, Color color) {
         var curColor = ledBuffer[ledIndex];
+        var color8bit = new Color8Bit(color);
         if(!color.equals(curColor)) {
-            diffBuffer[ledIndex] = color;
+            diffBuffer[ledIndex] = color8bit;
         } else {
             diffBuffer[ledIndex] = null;
         }
@@ -37,24 +39,22 @@ public class CANdleStrip implements HardwareStrip {
 
     @Override
     public void refresh() {
-        /*
-         * CANdles can only update a certain amount of LEDs per frame, so this will run
-         */
+        // CANdles can only update a certain amount of LEDs per frame, so this will only update that many and continue next frame
         for(int i = 0, updatesThisFrame = 0; updatesThisFrame < LEDsPerFrame && i < length; i++, bufferPos = ++bufferPos % length) {
             var color = diffBuffer[bufferPos];
             if(color == null) continue;
             updatesThisFrame++;
-            candle.setLEDs(color.r, color.g, color.b, color.w, bufferPos, 1);
+            candle.setLEDs(color.red, color.green, color.blue, 0, bufferPos, 1);
             ledBuffer[bufferPos] = color;
             diffBuffer[bufferPos] = null;
         }
     }
 
-    public SoftwareStrip getOnboardLEDs() {
+    public LEDStrip getOnboardLEDs() {
         return this.substrip(0, 8);
     }
 
-    public SoftwareStrip getOffboardLEDs() {
+    public LEDStrip getOffboardLEDs() {
         return this.substrip(8);
     }
 }

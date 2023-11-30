@@ -2,6 +2,15 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
+      "/Shuffleboard/Arm/Arm Subsystem": "Subsystem",
+      "/Shuffleboard/Arm/Defense": "Command",
+      "/Shuffleboard/Arm/Ground": "Command",
+      "/Shuffleboard/Arm/Hedge": "Command",
+      "/Shuffleboard/Arm/HighBack": "Command",
+      "/Shuffleboard/Arm/HighFront": "Command",
+      "/Shuffleboard/Arm/LowBack": "Command",
+      "/Shuffleboard/Arm/LowFront": "Command",
+      "/Shuffleboard/Drive/Drive Subsystem": "Subsystem",
       "/SmartDashboard/Auto/Question #1 Chooser": "String Chooser",
       "/SmartDashboard/Auto/Question #2 Chooser": "String Chooser",
       "/SmartDashboard/Auto/Question #3 Chooser": "String Chooser",
@@ -11,6 +20,15 @@
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/Path": "String Chooser",
       "/SmartDashboard/Side": "String Chooser"
+    }
+  },
+  "NetworkTables": {
+    "transitory": {
+      "Shuffleboard": {
+        "Arm": {
+          "open": true
+        }
+      }
     }
   }
 }

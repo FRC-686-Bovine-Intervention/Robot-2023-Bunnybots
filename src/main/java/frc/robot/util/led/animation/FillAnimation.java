@@ -1,13 +1,13 @@
 package frc.robot.util.led.animation;
 
-import frc.robot.util.led.LEDColor;
+import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.util.led.strips.LEDStrip;
 
 public class FillAnimation extends LEDAnimation {
     private final LEDStrip[] strips;
-    private final LEDColor color;
+    private final Color color;
     
-    public FillAnimation(LEDColor color, LEDStrip... strips) {
+    public FillAnimation(Color color, LEDStrip... strips) {
         this.strips = strips;
         this.color = color;
     }

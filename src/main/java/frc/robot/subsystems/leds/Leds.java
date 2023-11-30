@@ -5,39 +5,30 @@ import com.ctre.phoenix.led.CANdle.LEDStripType;
 import com.ctre.phoenix.led.CANdle.VBatOutputMode;
 import com.ctre.phoenix.led.CANdleConfiguration;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.util.VirtualSubsystem;
 import frc.robot.util.led.animation.FlashingAnimation;
 import frc.robot.util.led.animation.LEDAnimation;
 import frc.robot.util.led.animation.LEDManager;
 import frc.robot.util.led.animation.ScrollingAnimation;
 import frc.robot.util.led.functions.Gradient;
-import frc.robot.util.led.strips.CANdleStrip;
-import frc.robot.util.led.strips.LEDStrip.SoftwareStrip;
+import frc.robot.util.led.strips.LEDStrip;
+import frc.robot.util.led.strips.hardware.CANdleStrip;
 
-public class LEDFrameworkSystem extends SubsystemBase {
+public class Leds extends VirtualSubsystem {
     private final LEDManager ledManager = LEDManager.getInstance();
     private final CANdle m_candle = new CANdle(Constants.CANDevices.candleCanID, "rio");
-    private final CANdleStrip candleLEDs = new CANdleStrip(m_candle, 18*4);
-    private final SoftwareStrip onboardLEDs =   candleLEDs.getOnboardLEDs();
-    private final SoftwareStrip offboardLEDs =  candleLEDs.getOffboardLEDs();
-    // private final SoftwareStrip rightStrip =    offboardLEDs.substrip(0, 18);
-    // private final SoftwareStrip backStrip =     offboardLEDs.substrip(18, 36);
-    // private final SoftwareStrip leftStrip =     offboardLEDs.substrip(36, 54);
-    // private final SoftwareStrip frontStrip =    offboardLEDs.substrip(54, 72);
+    private final CANdleStrip candleLEDs =  new CANdleStrip(m_candle, 18*2);
+    private final LEDStrip onboardLEDs =    candleLEDs.getOnboardLEDs();
+    private final LEDStrip offboardLEDs =   candleLEDs.getOffboardLEDs();
+    private final LEDStrip rightStrip =     offboardLEDs.substrip(0, offboardLEDs.getLength() / 2);
+    private final LEDStrip leftStrip =      offboardLEDs.substrip(offboardLEDs.getLength() / 2).reverse();
+    private final LEDStrip parallelStrip =  rightStrip.parallel(leftStrip);
 
-    private final LEDAnimation defaultOffboardAnimation = new ScrollingAnimation(Gradient.rainbow, offboardLEDs);
+    private final LEDAnimation defaultOffboardAnimation = new ScrollingAnimation(Gradient.rainbow, parallelStrip);
     private final LEDAnimation defaultOnboardAnimation = new FlashingAnimation(Gradient.blackToWhite, onboardLEDs);
-    /* new ScrollingAnimation(
-        new BasicGradient(
-            InterpolationStyle.Step, 
-            LEDColor.Blue, LEDColor.Yellow, LEDColor.Yellow, LEDColor.Red, LEDColor.Red, LEDColor.Green, LEDColor.Green, LEDColor.Blue
-        ), 
-        TilingFunction.Modulo, 
-        offboardLEDs
-    ).setVelocity(0); */
 
-    public LEDFrameworkSystem() {
+    public Leds() {
         ledManager.register(candleLEDs);
         CANdleConfiguration configAll = new CANdleConfiguration();
         configAll.statusLedOffWhenActive = true;

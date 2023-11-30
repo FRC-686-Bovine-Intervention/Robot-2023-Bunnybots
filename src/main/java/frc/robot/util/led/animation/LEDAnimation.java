@@ -1,7 +1,7 @@
 package frc.robot.util.led.animation;
 
 import edu.wpi.first.wpilibj.Timer;
-import frc.robot.util.led.LEDColor.RGBColor;
+import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.util.led.strips.LEDStrip;
 
 public abstract class LEDAnimation {
@@ -44,13 +44,13 @@ public abstract class LEDAnimation {
                 for(int i = 0; i < ledStrip.getLength(); i++) {
                     int ind = i + 1;
                     if(ind % 50 == 0) {
-                        ledStrip.setLED(i, new RGBColor(0, 255, 0));
+                        ledStrip.setLED(i, Color.kBlack);
                     } else if(ind % 10 == 0) {
-                        ledStrip.setLED(i, new RGBColor(255, 0, 0));
+                        ledStrip.setLED(i, Color.kRed);
                     } else if(ind % 5 == 0) {
-                        ledStrip.setLED(i, new RGBColor(0, 0, 255));
+                        ledStrip.setLED(i, Color.kBlue);
                     } else {
-                        ledStrip.setLED(i, new RGBColor(0, 0, 0));
+                        ledStrip.setLED(i, Color.kBlack);
                     }
                 }
             }

@@ -6,8 +6,15 @@ package frc.robot;
 
 import java.util.ArrayList;
 
+import org.littletonrobotics.junction.Logger;
+
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.DriveConstants;
@@ -20,7 +27,9 @@ import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.subsystems.arm.arm.Arm;
 import frc.robot.subsystems.arm.arm.ArmIOFalcon;
+import frc.robot.subsystems.arm.arm.ArmIOSim;
 import frc.robot.subsystems.arm.manipulator.Manipulator;
+import frc.robot.subsystems.arm.manipulator.ManipulatorIOSim;
 import frc.robot.subsystems.arm.manipulator.ManipulatorIOTalon;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -29,7 +38,7 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIO550Falcon;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.SwerveJoysticks;
-import frc.robot.subsystems.leds.LEDFrameworkSystem;
+import frc.robot.subsystems.leds.Leds;
 import frc.robot.subsystems.manualOverrides.ManualOverrides;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.Alert;
@@ -53,9 +62,11 @@ public class RobotContainer {
     private final Manipulator manip;
     @SuppressWarnings("unused")
     private final ManualOverrides manuOverrides;
-    private final LEDFrameworkSystem ledSystem;
+    private final Leds ledSystem;
 
     private final AutoSelector autoSelector = new AutoSelector("Auto");
+
+    private final Mechanism2d robotSideProfile = new Mechanism2d(3, 2, new Color8Bit(Color.kBlack));
 
     // Controller
     private final CommandXboxController driveController = new CommandXboxController(0);
@@ -93,8 +104,8 @@ public class RobotContainer {
                         new ModuleIOSim(),
                         new ModuleIOSim(),
                         new ModuleIOSim());
-                arm = null;
-                manip = null;
+                arm = new Arm(new ArmIOSim());
+                manip = new Manipulator(new ManipulatorIOSim());
                 manuOverrides = null;
                 ledSystem = null;
             break;
@@ -112,6 +123,18 @@ public class RobotContainer {
                 ledSystem = null;
             break;
         }
+
+        var armPivot = robotSideProfile.getRoot("Arm Pivot", 1.5 + 0.26670000, +0.90805000).append(new MechanismLigament2d("Root", 0, 90, 0, new Color8Bit(Color.kBlack)));
+        armPivot.append(arm.setpointArmLig);
+        armPivot.append(arm.measuredArmLig).append(manip.rootLig);
+
+        var superStructureRoot = robotSideProfile.getRoot("Super Structure", 1.5 + 0.34925, +0.15875000);
+        var frontBeam = superStructureRoot.append(new MechanismLigament2d("Front Beam", 0.74930000, 90, 5, new Color8Bit(Color.kDarkGray)));
+        var topBeam = frontBeam.append(new MechanismLigament2d("Top Beam", 0.16510000, 90, 5, new Color8Bit(Color.kDarkGray)));
+        topBeam.append(new MechanismLigament2d("Mid Beam", 0.74930000, 90, 5, new Color8Bit(Color.kDarkGray)));
+        topBeam.append(new MechanismLigament2d("Angled Beam", 0.74930000 / Math.sin(Units.degreesToRadians(56.098899)), 56.098899, 5, new Color8Bit(Color.kDarkGray)));
+
+        robotSideProfile.getRoot("Bumper", 1.5 + 0.384175, 0.1143).append(new MechanismLigament2d("Bumper", 0.384175 * 2, 180, 50, new Color8Bit(Color.kBlue)));
 
         // Configure the button bindings
         configureButtonBindings();
@@ -191,6 +214,10 @@ public class RobotContainer {
         // drive.setPose(routine.position.getPose());
         // return routine.command;
         return autoSelector.getSelectedAutoCommand();
+    }
+
+    public void robotPeriodic() {
+        Logger.getInstance().recordOutput("Mechanism2d/Robot Side Profile", robotSideProfile);
     }
 
     public void disabledInit() {
