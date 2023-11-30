@@ -5,6 +5,8 @@
 package frc.robot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -16,6 +18,9 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ProxyCommand;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.DriveConstants.DriveModulePosition;
@@ -156,10 +161,48 @@ public class RobotContainer {
      * ({@link edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then
      * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
+    private Map<Object, Command> getComMap() {
+        Map<Object, Command> comMap = new HashMap<>();
+        for(Arm.ArmPos pos : Arm.ArmPos.values()) {
+            comMap.put(pos, pos.goTo(arm).asProxy());
+        }
+        return comMap;
+    }
+    
     private void configureButtonBindings() {
         // driveController.a().whileTrue(arm.setTargetPosAndWait(ArmPos.Ground).andThen(manip.intake())).onFalse(arm.setTargetPos(ArmPos.Defense));
-        driveController.a().whileTrue(arm.setArmVolts(-1));
-        driveController.y().whileTrue(arm.setArmVolts(1));
+        // driveController.a().whileTrue(arm.setArmVolts(-1));
+        var aCom = new ProxyCommand(() -> Commands.select(getComMap(), ()->{
+            var pos =  arm.getTargetPos();
+            if(pos == null) return Arm.ArmPos.Defense;
+            switch(pos) {
+                case Defense:   return Arm.ArmPos.HighFront;
+                case Ground:    return Arm.ArmPos.Ground;
+                case Hedge:     return Arm.ArmPos.Ground;
+                case HighBack:  return Arm.ArmPos.Defense;
+                case HighFront: return Arm.ArmPos.LowFront;
+                case LowBack:   return Arm.ArmPos.HighBack;
+                case LowFront:  return Arm.ArmPos.Hedge;
+                default:        return Arm.ArmPos.Defense;
+            }
+        }));
+        driveController.a().onTrue(aCom).onFalse(Commands.runOnce(() -> aCom.end(false), new Subsystem[0]));
+        // driveController.y().whileTrue(arm.setArmVolts(1));
+        var yCom = new ProxyCommand(() -> Commands.select(getComMap(), ()->{
+            var pos =  arm.getTargetPos();
+            if(pos == null) return Arm.ArmPos.Defense;
+            switch(pos) {
+                case Defense:   return Arm.ArmPos.HighBack;
+                case Ground:    return Arm.ArmPos.Hedge;
+                case Hedge:     return Arm.ArmPos.LowFront;
+                case HighBack:  return Arm.ArmPos.LowBack;
+                case HighFront: return Arm.ArmPos.Defense;
+                case LowBack:   return Arm.ArmPos.LowBack;
+                case LowFront:  return Arm.ArmPos.HighFront;
+                default:        return Arm.ArmPos.Defense;
+            }
+        }));
+        driveController.y().onTrue(yCom).onFalse(Commands.runOnce(() -> yCom.end(false), new Subsystem[0]));
 
         driveController.b().whileTrue(manip.intake());
         driveController.x().whileTrue(manip.score());

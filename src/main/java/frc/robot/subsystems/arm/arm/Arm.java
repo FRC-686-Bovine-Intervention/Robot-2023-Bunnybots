@@ -40,6 +40,7 @@ public class Arm extends SubsystemBase {
             val = new LoggedTunableNumber("Arm/Positions/" + this.name(), defaultRads);
         }
         public double getRads() {return val.get();}
+        public CommandBase goTo(Arm arm) {return arm.setArmPos(this);}
     }
     public ArmPos targetPos = ArmPos.Defense;
 
@@ -89,6 +90,7 @@ public class Arm extends SubsystemBase {
         Logger.getInstance().processInputs("Arm", armIOInputs);
         measuredArmLig.setAngle(-Units.radiansToDegrees(armIOInputs.armPositionRad));
         Logger.getInstance().recordOutput("Mechanism2d/Arm Side Profile", armMech);
+        Logger.getInstance().recordOutput("ArmPos", getTargetPos().name());
         updateTunables();
     }
 
@@ -107,6 +109,15 @@ public class Arm extends SubsystemBase {
 
     public boolean isAtPos(ArmPos pos) {
         return Math.abs(armIOInputs.armPositionRad - pos.getRads()) <= Units.degreesToRadians(armPIDToleranceDeg.get());
+    }
+
+    public ArmPos getTargetPos() {
+        for(ArmPos pos : ArmPos.values()) {
+            if(Math.abs(armPID.getGoal().position - pos.getRads()) < 0.01) {
+                return pos;
+            }
+        }
+        return null;
     }
 
     public void setBrakeMode(Boolean enabled) {

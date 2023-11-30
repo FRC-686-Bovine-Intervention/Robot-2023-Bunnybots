@@ -27,8 +27,8 @@ public class Manipulator extends SubsystemBase {
     private final MechanismLigament2d botRollerFixedLig =   new MechanismLigament2d("Bot Roller Fixed", Math.hypot(rollerDistance, 0.101600/2), -Units.radiansToDegrees(Math.atan2(rollerDistance, -0.101600/2)), 0, new Color8Bit(Color.kBlack));
     private final MechanismLigament2d botRollerLig =        new MechanismLigament2d("Bot Roller",       0.101600, Units.radiansToDegrees(Math.atan2(rollerDistance, -0.101600/2)), 5, new Color8Bit(Color.kGray));
     
-    private final MechanismLigament2d ballFixedLig =        new MechanismLigament2d("Ball Fixed",       0.325425, 0, 0, new Color8Bit(Color.kBlack));
-    private final MechanismLigament2d ballLig =             new MechanismLigament2d("Ball",             0, 0, 50, new Color8Bit(Color.kRed));
+    private final MechanismLigament2d ballFixedLig =        new MechanismLigament2d("Ball Fixed",       0.2, 0, 0, new Color8Bit(Color.kBlack));
+    private final MechanismLigament2d ballLig =             new MechanismLigament2d("Ball",             0, 0, 100, new Color8Bit(Color.kRed));
 
     private final LoggedTunableNumber manipIntakePower =    new LoggedTunableNumber("Manipulator/Intake Power",     -0.75);
     private final LoggedTunableNumber manipScorePower =     new LoggedTunableNumber("Manipulator/Scoring Power",    +0.75);

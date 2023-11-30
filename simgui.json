@@ -1,6 +1,8 @@
 {
   "NTProvider": {
     "types": {
+      "/AdvantageKit/RealOutputs/Mechanism2d/Arm Side Profile": "Mechanism2d",
+      "/AdvantageKit/RealOutputs/Mechanism2d/Robot Side Profile": "Mechanism2d",
       "/FMSInfo": "FMSInfo",
       "/Shuffleboard/Arm/Arm Subsystem": "Subsystem",
       "/Shuffleboard/Arm/Defense": "Command",
