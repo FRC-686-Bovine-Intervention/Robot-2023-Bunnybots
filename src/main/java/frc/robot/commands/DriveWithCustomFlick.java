@@ -32,7 +32,7 @@ public class DriveWithCustomFlick extends CommandBase {
 	private final double headingTolerance = Units.degreesToRadians(1.0);
 	private final PIDController headingPID;
 
-	public static Supplier<Optional<Double>> headingFromJoystick(DoubleSupplier xSupplier, DoubleSupplier ySupplier, double radialDeadband) {
+	public static Supplier<Optional<Double>> headingFromJoystick(DoubleSupplier xSupplier, DoubleSupplier ySupplier, double radialDeadband, DoubleSupplier forwardDirectionSupplier) {
 		return new Supplier<Optional<Double>>() {
 			private final Timer preciseTurnTimer = new Timer();
 			private final double preciseTurnTimeThreshold = 0.5;
@@ -60,7 +60,7 @@ public class DriveWithCustomFlick extends CommandBase {
 				}
 				double[] distancesToSnapPoints = new double[snapPoints.length];
 				for(int i = 0; i < snapPoints.length; i++) {
-					double snapPoint = snapPoints[i]/*  + (DriverStation.getAlliance() == Alliance.Red ? 180 : 0) */;
+					double snapPoint = snapPoints[i];
 					double distanceToPoint = Math.abs(joyHeading - snapPoint);
 					double distanceToPointWithPosRot = Math.abs(joyHeading - (snapPoint + 2 * Math.PI));
 					double distanceToPointWithNegRot = Math.abs(joyHeading - (snapPoint - 2 * Math.PI));
@@ -72,7 +72,7 @@ public class DriveWithCustomFlick extends CommandBase {
 						smallestIndex = i;
 					}
 				}
-				return Optional.of(snapPoints[smallestIndex]);
+				return Optional.of(MathUtil.inputModulus(snapPoints[smallestIndex] - forwardDirectionSupplier.getAsDouble() + (DriverStation.getAlliance() == Alliance.Red ? Math.PI : 0), 0, Math.PI * 2));
 			}
 		};
 	}
@@ -127,7 +127,7 @@ public class DriveWithCustomFlick extends CommandBase {
 
 		// field relative controls
 		var driveRotation = drive.getRotation(); // angle from alliance wall normal
-		if (DriverStation.getAlliance() == Alliance.Red) {
+		if (DriverStation.getAlliance() == Alliance.Blue) {
 			driveRotation = driveRotation.rotateBy(new Rotation2d(Math.PI));
 		}
 		speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, driveRotation);

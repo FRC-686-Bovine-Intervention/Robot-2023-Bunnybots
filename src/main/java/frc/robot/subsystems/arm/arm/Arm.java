@@ -42,7 +42,6 @@ public class Arm extends SubsystemBase {
         public double getRads() {return val.get();}
         public CommandBase goTo(Arm arm) {return arm.setArmPos(this);}
     }
-    public ArmPos targetPos = ArmPos.Defense;
 
     private final LoggedTunableNumber armPIDkP =  new LoggedTunableNumber("Arm/PID/kP",  10);
     private final LoggedTunableNumber armPIDkI =  new LoggedTunableNumber("Arm/PID/kI",  0);
@@ -89,12 +88,12 @@ public class Arm extends SubsystemBase {
         armIO.updateInputs(armIOInputs);
         Logger.getInstance().processInputs("Arm", armIOInputs);
         measuredArmLig.setAngle(-Units.radiansToDegrees(armIOInputs.armPositionRad));
+        setpointArmLig.setAngle(-Units.radiansToDegrees(armPID.getSetpoint().position));
         Logger.getInstance().recordOutput("Mechanism2d/Arm Side Profile", armMech);
-        Logger.getInstance().recordOutput("ArmPos", getTargetPos().name());
         updateTunables();
     }
 
-    private final LoggedTunableNumber manualArmVolts = new LoggedTunableNumber("Arm Volts", 2);
+    private final LoggedTunableNumber manualArmVolts = new LoggedTunableNumber("Arm/Manual Arm Volts", 2);
     public CommandBase setArmVolts(double dir) {
         return new StartEndCommand(
             () -> armIO.setArmVoltage(manualArmVolts.get() * dir),
@@ -128,10 +127,7 @@ public class Arm extends SubsystemBase {
         return new ProfiledPIDCommand(
             armPID,
             () -> armIOInputs.armPositionRad, pos.getRads(),
-            (output, setpoint) -> {
-                armIO.setArmVoltage(output);
-                setpointArmLig.setAngle(-Units.radiansToDegrees(setpoint.position));
-            },
+            (output, setpoint) -> armIO.setArmVoltage(output),
             this
         ).withName(pos.name());
     }

@@ -85,7 +85,7 @@ public class RobotContainer {
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
-        switch (Constants.mode) {
+        switch (Constants.getMode()) {
             // Real robot, instantiate hardware IO implementations
             case REAL:
                 drive = new Drive(
@@ -224,7 +224,14 @@ public class RobotContainer {
                 DriveWithCustomFlick.headingFromJoystick(
                     () -> -driveController.getRightX(),
                     () -> -driveController.getRightY(),
-                    0.85
+                    0.85,
+                    () -> {
+                        switch (arm.getTargetPos()) {
+                            default:        return Units.degreesToRadians(0);
+                            case HighBack:  
+                            case LowBack:   return Units.degreesToRadians(180);
+                        }
+                    }
                 ),
                 driveController.leftBumper()
             )

@@ -17,11 +17,16 @@ public final class Constants {
         REAL, SIM, REPLAY
     }
 
-    public static final Mode mode = Mode.REAL;
+    public static final Mode simulationMode = Mode.SIM;
     public static final boolean tuningMode = true;
 
     public static final double dtSeconds = 0.02;
     public static final double loopFrequencyHz = 1.0/dtSeconds;
+
+    public static Mode getMode() {
+        if(Robot.isReal()) return Mode.REAL;
+        return (simulationMode == Mode.REAL ? Mode.SIM : simulationMode);
+    }
 
     public static final class CANDevices {
 
@@ -255,9 +260,9 @@ public final class Constants {
      * Checks that code is set to right mode when deploying
      */
     public static void main(String... args) {
-        if (mode != Mode.REAL) {
-            System.err.println("Cannot deploy. Invalid mode: " + mode);
-            System.exit(1);
-        }
+        // if (getMode() != Mode.REAL) {
+        //     System.err.println("Cannot deploy. Invalid mode: " + getMode());
+        //     System.exit(1);
+        // }
     }
 }
