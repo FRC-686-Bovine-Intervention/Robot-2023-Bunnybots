@@ -26,7 +26,7 @@ public class Manipulator extends SubsystemBase {
 
     private final MechanismLigament2d botRollerFixedLig =   new MechanismLigament2d("Bot Roller Fixed", Math.hypot(rollerDistance, 0.101600/2), -Units.radiansToDegrees(Math.atan2(rollerDistance, -0.101600/2)), 0, new Color8Bit(Color.kBlack));
     private final MechanismLigament2d botRollerLig =        new MechanismLigament2d("Bot Roller",       0.101600, Units.radiansToDegrees(Math.atan2(rollerDistance, -0.101600/2)), 5, new Color8Bit(Color.kGray));
-    
+
     private final MechanismLigament2d ballFixedLig =        new MechanismLigament2d("Ball Fixed",       0.2, 0, 0, new Color8Bit(Color.kBlack));
     private final MechanismLigament2d ballLig =             new MechanismLigament2d("Ball",             0, 0, 100, new Color8Bit(Color.kRed));
 
@@ -62,10 +62,10 @@ public class Manipulator extends SubsystemBase {
         }
 
         ballLig.setLineWeight(hasBall ? 50 : 0);
-        if(manipIOInputs.manipAppliedVolts < -3) {
+        if(manipIOInputs.manipAppliedVolts < -5) {
             topRollerLig.setColor(new Color8Bit(Color.kGreen));
             botRollerLig.setColor(new Color8Bit(Color.kGreen));
-        } else if (manipIOInputs.manipAppliedVolts > 3) {
+        } else if (manipIOInputs.manipAppliedVolts > 5) {
             topRollerLig.setColor(new Color8Bit(Color.kRed));
             botRollerLig.setColor(new Color8Bit(Color.kRed));
         } else {

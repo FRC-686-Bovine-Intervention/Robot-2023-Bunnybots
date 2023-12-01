@@ -10,7 +10,7 @@ public abstract class LEDAnimation {
     public final void setPriority(int priority) {this.priority = priority;}
 
     public final Timer animationTimer = new Timer();
-    
+
     public final boolean isRunning() {return isRunning(LEDManager.getInstance());}
     public final boolean isRunning(LEDManager manager) {return manager.isAnimationRunning(this);}
 
@@ -44,7 +44,7 @@ public abstract class LEDAnimation {
                 for(int i = 0; i < ledStrip.getLength(); i++) {
                     int ind = i + 1;
                     if(ind % 50 == 0) {
-                        ledStrip.setLED(i, Color.kBlack);
+                        ledStrip.setLED(i, Color.kGreen);
                     } else if(ind % 10 == 0) {
                         ledStrip.setLED(i, Color.kRed);
                     } else if(ind % 5 == 0) {

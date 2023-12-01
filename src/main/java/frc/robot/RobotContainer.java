@@ -48,7 +48,6 @@ import frc.robot.subsystems.manualOverrides.ManualOverrides;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
-import frc.robot.util.led.functions.Gradient;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -98,7 +97,7 @@ public class RobotContainer {
                 arm = new Arm(new ArmIOFalcon());
                 manip = new Manipulator(new ManipulatorIOTalon());
                 manuOverrides = new ManualOverrides(arm, drive);
-                ledSystem = null;//new LEDFrameworkSystem();
+                ledSystem = new Leds();
             break;
 
             // Sim robot, instantiate physics sim IO implementations
@@ -168,7 +167,7 @@ public class RobotContainer {
         }
         return comMap;
     }
-    
+
     private void configureButtonBindings() {
         // driveController.a().whileTrue(arm.setTargetPosAndWait(ArmPos.Ground).andThen(manip.intake())).onFalse(arm.setTargetPos(ArmPos.Defense));
         // driveController.a().whileTrue(arm.setArmVolts(-1));
@@ -228,7 +227,7 @@ public class RobotContainer {
                     () -> {
                         switch (arm.getTargetPos()) {
                             default:        return Units.degreesToRadians(0);
-                            case HighBack:  
+                            case HighBack:
                             case LowBack:   return Units.degreesToRadians(180);
                         }
                     }
@@ -240,7 +239,7 @@ public class RobotContainer {
 
 
     private void configureAutos() {
-        autoSelector.addRoutine(new ScoreHighThenBunny(drive));
+        autoSelector.addRoutine(new ScoreHighThenBunny(drive, arm, manip));
         autoSelector.addRoutine(new AutoRoutine(
             "Drive Characterization",
             new ArrayList<>(0),
@@ -277,11 +276,7 @@ public class RobotContainer {
     }
 
     public void enabledInit() {
-        if (ledSystem != null) {
-            ledSystem.playOffboardScrolling(Gradient.rainbow);
-        }
+
     }
-
-
 }
 

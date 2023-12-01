@@ -18,7 +18,7 @@ import frc.robot.util.led.strips.hardware.CANdleStrip;
 public class Leds extends VirtualSubsystem {
     private final LEDManager ledManager = LEDManager.getInstance();
     private final CANdle m_candle = new CANdle(Constants.CANDevices.candleCanID, "rio");
-    private final CANdleStrip candleLEDs =  new CANdleStrip(m_candle, 18*2);
+    private final CANdleStrip candleLEDs =  new CANdleStrip(m_candle, 60*2);
     private final LEDStrip onboardLEDs =    candleLEDs.getOnboardLEDs();
     private final LEDStrip offboardLEDs =   candleLEDs.getOffboardLEDs();
     private final LEDStrip rightStrip =     offboardLEDs.substrip(0, offboardLEDs.getLength() / 2);
@@ -29,6 +29,7 @@ public class Leds extends VirtualSubsystem {
     private final LEDAnimation defaultOnboardAnimation = new FlashingAnimation(Gradient.blackToWhite, onboardLEDs);
 
     public Leds() {
+        super();
         ledManager.register(candleLEDs);
         CANdleConfiguration configAll = new CANdleConfiguration();
         configAll.statusLedOffWhenActive = true;

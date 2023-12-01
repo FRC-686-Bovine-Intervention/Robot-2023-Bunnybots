@@ -12,8 +12,10 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.util.LoggedTunableNumber;
@@ -130,5 +132,12 @@ public class Arm extends SubsystemBase {
             (output, setpoint) -> armIO.setArmVoltage(output),
             this
         ).withName(pos.name());
+    }
+
+    public CommandBase gotoArmPos(ArmPos pos) {
+        return Commands.runOnce(() -> setArmPos(pos).schedule(), new Subsystem[0]);
+    }
+    public CommandBase gotoArmPosWithWait(ArmPos pos) {
+        return gotoArmPos(pos).andThen(waitUntilAtGoal());
     }
 }
