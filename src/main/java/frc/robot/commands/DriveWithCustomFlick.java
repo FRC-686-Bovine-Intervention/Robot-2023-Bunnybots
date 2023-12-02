@@ -13,12 +13,12 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.SwerveJoysticks.ProcessedJoysticks;
 
-public class DriveWithCustomFlick extends CommandBase {
+public class DriveWithCustomFlick extends Command {
 
 	private final Drive drive;
     private final Supplier<ProcessedJoysticks> joystickSupplier;

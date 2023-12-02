@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
@@ -42,7 +42,7 @@ public class Arm extends SubsystemBase {
             val = new LoggedTunableNumber("Arm/Positions/" + this.name(), defaultRads);
         }
         public double getRads() {return val.get();}
-        public CommandBase goTo(Arm arm) {return arm.setArmPos(this);}
+        public Command goTo(Arm arm) {return arm.setArmPos(this);}
     }
 
     private final LoggedTunableNumber armPIDkP =  new LoggedTunableNumber("Arm/PID/kP",  10);
@@ -96,7 +96,7 @@ public class Arm extends SubsystemBase {
     }
 
     private final LoggedTunableNumber manualArmVolts = new LoggedTunableNumber("Arm/Manual Arm Volts", 2);
-    public CommandBase setArmVolts(double dir) {
+    public Command setArmVolts(double dir) {
         return new StartEndCommand(
             () -> armIO.setArmVoltage(manualArmVolts.get() * dir),
             () -> armIO.setArmVoltage(0),
@@ -104,7 +104,7 @@ public class Arm extends SubsystemBase {
         ).withName("Manual Volts: " + (manualArmVolts.get() * dir));
     }
 
-    public CommandBase waitUntilAtGoal() {
+    public Command waitUntilAtGoal() {
         return new WaitUntilCommand(armPID::atGoal);
     }
 
@@ -125,7 +125,7 @@ public class Arm extends SubsystemBase {
         armIO.setBrakeMode(enabled);
     }
 
-    public CommandBase setArmPos(ArmPos pos) {
+    public Command setArmPos(ArmPos pos) {
         return new ProfiledPIDCommand(
             armPID,
             () -> armIOInputs.armPositionRad, pos.getRads(),
@@ -134,10 +134,10 @@ public class Arm extends SubsystemBase {
         ).withName(pos.name());
     }
 
-    public CommandBase gotoArmPos(ArmPos pos) {
+    public Command gotoArmPos(ArmPos pos) {
         return Commands.runOnce(() -> setArmPos(pos).schedule(), new Subsystem[0]);
     }
-    public CommandBase gotoArmPosWithWait(ArmPos pos) {
+    public Command gotoArmPosWithWait(ArmPos pos) {
         return gotoArmPos(pos).andThen(waitUntilAtGoal());
     }
 }

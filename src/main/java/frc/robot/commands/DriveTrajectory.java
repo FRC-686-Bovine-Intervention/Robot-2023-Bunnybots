@@ -23,7 +23,7 @@ import edu.wpi.first.math.trajectory.constraint.TrajectoryConstraint;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
@@ -34,7 +34,7 @@ import frc.robot.util.trajectory.CustomTrajectoryGenerator;
 import frc.robot.util.trajectory.RotationSequence;
 import frc.robot.util.trajectory.Waypoint;
 
-public class DriveTrajectory extends CommandBase {
+public class DriveTrajectory extends Command {
 
   private static double maxVelocityMetersPerSec;
   private static double maxAccelerationMetersPerSec2;

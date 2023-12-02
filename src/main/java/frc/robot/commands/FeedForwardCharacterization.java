@@ -14,11 +14,11 @@ import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.util.PolynomialRegression;
 
-public class FeedForwardCharacterization extends CommandBase {
+public class FeedForwardCharacterization extends Command {
   private static final double startDelaySecs = 2.0;
   private static final double rampRateVoltsPerSec = 0.1;
 

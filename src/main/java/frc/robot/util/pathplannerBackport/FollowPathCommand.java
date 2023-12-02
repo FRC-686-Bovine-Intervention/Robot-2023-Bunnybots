@@ -13,11 +13,11 @@ import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 
 /** Base command for following a path */
-public class FollowPathCommand extends CommandBase {
+public class FollowPathCommand extends Command {
   private final Timer timer = new Timer();
   private final PathPlannerPath path;
   private final Supplier<Pose2d> poseSupplier;
