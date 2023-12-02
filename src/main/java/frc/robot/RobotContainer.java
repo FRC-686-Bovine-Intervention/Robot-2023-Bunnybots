@@ -44,6 +44,7 @@ import frc.robot.subsystems.drive.ModuleIO550Falcon;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.SwerveJoysticks;
 import frc.robot.subsystems.leds.Leds;
+import frc.robot.subsystems.leds.Leds.LedData;
 import frc.robot.subsystems.manualOverrides.ManualOverrides;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.Alert;
@@ -61,7 +62,7 @@ public class RobotContainer {
     @SuppressWarnings("unused")
     private final Drive drive;
     @SuppressWarnings("unused")
-    private final Vision vision = null;//new Vision();
+    private final Vision vision;//new Vision();
     private final Arm arm;
     private final Manipulator manip;
     @SuppressWarnings("unused")
@@ -93,7 +94,7 @@ public class RobotContainer {
                         new ModuleIO550Falcon(DriveModulePosition.FRONT_RIGHT),
                         new ModuleIO550Falcon(DriveModulePosition.BACK_LEFT),
                         new ModuleIO550Falcon(DriveModulePosition.BACK_RIGHT));
-
+                vision = new Vision();
                 arm = new Arm(new ArmIOFalcon());
                 manip = new Manipulator(new ManipulatorIOTalon());
                 manuOverrides = new ManualOverrides(arm, drive);
@@ -109,6 +110,7 @@ public class RobotContainer {
                         new ModuleIOSim(),
                         new ModuleIOSim(),
                         new ModuleIOSim());
+                vision = null;
                 arm = new Arm(new ArmIOSim());
                 manip = new Manipulator(new ManipulatorIOSim());
                 manuOverrides = null;
@@ -122,6 +124,7 @@ public class RobotContainer {
                         new ModuleIO() {},
                         new ModuleIO() {},
                         new ModuleIO() {});
+                vision = null;
                 arm = null;
                 manip = null;
                 manuOverrides = null;

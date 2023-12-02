@@ -34,7 +34,7 @@ public class Manipulator extends SubsystemBase {
     private final LoggedTunableNumber manipScorePower =     new LoggedTunableNumber("Manipulator/Scoring Power",    +0.75);
     private final LoggedTunableNumber manipHedgePower =     new LoggedTunableNumber("Manipulator/Hedge Power",      +0.5);
 
-    private final LoggedTunableNumber spikeThreshold =  new LoggedTunableNumber("Manipulator/Current Spike Threshold",  +5.0);
+    private final LoggedTunableNumber spikeThreshold =  new LoggedTunableNumber("Manipulator/Current Spike Threshold",  +40.0);
     private final LoggedTunableNumber spikeTime =       new LoggedTunableNumber("Manipulator/Current Spike Time",       +0.5);
 
     private final Timer currentSpikeTimer = new Timer();
@@ -78,7 +78,7 @@ public class Manipulator extends SubsystemBase {
         return hasBall;
     }
     public boolean intaking(){
-        return manipIOInputs.maniAppliedVolts < -5;
+        return manipIOInputs.manipAppliedVolts < -5;
     }
     public Command intake() {
         return new FunctionalCommand(

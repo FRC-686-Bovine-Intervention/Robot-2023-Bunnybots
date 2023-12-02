@@ -24,7 +24,7 @@ public class AprilTagCameraIOPhotonVision implements AprilTagCameraIO {
 
         try {
             // Attempt to load the AprilTagFieldLayout that will tell us where the tags are on the field.
-            String resourceFile = Filesystem.getDeployDirectory() + "/apriltags/sims-basement.json";            
+            String resourceFile = Filesystem.getDeployDirectory() + "/Bunnybots_2023.json";
             AprilTagFieldLayout fieldLayout = new AprilTagFieldLayout(resourceFile);
 
             // test that I made the JSON file correctly

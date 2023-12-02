@@ -6,6 +6,8 @@ package frc.robot;
 
 import com.ctre.phoenix6.signals.InvertedValue;
 
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Quaternion;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -143,32 +145,28 @@ public final class Constants {
     public static final class VisionConstants {
 
         public static final String[] cameraNames = {
-            "FrontLeft",    // OV2311
-            "FrontRight",   // AR0144
-            "BackLeft",     // OV9281
-            "BackRight",    // OV9281
-            "limelight"
+            "Front",    // OV2311
+            "Back",   // AR0144
         };
 
         // TODO: update Limelight webUI with camera position, AprilTags field locations
 
-        private static final double photonCamX = Units.inchesToMeters(10.375/2);
-        private static final double photonCamY = Units.inchesToMeters(10.00/2);
-        private static final double photonCamZ = Units.inchesToMeters(8.5);
-        private static final double photonCamPitch = Units.degreesToRadians(15.0);
-
-        private static final double limelightCamX = Units.inchesToMeters(18.25/2 - 3.25);
-        private static final double limelightCamY = Units.inchesToMeters(0);
-        private static final double limelightCamZ = Units.inchesToMeters(7.875);
-        private static final double limelightCamPitch = Units.degreesToRadians(5.0);
-
-        public static final Transform3d[] robotToCameras = {
-            new Transform3d(new Translation3d(-photonCamX, +photonCamY, photonCamZ), new Rotation3d(Units.degreesToRadians(+0.90), photonCamPitch, Units.degreesToRadians(-0.25))),
-            new Transform3d(new Translation3d(-photonCamX, -photonCamY, photonCamZ), new Rotation3d(0, photonCamPitch, Units.degreesToRadians(-0.85))),
-            new Transform3d(new Translation3d(+photonCamX, +photonCamY, photonCamZ), new Rotation3d(0, photonCamPitch, Units.degreesToRadians(180.0 - 1.48))),
-            new Transform3d(new Translation3d(+photonCamX, -photonCamY, photonCamZ), new Rotation3d(0, photonCamPitch, Units.degreesToRadians(180.0 - 0.40))),
-            new Transform3d(new Translation3d(limelightCamX, limelightCamY, limelightCamZ), new Rotation3d(0, limelightCamPitch, Units.degreesToRadians(-0.37)))
+        private static final Transform3d[] robotToCalibTag = {
+            new Transform3d(new Translation3d(95.75 / 100, 0, 13.25 / 100), new Rotation3d(0, 0, Units.degreesToRadians(180))),
+            new Transform3d(new Translation3d(-95.75 / 100, 0, 13.25 / 100), new Rotation3d(0, 0, Units.degreesToRadians(0))),
         };
+
+        private static final Transform3d[] cameraToCalibTag = {
+            new Transform3d(new Translation3d(0.7695, 0.1391, -0.1402), new Rotation3d(new Quaternion(0.022, 0.1079, 0.0035, -0.9939))),
+            new Transform3d(new Translation3d(1.171, 0.0415, -0.2687), new Rotation3d(new Quaternion(0.0197, 0.1799, 0, -0.9835))),
+        };
+
+        public static final Transform3d[] robotToCameras = new Transform3d[cameraToCalibTag.length];
+        static {
+            for(int i = 0; i < robotToCameras.length; i++) {
+                robotToCameras[i] = robotToCalibTag[i].plus(cameraToCalibTag[i].inverse());
+            }
+        }
 
         // TODO: figure out vision stdDevs
         public static final double singleTagAmbiguityCutoff = 0.05;

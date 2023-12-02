@@ -11,6 +11,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants.CANDevices;
 import frc.robot.util.LoggedTunableNumber;
@@ -19,7 +20,7 @@ public class ArmIOFalcon implements ArmIO {
     private final TalonFX armMotor = new TalonFX(CANDevices.armMotorID, CANDevices.armCanBusName);
     private final CANcoder armEncoder = new CANcoder(CANDevices.armEncoderID, CANDevices.armCanBusName);
 
-    private final LoggedTunableNumber positionCalOffset = new LoggedTunableNumber("Arm Calibration Offset", 1.7380002326744315);
+    private final LoggedTunableNumber positionCalOffset = new LoggedTunableNumber("Arm/Arm Calibration Offset", 1.7380002326744315);
 
     public ArmIOFalcon() {
         var armMotorConfig = new TalonFXConfiguration();
@@ -30,6 +31,8 @@ public class ArmIOFalcon implements ArmIO {
         var armEncoderConfig = new CANcoderConfiguration();
         armEncoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
         armEncoder.getConfigurator().apply(armEncoderConfig);
+
+        zeroEncoders();
     }
 
     @Override
@@ -49,7 +52,7 @@ public class ArmIOFalcon implements ArmIO {
 
     @Override
     public void zeroEncoders() {
-        armEncoder.setPosition(armEncoder.getAbsolutePosition().getValue());
+        armEncoder.setPosition(MathUtil.inputModulus(armEncoder.getAbsolutePosition().getValue() + Units.degreesToRadians(90), 0, 2 * Math.PI) - Units.degreesToRadians(90));
     }
 
     @Override

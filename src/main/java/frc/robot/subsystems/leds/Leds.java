@@ -5,20 +5,21 @@ import java.util.function.BooleanSupplier;
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
 import com.ctre.phoenix.led.CANdle.VBatOutputMode;
-
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.util.Color;
-
 import com.ctre.phoenix.led.CANdleConfiguration;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.Constants;
 import frc.robot.util.VirtualSubsystem;
+import frc.robot.util.led.animation.EndgameNotificationAnim;
 import frc.robot.util.led.animation.FillAnimation;
 import frc.robot.util.led.animation.FlashingAnimation;
 import frc.robot.util.led.animation.LEDAnimation;
 import frc.robot.util.led.animation.LEDManager;
 import frc.robot.util.led.animation.ScrollingAnimation;
 import frc.robot.util.led.functions.Gradient;
+import frc.robot.util.led.functions.Gradient.BasicGradient.InterpolationStyle;
 import frc.robot.util.led.functions.TilingFunction;
 import frc.robot.util.led.strips.LEDStrip;
 import frc.robot.util.led.strips.hardware.CANdleStrip;
@@ -33,12 +34,12 @@ public class Leds extends VirtualSubsystem {
     private final LEDStrip leftStrip =      offboardLEDs.substrip(offboardLEDs.getLength() / 2).reverse();
     private final LEDStrip parallelStrip =  rightStrip.parallel(leftStrip);
 
-    private final LEDAnimation defaultOffboardAnimation = new ScrollingAnimation(Gradient.rainbow, parallelStrip);
-    private final LEDAnimation defaultOnboardAnimation = new FlashingAnimation(Gradient.blackToWhite, onboardLEDs);
+    // private final LEDAnimation defaultOffboardAnimation = new ScrollingAnimation(Gradient.rainbow, parallelStrip);
+    // private final LEDAnimation defaultOnboardAnimation = new FlashingAnimation(Gradient.blackToWhite, onboardLEDs);
     private final LEDAnimation hasBallAnimation = new FillAnimation(Color.kGreen, parallelStrip);
     private final LEDAnimation intakingAnimation = new FillAnimation(Color.kPurple, parallelStrip);
-    private final LEDAnimation endGameNotification = new EndGameNotificationAnim(parallelStrip);
-    private final LEDAnimation allianceColorAnimation = new ScrollingAnimation((x) -> {
+    private final LEDAnimation endgameNotification = new EndgameNotificationAnim(parallelStrip);
+    private final ScrollingAnimation allianceColorAnimation = new ScrollingAnimation((x) -> {
         var colors = new Color[]{
             Color.kBlack,
             (DriverStation.getAlliance() == Alliance.Red ? Color.kRed : Color.kBlue)
@@ -60,9 +61,10 @@ public class Leds extends VirtualSubsystem {
         m_candle.configFactoryDefault();
         m_candle.clearAnimation(0);
         m_candle.configAllSettings(configAll, 100);
-        defaultOffboardAnimation.start();
-        defaultOnboardAnimation.start();
-        endGameNotification.setPriority(4);
+        // defaultOffboardAnimation.start();
+        // defaultOnboardAnimation.start();
+        allianceColorAnimation.setWavelength(4);
+        endgameNotification.setPriority(4);
         hasBallAnimation.setPriority(3);
         intakingAnimation.setPriority(2);
         allianceColorAnimation.setPriority(1);
@@ -86,7 +88,7 @@ public class Leds extends VirtualSubsystem {
         }
         if (DriverStation.isTeleopEnabled() && DriverStation.getMatchTime() <= 30 && ! endGameNotificationSent){
             endGameNotificationSent = true;
-            endGameNotification.start();
+            endgameNotification.start();
         }
         if (DriverStation.isDisabled()){
             endGameNotificationSent = false;

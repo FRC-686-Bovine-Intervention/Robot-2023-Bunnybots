@@ -7,6 +7,8 @@
 
 package frc.robot.util;
 
+import com.pathplanner.lib.path.PathPlannerPath;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -92,6 +94,17 @@ public class AllianceFlipUtil {
       return state;
     }
   }
+
+  // public static PathPlannerPath apply(PathPlannerPath path) {
+  //   if(!shouldFlip()) return path;
+  //   var points = path.getAllPathPoints();
+  //   var endState = path.getGoalEndState();
+  //   var markers = path.getEventMarkers();
+  //   var globalConstraints = path.getGlobalConstraints();
+  //   var startingPose = path.getPreviewStartingHolonomicPose();
+  //   var reversed = path.isReversed();
+  //   points.get(0).
+  // }
 
   private static boolean shouldFlip() {
     return DriverStation.getAlliance() == Alliance.Red;
