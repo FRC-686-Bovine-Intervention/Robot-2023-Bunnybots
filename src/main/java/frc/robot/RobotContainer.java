@@ -98,6 +98,7 @@ public class RobotContainer {
                 manip = new Manipulator(new ManipulatorIOTalon());
                 manuOverrides = new ManualOverrides(arm, drive);
                 ledSystem = new Leds();
+                ledSystem.setData(new LedData(manip::hasBall, manip::intaking));
             break;
 
             // Sim robot, instantiate physics sim IO implementations

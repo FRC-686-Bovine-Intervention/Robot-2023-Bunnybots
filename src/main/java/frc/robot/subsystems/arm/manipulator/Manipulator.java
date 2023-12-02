@@ -74,6 +74,12 @@ public class Manipulator extends SubsystemBase {
         }
     }
 
+    public boolean hasBall(){
+        return hasBall;
+    }
+    public boolean intaking(){
+        return manipIOInputs.maniAppliedVolts < -5;
+    }
     public Command intake() {
         return new FunctionalCommand(
             ()->{},
