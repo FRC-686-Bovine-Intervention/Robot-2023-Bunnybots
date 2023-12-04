@@ -1,5 +1,6 @@
 package frc.robot.subsystems.leds;
 
+import java.util.Optional;
 import java.util.function.BooleanSupplier;
 
 import com.ctre.phoenix.led.CANdle;
@@ -14,7 +15,6 @@ import frc.robot.Constants;
 import frc.robot.util.VirtualSubsystem;
 import frc.robot.util.led.animation.EndgameNotificationAnim;
 import frc.robot.util.led.animation.FillAnimation;
-import frc.robot.util.led.animation.FlashingAnimation;
 import frc.robot.util.led.animation.LEDAnimation;
 import frc.robot.util.led.animation.LEDManager;
 import frc.robot.util.led.animation.ScrollingAnimation;
@@ -42,7 +42,7 @@ public class Leds extends VirtualSubsystem {
     private final ScrollingAnimation allianceColorAnimation = new ScrollingAnimation((x) -> {
         var colors = new Color[]{
             Color.kBlack,
-            (DriverStation.getAlliance() == Alliance.Red ? Color.kRed : Color.kBlue)
+            (DriverStation.getAlliance().equals(Optional.of(Alliance.Red)) ? Color.kRed : Color.kBlue)
         };
         return InterpolationStyle.Linear.interpolate(x, colors);
     }, TilingFunction.Sinusoidal, parallelStrip);

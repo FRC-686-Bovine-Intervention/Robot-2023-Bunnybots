@@ -33,7 +33,7 @@ public class AprilTagCameraIOLimelight implements AprilTagCameraIO {
         if (!inputs.isConnected) 
             return;
 
-        if (DriverStation.getAlliance() == Alliance.Blue) {
+        if (DriverStation.getAlliance().equals(Optional.of(Alliance.Blue))) {
             inputs.visionPose = Optional.of(result.getBotPose3d_wpiBlue());
         } else {
             inputs.visionPose = Optional.of(result.getBotPose3d_wpiRed());

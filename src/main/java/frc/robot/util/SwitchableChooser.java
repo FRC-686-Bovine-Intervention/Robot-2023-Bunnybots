@@ -7,13 +7,15 @@
 
 package frc.robot.util;
 
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StringArrayPublisher;
-import edu.wpi.first.networktables.StringPublisher;
 import java.util.Arrays;
+
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardInput;
 import org.littletonrobotics.junction.networktables.LoggedDashboardString;
+
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StringArrayPublisher;
+import edu.wpi.first.networktables.StringPublisher;
 
 /** A string chooser for the dashboard where the options can be changed on-the-fly. */
 public class SwitchableChooser implements LoggedDashboardInput {
@@ -39,7 +41,7 @@ public class SwitchableChooser implements LoggedDashboardInput {
     activePublisher = table.getStringTopic("active").publish();
     selectedPublisher = table.getStringTopic("selected").publish();
     selectedInput = new LoggedDashboardString(name + "/selected");
-    Logger.getInstance().registerDashboardInput(this);
+    Logger.registerDashboardInput(this);
 
     namePublisher.set(name);
     typePublisher.set("String Chooser");

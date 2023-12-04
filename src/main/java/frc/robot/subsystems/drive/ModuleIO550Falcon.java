@@ -76,7 +76,7 @@ public class ModuleIO550Falcon implements ModuleIO {
     }
 
     public void zeroEncoders() {
-        driveMotor.setRotorPosition(0.0);
+        driveMotor.setPosition(0.0);
         // turnRelativeEncoder.setPosition(turnAbsoluteEncoder.getPosition());
     }
 

@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.Constants;
 
 public class ArmIOSim implements ArmIO {
-    private final SingleJointedArmSim armSim = new SingleJointedArmSim(DCMotor.getFalcon500(1).withReduction(25), 4, 1, 0.876300, Arm.ArmPos.LowBack.getRads() + Units.degreesToRadians(90), Arm.ArmPos.Ground.getRads() + Units.degreesToRadians(90), true);
+    private final SingleJointedArmSim armSim = new SingleJointedArmSim(DCMotor.getFalcon500(1).withReduction(25), 4, 1, 0.876300, Arm.ArmPos.LowBack.getRads() + Units.degreesToRadians(90), Arm.ArmPos.Ground.getRads() + Units.degreesToRadians(90), true, 0);
 
     private double armAppliedVolts;
     @Override

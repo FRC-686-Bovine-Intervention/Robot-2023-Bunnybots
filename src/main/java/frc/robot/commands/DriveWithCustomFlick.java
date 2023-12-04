@@ -72,7 +72,7 @@ public class DriveWithCustomFlick extends Command {
 						smallestIndex = i;
 					}
 				}
-				return Optional.of(MathUtil.inputModulus(snapPoints[smallestIndex] - forwardDirectionSupplier.getAsDouble() + (DriverStation.getAlliance() == Alliance.Red ? Math.PI : 0), 0, Math.PI * 2));
+				return Optional.of(MathUtil.inputModulus(snapPoints[smallestIndex] - forwardDirectionSupplier.getAsDouble() + (DriverStation.getAlliance().equals(Optional.of(Alliance.Red)) ? Math.PI : 0), 0, Math.PI * 2));
 			}
 		};
 	}
@@ -127,7 +127,7 @@ public class DriveWithCustomFlick extends Command {
 
 		// field relative controls
 		var driveRotation = drive.getRotation(); // angle from alliance wall normal
-		if (DriverStation.getAlliance() == Alliance.Blue) {
+		if (DriverStation.getAlliance().equals(Optional.of(Alliance.Blue))) {
 			driveRotation = driveRotation.rotateBy(new Rotation2d(Math.PI));
 		}
 		speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, driveRotation);
