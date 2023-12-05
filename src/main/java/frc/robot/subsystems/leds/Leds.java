@@ -50,7 +50,7 @@ public class Leds extends VirtualSubsystem {
     private boolean endGameNotificationSent = false;
 
     public Leds() {
-        super();
+        System.out.println("[Init Leds] Instantiating Leds");
         ledManager.register(candleLEDs);
         CANdleConfiguration configAll = new CANdleConfiguration();
         configAll.statusLedOffWhenActive = true;

@@ -175,6 +175,7 @@ networktables.json
 
 /**/BuildConstants.java
 *.wpilog
+!NetworkAlerts.jar
 
 # Allow photonvision settings
 !photonvision-settings*

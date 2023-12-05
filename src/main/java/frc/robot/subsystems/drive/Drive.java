@@ -62,16 +62,15 @@ public class Drive extends SubsystemBase {
     private Twist2d fieldVelocity = new Twist2d();
 
     public Drive(GyroIO gyroIO, ModuleIO flModuleIO, ModuleIO frModuleIO, ModuleIO blModuleIO, ModuleIO brModuleIO) {
+        System.out.println("[Init Drive] Instantiating Drive");
         this.gyroIO = gyroIO;
+        System.out.println("[Init Drive] Gyro IO: " + this.gyroIO.getClass().getSimpleName());
         Shuffleboard.getTab("Drive").add("Drive Subsystem", this);
         ModuleIO[] moduleIOs = new ModuleIO[]{flModuleIO, frModuleIO, blModuleIO, brModuleIO};
         for(DriveModulePosition position : DriveModulePosition.values()) {
+            System.out.println("[Init Drive] Instantiating Module " + position.name() + " with Module IO: " + moduleIOs[position.ordinal()].getClass().getSimpleName());
             modules[position.ordinal()] = new Module(moduleIOs[position.ordinal()], position.ordinal());
         }
-        // modules[DriveModulePosition.FRONT_LEFT.ordinal()] = new Module(flModuleIO, DriveModulePosition.FRONT_LEFT.ordinal());
-        // modules[DriveModulePosition.FRONT_RIGHT.ordinal()] = new Module(frModuleIO, DriveModulePosition.FRONT_RIGHT.ordinal());
-        // modules[DriveModulePosition.BACK_LEFT.ordinal()] = new Module(blModuleIO, DriveModulePosition.BACK_LEFT.ordinal());
-        // modules[DriveModulePosition.BACK_RIGHT.ordinal()] = new Module(brModuleIO, DriveModulePosition.BACK_RIGHT.ordinal());
         lastMovementTimer.start();
         for (var module : modules) {
             module.setBrakeMode(false);
@@ -86,7 +85,7 @@ public class Drive extends SubsystemBase {
     public void periodic() {
         // update IO inputs
         gyroIO.updateInputs(gyroInputs);
-        Logger.getInstance().processInputs("Drive/Gyro", gyroInputs);
+        Logger.processInputs("Drive/Gyro", gyroInputs);
         for (var module : modules) {
             module.periodic();
         }
@@ -99,8 +98,8 @@ public class Drive extends SubsystemBase {
             }
 
             // Clear setpoint logs
-            Logger.getInstance().recordOutput("SwerveStates/Setpoints", new double[] {});
-            Logger.getInstance().recordOutput("SwerveStates/SetpointsOptimized", new double[] {});
+            Logger.recordOutput("SwerveStates/Setpoints", new double[] {});
+            Logger.recordOutput("SwerveStates/SetpointsOptimized", new double[] {});
 
         } else if (isCharacterizing) {
             // Run in characterization mode
@@ -109,8 +108,8 @@ public class Drive extends SubsystemBase {
             }
 
             // Clear setpoint logs
-            Logger.getInstance().recordOutput("SwerveStates/Setpoints", new double[] {});
-            Logger.getInstance().recordOutput("SwerveStates/SetpointsOptimized", new double[] {});
+            Logger.recordOutput("SwerveStates/Setpoints", new double[] {});
+            Logger.recordOutput("SwerveStates/SetpointsOptimized", new double[] {});
 
         } else {
             /**
@@ -140,8 +139,8 @@ public class Drive extends SubsystemBase {
             }
 
             // Log setpoint states
-            Logger.getInstance().recordOutput("SwerveStates/Setpoints", setpointStates);
-            Logger.getInstance().recordOutput("SwerveStates/SetpointsOptimized", optimizedStates);
+            Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
+            Logger.recordOutput("SwerveStates/SetpointsOptimized", optimizedStates);
         }
 
         // Log measured states
@@ -149,7 +148,7 @@ public class Drive extends SubsystemBase {
         for (int i = 0; i < DriveConstants.numDriveModules; i++) {
             measuredStates[i] = modules[i].getState();
         }
-        Logger.getInstance().recordOutput("SwerveStates/Measured", measuredStates);
+        Logger.recordOutput("SwerveStates/Measured", measuredStates);
         lastMeasuredStates = measuredStates;
 
         // Update odometry
@@ -165,7 +164,7 @@ public class Drive extends SubsystemBase {
         }
         RobotState.getInstance().addDriveMeasurement(gyroAngle, getModulePositions());
 
-        Logger.getInstance().recordOutput("Odometry/Robot", getPose());
+        Logger.recordOutput("Odometry/Robot", getPose());
 
         // Update field velocity
         ChassisSpeeds chassisSpeeds = kinematics.toChassisSpeeds(measuredStates);

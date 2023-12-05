@@ -9,16 +9,7 @@ public interface ManipulatorIO {
         public double manipCurrentAmps = 0.0;
     }
 
-    public static ManipulatorIO blank() {
-        return new ManipulatorIO() {
-            @Override
-            public void updateInputs(ManipulatorIOInputs inputs) {}
-            @Override
-            public void setVoltage(double volts) {}
-        };
-    }
+    public default void updateInputs(ManipulatorIOInputs inputs) {}
 
-    public void updateInputs(ManipulatorIOInputs inputs);
-
-    public void setVoltage(double volts);
+    public default void setVoltage(double volts) {}
 }

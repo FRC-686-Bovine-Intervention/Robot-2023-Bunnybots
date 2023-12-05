@@ -23,15 +23,16 @@ public class AprilTagCamera {
 
     public void periodic() {
         cameraIO.updateInputs(inputs);
-        Logger.getInstance().processInputs("Vision/Camera/" + name, inputs);
+        Logger.processInputs("Vision/Camera/" + name, inputs);
 
         // update RobotState
-        if (inputs.visionPose.isPresent()) {
+        inputs.visionPose.ifPresent((pose) -> {
             RobotState.getInstance().addVisionMeasurement(
-                inputs.visionPose.get().toPose2d(),
+                pose.toPose2d(),
                 computeStdDevs(0),  // TODO: figure out vision stdDevs 
-                inputs.timestamp);
-        }
+                inputs.timestamp
+            );
+        });
     }
 
     private Matrix<N3, N1> computeStdDevs(double distance) {

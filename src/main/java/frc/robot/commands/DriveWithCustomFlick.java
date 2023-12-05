@@ -3,6 +3,7 @@ package frc.robot.commands;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.MathUtil;
@@ -45,6 +46,7 @@ public class DriveWithCustomFlick extends Command {
 			};
 			@Override
 			public Optional<Double> get() {
+				DoubleUnaryOperator outputFilter = (i) -> MathUtil.inputModulus(i - forwardDirectionSupplier.getAsDouble() + (DriverStation.getAlliance().equals(Optional.of(Alliance.Red)) ? Math.PI : 0), 0, Math.PI * 2);
 				double joyX = xSupplier.getAsDouble();
 				double joyY = ySupplier.getAsDouble();
 				if(Math.hypot(joyX, joyY) <= radialDeadband) {
@@ -56,7 +58,7 @@ public class DriveWithCustomFlick extends Command {
 				}
 				double joyHeading = -Math.atan2(-joyX, joyY);
 				if (preciseTurnTimer.hasElapsed(preciseTurnTimeThreshold)) {
-					return Optional.of(joyHeading);
+					return Optional.of(outputFilter.applyAsDouble(joyHeading));
 				}
 				double[] distancesToSnapPoints = new double[snapPoints.length];
 				for(int i = 0; i < snapPoints.length; i++) {
@@ -72,7 +74,7 @@ public class DriveWithCustomFlick extends Command {
 						smallestIndex = i;
 					}
 				}
-				return Optional.of(MathUtil.inputModulus(snapPoints[smallestIndex] - forwardDirectionSupplier.getAsDouble() + (DriverStation.getAlliance().equals(Optional.of(Alliance.Red)) ? Math.PI : 0), 0, Math.PI * 2));
+				return Optional.of(outputFilter.applyAsDouble(snapPoints[smallestIndex]));
 			}
 		};
 	}

@@ -24,12 +24,18 @@ import frc.robot.util.trajectory.RotationSequence;
  * alliance wall.
  */
 public class AllianceFlipUtil {
+  public static enum FieldFlipType {
+    CenterPointFlip,
+    MirrorFlip,
+  }
+  public static final FieldFlipType flipType = FieldFlipType.CenterPointFlip;
   /** Flips a translation to the correct side of the field based on the current alliance color. */
   public static Translation2d apply(Translation2d translation) {
-    if (shouldFlip()) {
-      return new Translation2d(FieldConstants.fieldLength - translation.getX(), translation.getY());
-    } else {
-      return translation;
+    if(!shouldFlip()) return translation;
+    switch(flipType) {
+      default:
+      case CenterPointFlip: return new Translation2d(FieldConstants.fieldLength - translation.getX(), FieldConstants.fieldWidth - translation.getY());
+      case MirrorFlip:      return new Translation2d(FieldConstants.fieldLength - translation.getX(), translation.getY());
     }
   }
 
@@ -44,23 +50,18 @@ public class AllianceFlipUtil {
 
   /** Flips a rotation based on the current alliance color. */
   public static Rotation2d apply(Rotation2d rotation) {
-    if (shouldFlip()) {
-      return new Rotation2d(-rotation.getCos(), rotation.getSin());
-    } else {
-      return rotation;
+    if(!shouldFlip()) return rotation;
+    switch(flipType) {
+      default:
+      case CenterPointFlip: return rotation.rotateBy(Rotation2d.fromRotations(0.5));
+      case MirrorFlip:      return new Rotation2d(-rotation.getCos(), rotation.getSin());
     }
   }
 
   /** Flips a pose to the correct side of the field based on the current alliance color. */
   public static Pose2d apply(Pose2d pose) {
-    if (shouldFlip()) {
-      return new Pose2d(
-          FieldConstants.fieldLength - pose.getX(),
-          pose.getY(),
-          new Rotation2d(-pose.getRotation().getCos(), pose.getRotation().getSin()));
-    } else {
-      return pose;
-    }
+    if(!shouldFlip()) return pose;
+    return new Pose2d(apply(pose.getTranslation()), apply(pose.getRotation()));
   }
 
   /**

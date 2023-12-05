@@ -1,0 +1,12 @@
+{
+    "name": "Bunnybots 2023",
+    "sourceUrl": "",
+    "rotations":[
+        {
+            "axis": "x",
+            "degrees": 90
+        }
+    ],
+    "widthInches": 648,
+    "heightInches": 324
+}

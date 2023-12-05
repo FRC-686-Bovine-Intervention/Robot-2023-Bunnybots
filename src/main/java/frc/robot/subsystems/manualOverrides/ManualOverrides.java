@@ -25,6 +25,7 @@ public class ManualOverrides extends VirtualSubsystem {
     private Boolean driveOverridingBreak = null;
 
     public ManualOverrides(Arm arm, Drive drive) {
+        System.out.println("[Init ManualOverrides] Instantiating Manual Overrides");
         this.arm = arm;
         this.drive = drive;
     }
@@ -39,8 +40,8 @@ public class ManualOverrides extends VirtualSubsystem {
 
         var armBrakeSwitchVal = !armBrakeSwitch.get();
         var driveBrakeSwitchVal = !driveBrakeSwitch.get();
-        Logger.getInstance().recordOutput("Manual Overrides/Arm Brake", armBrakeSwitchVal);
-        Logger.getInstance().recordOutput("Manual Overrides/Drive Brake", driveBrakeSwitchVal);
+        Logger.recordOutput("Manual Overrides/Arm Brake", armBrakeSwitchVal);
+        Logger.recordOutput("Manual Overrides/Drive Brake", driveBrakeSwitchVal);
 
         if(armBrakeSwitchVal && !lastArmBrakeSwitch) {
             armBrakeHoldTimer.restart();

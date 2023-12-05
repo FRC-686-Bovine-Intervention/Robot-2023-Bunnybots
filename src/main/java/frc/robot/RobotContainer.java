@@ -5,8 +5,6 @@
 package frc.robot;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -20,10 +18,10 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.DriveConstants.DriveModulePosition;
+import frc.robot.Constants.VisionConstants.Camera;
 import frc.robot.auto.AutoSelector;
 import frc.robot.auto.AutoSelector.AutoRoutine;
 import frc.robot.auto.ScoreHighThenBunny;
@@ -31,9 +29,11 @@ import frc.robot.commands.DriveWithCustomFlick;
 import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.subsystems.arm.arm.Arm;
+import frc.robot.subsystems.arm.arm.ArmIO;
 import frc.robot.subsystems.arm.arm.ArmIOFalcon;
 import frc.robot.subsystems.arm.arm.ArmIOSim;
 import frc.robot.subsystems.arm.manipulator.Manipulator;
+import frc.robot.subsystems.arm.manipulator.ManipulatorIO;
 import frc.robot.subsystems.arm.manipulator.ManipulatorIOSim;
 import frc.robot.subsystems.arm.manipulator.ManipulatorIOTalon;
 import frc.robot.subsystems.drive.Drive;
@@ -46,6 +46,8 @@ import frc.robot.subsystems.drive.SwerveJoysticks;
 import frc.robot.subsystems.leds.Leds;
 import frc.robot.subsystems.leds.Leds.LedData;
 import frc.robot.subsystems.manualOverrides.ManualOverrides;
+import frc.robot.subsystems.vision.AprilTagCamera;
+import frc.robot.subsystems.vision.AprilTagCameraIOPhotonVision;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
@@ -57,12 +59,11 @@ import frc.robot.util.Alert.AlertType;
  * scheduler calls). Instead, the structure of the robot (including subsystems,
  * commands, and button mappings) should be declared here.
  */
-public class RobotContainer {
+public class RobotContainer implements IRobotContainer {
     // Subsystems
-    @SuppressWarnings("unused")
     private final Drive drive;
     @SuppressWarnings("unused")
-    private final Vision vision;//new Vision();
+    private final Vision vision;
     private final Arm arm;
     private final Manipulator manip;
     @SuppressWarnings("unused")
@@ -76,61 +77,62 @@ public class RobotContainer {
     // Controller
     private final CommandXboxController driveController = new CommandXboxController(0);
 
-    // TODO: add LED and Brake switches
-    // private DigitalInput brakeSwitch = new
-    // DigitalInput(DIOPorts.brakeSwitchPort);
-    // private DigitalInput ledsSwitch = new DigitalInput(DIOPorts.ledSwitchPort);
-
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
-        switch (Constants.getMode()) {
-            // Real robot, instantiate hardware IO implementations
-            case REAL:
+        System.out.println("[Init RobotContainer] Creating " + RobotType.getRobot());
+        switch(RobotType.getRobot()) {
+            case ROBOT_2023_COMP:
+            case ROBOT_2023_PRAC:
                 drive = new Drive(
-                        new GyroIOPigeon2(),
-                        new ModuleIO550Falcon(DriveModulePosition.FRONT_LEFT),
-                        new ModuleIO550Falcon(DriveModulePosition.FRONT_RIGHT),
-                        new ModuleIO550Falcon(DriveModulePosition.BACK_LEFT),
-                        new ModuleIO550Falcon(DriveModulePosition.BACK_RIGHT));
-                vision = new Vision();
-                arm = new Arm(new ArmIOFalcon());
+                    new GyroIOPigeon2(),
+                    new ModuleIO550Falcon(DriveModulePosition.FRONT_LEFT),
+                    new ModuleIO550Falcon(DriveModulePosition.FRONT_RIGHT),
+                    new ModuleIO550Falcon(DriveModulePosition.BACK_LEFT),
+                    new ModuleIO550Falcon(DriveModulePosition.BACK_RIGHT)
+                );
+                vision = new Vision(
+                    new AprilTagCamera(Camera.Front.name(), new AprilTagCameraIOPhotonVision(Camera.Front.hardwareName, Camera.Front.robotToCamera)),
+                    new AprilTagCamera(Camera.Back.name(), new AprilTagCameraIOPhotonVision(Camera.Back.hardwareName, Camera.Back.robotToCamera))
+                );
                 manip = new Manipulator(new ManipulatorIOTalon());
+                arm = new Arm(new ArmIOFalcon());
                 manuOverrides = new ManualOverrides(arm, drive);
                 ledSystem = new Leds();
                 ledSystem.setData(new LedData(manip::hasBall, manip::intaking));
             break;
-
-            // Sim robot, instantiate physics sim IO implementations
             case SIM:
                 drive = new Drive(
-                        new GyroIO() {},
-                        new ModuleIOSim(),
-                        new ModuleIOSim(),
-                        new ModuleIOSim(),
-                        new ModuleIOSim());
-                vision = null;
-                arm = new Arm(new ArmIOSim());
+                    new GyroIO() {},
+                    new ModuleIOSim(),
+                    new ModuleIOSim(),
+                    new ModuleIOSim(),
+                    new ModuleIOSim()
+                );
+                vision = new Vision();
                 manip = new Manipulator(new ManipulatorIOSim());
+                arm = new Arm(new ArmIOSim());
                 manuOverrides = null;
                 ledSystem = null;
             break;
-
             default:
+            case REPLAY:
                 drive = new Drive(
-                        new GyroIO() {},
-                        new ModuleIO() {},
-                        new ModuleIO() {},
-                        new ModuleIO() {},
-                        new ModuleIO() {});
-                vision = null;
-                arm = null;
-                manip = null;
+                    new GyroIO() {},
+                    new ModuleIO() {},
+                    new ModuleIO() {},
+                    new ModuleIO() {},
+                    new ModuleIO() {}
+                );
+                vision = new Vision();
+                manip = new Manipulator(new ManipulatorIO() {});
+                arm = new Arm(new ArmIO() {});
                 manuOverrides = null;
                 ledSystem = null;
             break;
         }
+        
 
         var armPivot = robotSideProfile.getRoot("Arm Pivot", 1.5 + 0.26670000, +0.90805000).append(new MechanismLigament2d("Root", 0, 90, 0, new Color8Bit(Color.kBlack)));
         armPivot.append(arm.setpointArmLig);
@@ -164,48 +166,37 @@ public class RobotContainer {
      * ({@link edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then
      * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
-    private Map<Object, Command> getComMap() {
-        Map<Object, Command> comMap = new HashMap<>();
-        for(Arm.ArmPos pos : Arm.ArmPos.values()) {
-            comMap.put(pos, pos.goTo(arm).asProxy());
-        }
-        return comMap;
-    }
-
     private void configureButtonBindings() {
-        // driveController.a().whileTrue(arm.setTargetPosAndWait(ArmPos.Ground).andThen(manip.intake())).onFalse(arm.setTargetPos(ArmPos.Defense));
-        // driveController.a().whileTrue(arm.setArmVolts(-1));
-        var aCom = new ProxyCommand(() -> Commands.select(getComMap(), ()->{
+        var aCom = new ProxyCommand(() -> {
             var pos =  arm.getTargetPos();
-            if(pos == null) return Arm.ArmPos.Defense;
+            if(pos == null) return Arm.ArmPos.Defense.goTo(arm);
             switch(pos) {
-                case Defense:   return Arm.ArmPos.HighFront;
-                case Ground:    return Arm.ArmPos.Ground;
-                case Hedge:     return Arm.ArmPos.Ground;
-                case HighBack:  return Arm.ArmPos.Defense;
-                case HighFront: return Arm.ArmPos.LowFront;
-                case LowBack:   return Arm.ArmPos.HighBack;
-                case LowFront:  return Arm.ArmPos.Hedge;
-                default:        return Arm.ArmPos.Defense;
+                case Defense:   return Arm.ArmPos.HighFront.goTo(arm);
+                case Ground:    return Arm.ArmPos.Ground.goTo(arm);
+                case Hedge:     return Arm.ArmPos.Ground.goTo(arm);
+                case HighBack:  return Arm.ArmPos.Defense.goTo(arm);
+                case HighFront: return Arm.ArmPos.LowFront.goTo(arm);
+                case LowBack:   return Arm.ArmPos.HighBack.goTo(arm);
+                case LowFront:  return Arm.ArmPos.Hedge.goTo(arm);
+                default:        return Arm.ArmPos.Defense.goTo(arm);
             }
-        }));
-        driveController.a().onTrue(aCom).onFalse(Commands.runOnce(() -> aCom.end(false), new Subsystem[0]));
-        // driveController.y().whileTrue(arm.setArmVolts(1));
-        var yCom = new ProxyCommand(() -> Commands.select(getComMap(), ()->{
+        });
+        driveController.a().onTrue(aCom).onFalse(Commands.runOnce(() -> aCom.end(false)));
+        var yCom = new ProxyCommand(() -> {
             var pos =  arm.getTargetPos();
-            if(pos == null) return Arm.ArmPos.Defense;
+            if(pos == null) return Arm.ArmPos.Defense.goTo(arm);
             switch(pos) {
-                case Defense:   return Arm.ArmPos.HighBack;
-                case Ground:    return Arm.ArmPos.Hedge;
-                case Hedge:     return Arm.ArmPos.LowFront;
-                case HighBack:  return Arm.ArmPos.LowBack;
-                case HighFront: return Arm.ArmPos.Defense;
-                case LowBack:   return Arm.ArmPos.LowBack;
-                case LowFront:  return Arm.ArmPos.HighFront;
-                default:        return Arm.ArmPos.Defense;
+                case Defense:   return Arm.ArmPos.HighBack.goTo(arm);
+                case Ground:    return Arm.ArmPos.Hedge.goTo(arm);
+                case Hedge:     return Arm.ArmPos.LowFront.goTo(arm);
+                case HighBack:  return Arm.ArmPos.LowBack.goTo(arm);
+                case HighFront: return Arm.ArmPos.Defense.goTo(arm);
+                case LowBack:   return Arm.ArmPos.LowBack.goTo(arm);
+                case LowFront:  return Arm.ArmPos.HighFront.goTo(arm);
+                default:        return Arm.ArmPos.Defense.goTo(arm);
             }
-        }));
-        driveController.y().onTrue(yCom).onFalse(Commands.runOnce(() -> yCom.end(false), new Subsystem[0]));
+        });
+        driveController.y().onTrue(yCom).onFalse(Commands.runOnce(() -> yCom.end(false)));
 
         driveController.b().whileTrue(manip.intake());
         driveController.x().whileTrue(manip.score());
@@ -241,7 +232,6 @@ public class RobotContainer {
         );
     }
 
-
     private void configureAutos() {
         autoSelector.addRoutine(new ScoreHighThenBunny(drive, arm, manip));
         autoSelector.addRoutine(new AutoRoutine(
@@ -270,17 +260,8 @@ public class RobotContainer {
     }
 
     public void robotPeriodic() {
-        Logger.getInstance().recordOutput("Mechanism2d/Robot Side Profile", robotSideProfile);
-    }
-
-    public void disabledInit() {
-    }
-
-    public void disabledPeriodic() {
-    }
-
-    public void enabledInit() {
-
+        RobotState.getInstance().logOdometry();
+        Logger.recordOutput("Mechanism2d/Robot Side Profile", robotSideProfile);
     }
 }
 

@@ -3,6 +3,9 @@ package frc.robot.subsystems.arm.arm;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -75,7 +78,9 @@ public class Arm extends SubsystemBase {
 
     private static final ShuffleboardTab SBTab = Shuffleboard.getTab("Arm");
     public Arm(ArmIO armIO) {
+        System.out.println("[Init Arm] Instantiating Arm");
         this.armIO = armIO;
+        System.out.println("[Init Arm] Arm IO: " + this.armIO.getClass().getSimpleName());
         SBTab.add("Arm Subsystem", this);
         for(ArmPos pos : ArmPos.values()) {
             SBTab.add(pos.name(), setArmPos(pos));
@@ -85,13 +90,15 @@ public class Arm extends SubsystemBase {
         mechRoot.append(setpointArmLig);
     }
 
+    private final Translation3d pivot = new Translation3d(0.34925, 0, 0.15875000);
     @Override
     public void periodic() {
         armIO.updateInputs(armIOInputs);
-        Logger.getInstance().processInputs("Arm", armIOInputs);
+        Logger.processInputs("Arm", armIOInputs);
         measuredArmLig.setAngle(-Units.radiansToDegrees(armIOInputs.armPositionRad));
         setpointArmLig.setAngle(-Units.radiansToDegrees(armPID.getSetpoint().position));
-        Logger.getInstance().recordOutput("Mechanism2d/Arm Side Profile", armMech);
+        Logger.recordOutput("Mechanism2d/Arm Side Profile", armMech);
+        Logger.recordOutput("Mechanism3d/Arm", new Pose3d(pivot, new Rotation3d(0, 0, 0)));
         updateTunables();
     }
 

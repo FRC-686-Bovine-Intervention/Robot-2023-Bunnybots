@@ -27,8 +27,8 @@ import frc.robot.util.VirtualSubsystem;
  * project.
  */
 public class Robot extends LoggedRobot {
+  private IRobotContainer robotContainer;
   private Command autonomousCommand;
-  private RobotContainer robotContainer;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -37,6 +37,8 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotInit() {
     // Record metadata
+    System.out.println("[Init Robot] Recording AdvantageKit Metadata");
+    Logger.recordMetadata("Robot", RobotType.getRobot().name());
     Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
     Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
@@ -55,18 +57,20 @@ public class Robot extends LoggedRobot {
     }
 
     // Set up data receivers & replay source
-    switch (Constants.getMode()) {
+    System.out.println("[Init Robot] Configuring AdvantageKit for " + RobotType.getRobot().name());
+    switch (RobotType.getRobot()) {
       // Running on a real robot, log to a USB stick
-      case REAL:
+      case ROBOT_2023_COMP:
+      case ROBOT_2023_PRAC:
         Logger.addDataReceiver(new WPILOGWriter("/media/sda1/"));
         Logger.addDataReceiver(new NT4Publisher());
-        break;
+      break;
 
       // Running a physics simulator, log to local folder
       case SIM:
         Logger.addDataReceiver(new WPILOGWriter(""));
         Logger.addDataReceiver(new NT4Publisher());
-        break;
+      break;
 
       // Replaying a log, set up replay source
       case REPLAY:
@@ -74,38 +78,46 @@ public class Robot extends LoggedRobot {
         String logPath = LogFileUtil.findReplayLog();
         Logger.setReplaySource(new WPILOGReader(logPath));
         Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
-        break;
+      break;
     }
 
     // See http://bit.ly/3YIzFZ6 for more information on timestamps in AdvantageKit.
     // Logger.getInstance().disableDeterministicTimestamps()
-
+    System.out.println("[Init Robot] Starting AdvantageKit");
     Logger.start();
+
+    System.out.println("[Init Robot] Starting Command Logger");
     Map<String, Integer> commandCounts = new HashMap<>();
     BiConsumer<Command, Boolean> logCommandFunction =
-        (Command command, Boolean active) -> {
-          String name = command.getName();
-          int count = commandCounts.getOrDefault(name, 0) + (active ? 1 : -1);
-          commandCounts.put(name, count);
-          Logger.recordOutput(
-                  "Commands/Unique/" + name + "_" + Integer.toHexString(command.hashCode()), active);
-          Logger.recordOutput("Commands/All/" + name, count > 0);
-        };
+      (Command command, Boolean active) -> {
+        String name = command.getName();
+        int count = commandCounts.getOrDefault(name, 0) + (active ? 1 : -1);
+        commandCounts.put(name, count);
+        Logger.recordOutput(
+                "Commands/Unique/" + name + "_" + Integer.toHexString(command.hashCode()), active.booleanValue());
+        Logger.recordOutput("Commands/All/" + name, count > 0);
+    };
+
     CommandScheduler.getInstance()
-        .onCommandInitialize(
-            (Command command) -> {
-              logCommandFunction.accept(command, true);
-            });
+      .onCommandInitialize(
+        (Command command) -> {
+          logCommandFunction.accept(command, true);
+        }
+      );
     CommandScheduler.getInstance()
-        .onCommandFinish(
-            (Command command) -> {
-              logCommandFunction.accept(command, false);
-            });
+      .onCommandFinish(
+        (Command command) -> {
+          logCommandFunction.accept(command, false);
+        }
+      );
     CommandScheduler.getInstance()
-        .onCommandInterrupt(
-            (Command command) -> {
-              logCommandFunction.accept(command, false);
-            });
+      .onCommandInterrupt(
+        (Command command) -> {
+          logCommandFunction.accept(command, false);
+        }
+      );
+
+    System.out.println("[Init Robot] Instantiating RobotContainer");
     robotContainer = new RobotContainer();
   }
 
@@ -136,7 +148,7 @@ public class Robot extends LoggedRobot {
 
   /**
    * This autonomous runs the autonomous command selected by your
-   * {@link RobotContainer} class.
+   * {@link IRobotContainer} class.
    */
   @Override
   public void autonomousInit() {
@@ -147,12 +159,15 @@ public class Robot extends LoggedRobot {
       autonomousCommand.schedule();
     }
 
+    robotContainer.autonomousInit();
     robotContainer.enabledInit();
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
+    robotContainer.autonomousPeriodic();
+    robotContainer.enabledPeriodic();
   }
 
   /** This function is called once when teleop is enabled. */
@@ -166,12 +181,15 @@ public class Robot extends LoggedRobot {
       autonomousCommand.cancel();
     }
 
+    robotContainer.teleopInit();
     robotContainer.enabledInit();
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+    robotContainer.teleopPeriodic();
+    robotContainer.enabledPeriodic();
   }
 
   /** This function is called once when test mode is enabled. */
@@ -179,11 +197,15 @@ public class Robot extends LoggedRobot {
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
+    robotContainer.testInit();
+    robotContainer.enabledInit();
   }
 
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {
+    robotContainer.testPeriodic();
+    robotContainer.enabledInit();
   }
 
   /** This function is called once when the robot is first started up. */

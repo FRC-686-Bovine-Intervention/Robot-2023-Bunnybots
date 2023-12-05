@@ -6,7 +6,6 @@ package frc.robot;
 
 import com.ctre.phoenix6.signals.InvertedValue;
 
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Quaternion;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -143,28 +142,23 @@ public final class Constants {
     }
 
     public static final class VisionConstants {
-
-        public static final String[] cameraNames = {
-            "Front",    // OV2311
-            "Back",   // AR0144
-        };
-
-        // TODO: update Limelight webUI with camera position, AprilTags field locations
-
-        private static final Transform3d[] robotToCalibTag = {
-            new Transform3d(new Translation3d(95.75 / 100, 0, 13.25 / 100), new Rotation3d(0, 0, Units.degreesToRadians(180))),
-            new Transform3d(new Translation3d(-95.75 / 100, 0, 13.25 / 100), new Rotation3d(0, 0, Units.degreesToRadians(0))),
-        };
-
-        private static final Transform3d[] cameraToCalibTag = {
-            new Transform3d(new Translation3d(0.7695, 0.1391, -0.1402), new Rotation3d(new Quaternion(0.022, 0.1079, 0.0035, -0.9939))),
-            new Transform3d(new Translation3d(1.171, 0.0415, -0.2687), new Rotation3d(new Quaternion(0.0197, 0.1799, 0, -0.9835))),
-        };
-
-        public static final Transform3d[] robotToCameras = new Transform3d[cameraToCalibTag.length];
-        static {
-            for(int i = 0; i < robotToCameras.length; i++) {
-                robotToCameras[i] = robotToCalibTag[i].plus(cameraToCalibTag[i].inverse());
+        public static enum Camera {
+            Front(
+                "Front",
+                new Transform3d(new Translation3d(95.75 / 100, 0, 13.25 / 100), new Rotation3d(0, 0, Units.degreesToRadians(180))),
+                new Transform3d(new Translation3d(0.7695, 0.1391, -0.1402), new Rotation3d(new Quaternion(0.022, 0.1079, 0.0035, -0.9939)))
+            ),
+            Back(
+                "Back",
+                new Transform3d(new Translation3d(-95.75 / 100, 0, 13.25 / 100), new Rotation3d(0, 0, Units.degreesToRadians(0))),
+                new Transform3d(new Translation3d(1.171, 0.0415, -0.2687), new Rotation3d(new Quaternion(0.0197, 0.1799, 0, -0.9835)))
+            ),
+            ;
+            public final String hardwareName;
+            public final Transform3d robotToCamera;
+            Camera(String hardwareName, Transform3d robotToCalibTag, Transform3d cameraToCalibTag) {
+                this.hardwareName = hardwareName;
+                this.robotToCamera = robotToCalibTag.plus(cameraToCalibTag.inverse());
             }
         }
 

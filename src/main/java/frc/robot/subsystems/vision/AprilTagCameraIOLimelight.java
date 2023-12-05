@@ -5,16 +5,17 @@ import java.util.Optional;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
+import frc.robot.Constants.VisionConstants.Camera;
 
 public class AprilTagCameraIOLimelight implements AprilTagCameraIO {
 
     private final String cameraName; 
 
-    public AprilTagCameraIOLimelight(String cameraName) {
+    public AprilTagCameraIOLimelight(Camera cameraData) {
         // Important: need to configure robotToCamera pose using Limelight webUI
         // Important: need to configure AprilTag field map using Limelight webUI
         // https://docs.limelightvision.io/en/latest/apriltags_in_3d.html#robot-localization-botpose-and-megatag
-        this.cameraName = cameraName;
+        this.cameraName = cameraData.hardwareName;
         LimelightHelpers.setPipelineIndex(cameraName, 1);
     }
 

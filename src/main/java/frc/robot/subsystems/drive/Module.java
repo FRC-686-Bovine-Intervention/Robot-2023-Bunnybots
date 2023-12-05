@@ -60,7 +60,7 @@ public class Module {
         prevModulePosition = getPosition();
 
         io.updateInputs(inputs);
-        Logger.getInstance().processInputs("Drive/Module" + Integer.toString(index), inputs);
+        Logger.processInputs("Drive/Module" + Integer.toString(index), inputs);
 
         // Update controllers if tunable numbers have changed
         if (driveKp.hasChanged(hashCode()) || driveKd.hasChanged(hashCode())) {

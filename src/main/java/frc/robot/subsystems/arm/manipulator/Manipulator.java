@@ -41,7 +41,9 @@ public class Manipulator extends SubsystemBase {
     private boolean hasBall = false;
 
     public Manipulator(ManipulatorIO manipIO) {
+        System.out.println("[Init Manipulator] Instantiating Manipulator");
         this.manipIO = manipIO;
+        System.out.println("[Init Manipulator] Manipulator IO: " + this.manipIO.getClass().getSimpleName());
 
         clawLig.append(topRollerFixedLig).append(topRollerLig);
         clawLig.append(botRollerFixedLig).append(botRollerLig);
@@ -53,7 +55,7 @@ public class Manipulator extends SubsystemBase {
     @Override
     public void periodic() {
         manipIO.updateInputs(manipIOInputs);
-        Logger.getInstance().processInputs("Manip", manipIOInputs);
+        Logger.processInputs("Manip", manipIOInputs);
         if(Math.abs(manipIOInputs.manipCurrentAmps) >= spikeThreshold.get()) {
             currentSpikeTimer.start();
         } else {

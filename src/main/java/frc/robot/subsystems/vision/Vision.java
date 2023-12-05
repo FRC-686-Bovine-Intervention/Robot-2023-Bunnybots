@@ -1,17 +1,14 @@
 package frc.robot.subsystems.vision;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.VisionConstants;
+import frc.robot.util.VirtualSubsystem;
 
-public class Vision extends SubsystemBase {
+public class Vision extends VirtualSubsystem {
 
     private final AprilTagCamera[] cameras;
 
-    public Vision() {
-        cameras = new AprilTagCamera[] {
-            new AprilTagCamera(VisionConstants.cameraNames[0], new AprilTagCameraIOPhotonVision(VisionConstants.cameraNames[0], VisionConstants.robotToCameras[0])),
-            new AprilTagCamera(VisionConstants.cameraNames[1], new AprilTagCameraIOPhotonVision(VisionConstants.cameraNames[1], VisionConstants.robotToCameras[1])),
-        };
+    public Vision(AprilTagCamera... cameras) {
+        System.out.println("[Init Vision] Instantiating Vision");
+        this.cameras = cameras;
     }
 
     @Override

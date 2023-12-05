@@ -47,10 +47,10 @@ public interface AprilTagCameraIO {
         @Override
         public final void fromLog(LogTable table)
         {
-            isConnected = table.getBoolean("isConnected", false);
+            isConnected = table.get("isConnected", false);
             double[] defaultData = {Double.NaN, Double.NaN, Double.NaN};
-            double[] data = table.getDoubleArray("visionPose", defaultData);
-            timestamp = table.getDouble("timestamp", 0.0);
+            double[] data = table.get("visionPose", defaultData);
+            timestamp = table.get("timestamp", 0.0);
     
             // convert double[] back to Pose3d
             if (Double.isNaN(data[0])) {
@@ -63,5 +63,6 @@ public interface AprilTagCameraIO {
     }
     
     public default void updateInputs(AprilTagCameraIOInputs inputs) {}
+    public default String getName() {return "NoName";}
 
 }
