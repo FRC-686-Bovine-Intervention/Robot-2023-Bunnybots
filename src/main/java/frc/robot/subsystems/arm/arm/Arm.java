@@ -90,7 +90,7 @@ public class Arm extends SubsystemBase {
         mechRoot.append(setpointArmLig);
     }
 
-    private final Translation3d pivot = new Translation3d(0.34925, 0, 0.15875000);
+    private final Translation3d pivot = new Translation3d(0.26670000, 0, 0.90805000);
     @Override
     public void periodic() {
         armIO.updateInputs(armIOInputs);
@@ -98,7 +98,7 @@ public class Arm extends SubsystemBase {
         measuredArmLig.setAngle(-Units.radiansToDegrees(armIOInputs.armPositionRad));
         setpointArmLig.setAngle(-Units.radiansToDegrees(armPID.getSetpoint().position));
         Logger.recordOutput("Mechanism2d/Arm Side Profile", armMech);
-        Logger.recordOutput("Mechanism3d/Arm", new Pose3d(pivot, new Rotation3d(0, 0, 0)));
+        Logger.recordOutput("Mechanism3d/Arm", new Pose3d(pivot, new Rotation3d(0, armIOInputs.armPositionRad, 0)));
         updateTunables();
     }
 

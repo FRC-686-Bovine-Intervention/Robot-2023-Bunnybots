@@ -15,9 +15,13 @@
                 {
                     "axis": "z",
                     "degrees": 90
+                },
+                {
+                    "axis": "y",
+                    "degrees": 180
                 }
             ],
-            "zeroedPosition": [0,0,0]
+            "zeroedPosition": [0,0,0.623816]
         }
     ]
 }
