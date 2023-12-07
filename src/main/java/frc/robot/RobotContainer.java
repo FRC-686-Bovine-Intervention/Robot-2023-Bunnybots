@@ -26,6 +26,7 @@ import frc.robot.auto.AutoSelector;
 import frc.robot.auto.AutoSelector.AutoRoutine;
 import frc.robot.auto.ScoreHighThenBunny;
 import frc.robot.commands.DriveWithCustomFlick;
+import frc.robot.commands.DriverAutoCommands;
 import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.subsystems.arm.arm.Arm;
@@ -99,8 +100,13 @@ public class RobotContainer implements IRobotContainer {
                 manip = new Manipulator(new ManipulatorIOTalon());
                 arm = new Arm(new ArmIOFalcon());
                 manuOverrides = new ManualOverrides(arm, drive);
-                ledSystem = new Leds();
-                ledSystem.setData(new LedData(manip::hasBall, manip::intaking));
+                ledSystem = new Leds(new LedData(
+                    manip::hasBall,
+                    manip::intaking,
+                    () -> drive.getCurrentCommand() != null && drive.getCurrentCommand() == drive.getDefaultCommand(),
+                    () -> manuOverrides.armOverridingBrake,
+                    () -> manuOverrides.driveOverridingBreak
+                ));
             break;
             case SIM:
                 drive = new Drive(
@@ -200,6 +206,14 @@ public class RobotContainer implements IRobotContainer {
 
         driveController.b().whileTrue(manip.intake());
         driveController.x().whileTrue(manip.score());
+
+        driveController.rightBumper().toggleOnTrue(
+            Commands.either(
+                DriverAutoCommands.bushToHedge(drive, arm, manip).asProxy().andThen(DriverAutoCommands.hedgeToBush(drive, arm, manip).asProxy()).asProxy().repeatedly(),
+                DriverAutoCommands.hedgeToBush(drive, arm, manip).asProxy().andThen(DriverAutoCommands.bushToHedge(drive, arm, manip).asProxy()).asProxy().repeatedly(),
+                manip::hasBall
+            )
+        );
     }
 
 

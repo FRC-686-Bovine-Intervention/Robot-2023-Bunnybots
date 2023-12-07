@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.util.LoggedTunableNumber;
@@ -142,7 +141,7 @@ public class Arm extends SubsystemBase {
     }
 
     public Command gotoArmPos(ArmPos pos) {
-        return Commands.runOnce(() -> setArmPos(pos).schedule(), new Subsystem[0]);
+        return Commands.runOnce(() -> setArmPos(pos).schedule());
     }
     public Command gotoArmPosWithWait(ArmPos pos) {
         return gotoArmPos(pos).andThen(waitUntilAtGoal());

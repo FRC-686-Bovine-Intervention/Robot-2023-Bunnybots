@@ -93,8 +93,8 @@ public class Robot extends LoggedRobot {
         String name = command.getName();
         int count = commandCounts.getOrDefault(name, 0) + (active ? 1 : -1);
         commandCounts.put(name, count);
-        Logger.recordOutput(
-                "Commands/Unique/" + name + "_" + Integer.toHexString(command.hashCode()), active.booleanValue());
+        // Logger.recordOutput(
+        //         "Commands/Unique/" + name + "_" + Integer.toHexString(command.hashCode()), active.booleanValue());
         Logger.recordOutput("Commands/All/" + name, count > 0);
     };
 

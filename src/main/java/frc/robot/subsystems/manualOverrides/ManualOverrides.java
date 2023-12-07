@@ -17,12 +17,12 @@ public class ManualOverrides extends VirtualSubsystem {
     private final DigitalInput armBrakeSwitch = new DigitalInput(Constants.OverrideConstants.armBrakeModeButton);
     private boolean lastArmBrakeSwitch = false;
     private final Timer armBrakeHoldTimer = new Timer();
-    private Boolean armOverridingBrake = null;
+    public Boolean armOverridingBrake = null;
 
     private final DigitalInput driveBrakeSwitch = new DigitalInput(Constants.OverrideConstants.driveBrakeModeButton);
     private boolean lastDriveBrakeSwitch = false;
     private final Timer driveBrakeHoldTimer = new Timer();
-    private Boolean driveOverridingBreak = null;
+    public Boolean driveOverridingBreak = null;
 
     public ManualOverrides(Arm arm, Drive drive) {
         System.out.println("[Init ManualOverrides] Instantiating Manual Overrides");

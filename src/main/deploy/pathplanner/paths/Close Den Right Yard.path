@@ -8,19 +8,19 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.2832368800879825,
-        "y": 0.6819056870886911
+        "x": 5.742882009934373,
+        "y": 0.9590277012853355
       },
       "isLocked": false
     },
     {
       "anchor": {
-        "x": 8.017249038922884,
-        "y": 2.8341260862096536
+        "x": 7.941795525024323,
+        "y": 2.698977959331589
       },
       "prevControl": {
-        "x": 8.031149363329602,
-        "y": 0.8463796960488739
+        "x": 7.592435433841807,
+        "y": 1.185084230874022
       },
       "nextControl": null,
       "isLocked": false
@@ -37,12 +37,12 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": -90.0
   },
   "reversed": false,
   "folder": "Score Then Bunny",
   "previewStartingState": {
-    "rotation": 90.0,
-    "velocity": 0
+    "rotation": -90.0,
+    "velocity": 3.0
   }
 }

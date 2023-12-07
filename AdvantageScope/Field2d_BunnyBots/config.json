@@ -1,8 +1,8 @@
 {
     "name": "Bunnybots 2023",
     "sourceUrl": "",
-    "topLeft": [7, 7],
-    "bottomRight": [1001, 502],
+    "topLeft": [244, 345],
+    "bottomRight": [3955, 2201],
     "widthInches": 648,
     "heightInches": 324
 }

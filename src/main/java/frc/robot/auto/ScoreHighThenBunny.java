@@ -82,11 +82,12 @@ public class ScoreHighThenBunny extends AutoRoutine {
                 return
                     Commands.runOnce(() -> robotState.setPose(drive.getGyroRotation(), drive.getModulePositions(), AllianceFlipUtil.apply(new Pose2d(startToBurrow.getPoint(0).position, new Rotation2d(Units.degreesToRadians(180))))))
                     .andThen(followPathConstructor.apply(startToBurrow))
-                    .alongWith(arm.gotoArmPosWithWait(ArmPos.HighFront))
+                    .andThen(arm.gotoArmPosWithWait(ArmPos.HighFront))
                     .andThen(manip.score().withTimeout(0.5))
                     .andThen(arm.gotoArmPos(ArmPos.Defense))
                     .andThen(followPathConstructor.apply(burrowToExit))
-                    .andThen(followPathConstructor.apply(exitToYard));
+                    .andThen(followPathConstructor.apply(exitToYard))
+                    .withName("Score High Then Bunny");
             }
         );
     }
