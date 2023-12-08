@@ -14,7 +14,7 @@ public interface AprilTagCameraIO {
     public class AprilTagCameraIOInputs implements LoggableInputs {
     
         public boolean isConnected;
-        public Optional<Pose3d> visionPose;   
+        public Optional<Pose3d> visionPose = Optional.empty();   
         public double timestamp;
     
         // AdvantageKit's @AutoLog annotation and processInputs() function 

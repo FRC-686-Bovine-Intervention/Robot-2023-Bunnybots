@@ -21,8 +21,8 @@ public class DriverAutoCommands {
     private static final HolonomicPathFollowerConfig config = new HolonomicPathFollowerConfig(Constants.DriveConstants.maxDriveSpeedMetersPerSec, 0.46, new ReplanningConfig());
     private static final BiFunction<PathPlannerPath, Drive, Command> followPathConstructor = (path, drive) -> new FollowPathHolonomic(path, () -> AllianceFlipUtil.apply(RobotState.getInstance().getPose()), drive::getChassisSpeeds, drive::driveVelocity, config, drive);
 
-    private static final PathPlannerPath hedgeToBushPath = PathPlannerPath.fromPathFile("Hedge To Bush");
-    private static final PathPlannerPath bushToHedgePath = PathPlannerPath.fromPathFile("Bush To Hedge");
+    private static final PathPlannerPath hedgeToBushPath = PathPlannerPath.fromPathFile("Hedge to Bush");
+    private static final PathPlannerPath bushToHedgePath = PathPlannerPath.fromPathFile("Bush to Hedge");
 
     public static Command hedgeToBush(Drive drive, Arm arm, Manipulator manip) {
         return

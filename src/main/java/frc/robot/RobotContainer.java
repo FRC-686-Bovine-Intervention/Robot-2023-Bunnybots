@@ -48,6 +48,7 @@ import frc.robot.subsystems.leds.Leds;
 import frc.robot.subsystems.leds.Leds.LedData;
 import frc.robot.subsystems.manualOverrides.ManualOverrides;
 import frc.robot.subsystems.vision.AprilTagCamera;
+import frc.robot.subsystems.vision.AprilTagCameraIO;
 import frc.robot.subsystems.vision.AprilTagCameraIOPhotonVision;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.Alert;
@@ -93,9 +94,12 @@ public class RobotContainer implements IRobotContainer {
                     new ModuleIO550Falcon(DriveModulePosition.BACK_LEFT),
                     new ModuleIO550Falcon(DriveModulePosition.BACK_RIGHT)
                 );
+                // vision = null;
                 vision = new Vision(
-                    new AprilTagCamera(Camera.Front.name(), new AprilTagCameraIOPhotonVision(Camera.Front.hardwareName, Camera.Front.robotToCamera)),
-                    new AprilTagCamera(Camera.Back.name(), new AprilTagCameraIOPhotonVision(Camera.Back.hardwareName, Camera.Back.robotToCamera))
+                    // new AprilTagCamera(Camera.Front.name(), new AprilTagCameraIO() {}),
+                    // new AprilTagCamera(Camera.Back.name(), new AprilTagCameraIO() {})
+                    new AprilTagCamera(Camera.Front.name(), new AprilTagCameraIOPhotonVision(Camera.Front.hardwareName, Camera.Front.robotToCamera))
+                    // new AprilTagCamera(Camera.Back.name(), new AprilTagCameraIOPhotonVision(Camera.Back.hardwareName, Camera.Back.robotToCamera))
                 );
                 manip = new Manipulator(new ManipulatorIOTalon());
                 arm = new Arm(new ArmIOFalcon());
@@ -153,11 +157,14 @@ public class RobotContainer implements IRobotContainer {
         robotSideProfile.getRoot("Bumper", 1.5 + 0.384175, 0.1143).append(new MechanismLigament2d("Bumper", 0.384175 * 2, 180, 50, new Color8Bit(Color.kBlue)));
 
         // Configure the button bindings
+        System.out.println("[Init RobotContainer] Configuring Button Bindings");
         configureButtonBindings();
 
+        System.out.println("[Init RobotContainer] Configuring Default Subsystem Commands");
         configureSubsystems();
 
         // Set up auto routines
+        System.out.println("[Init RobotContainer] Configuring Autonomous Modes");
         configureAutos();
 
         // Alert if in tuning mode

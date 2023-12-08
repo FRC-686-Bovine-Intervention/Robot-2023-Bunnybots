@@ -39,24 +39,24 @@ public class Leds extends VirtualSubsystem {
     private final LEDAnimation hasBallAnimation = new FillAnimation(Color.kGreen, parallelStrip);
     private final LEDAnimation intakingAnimation = new FillAnimation(Color.kPurple, parallelStrip);
     private final LEDAnimation endgameNotification = new EndgameNotificationAnim(parallelStrip);
-    private final ScrollingAnimation robotAutonomousAnimation = new ScrollingAnimation(new BasicGradient(InterpolationStyle.Linear, Color.kRed), TilingFunction.Sinusoidal, parallelStrip);
+    private final ScrollingAnimation robotAutonomousAnimation = new ScrollingAnimation(new BasicGradient(InterpolationStyle.Linear, Color.kRed, Color.kYellow), TilingFunction.Sinusoidal, parallelStrip);
     private final LEDAnimation driverStationConnected = new FillAnimation(() -> (DriverStation.isDSAttached() ? Color.kGreen : Color.kOrange), parallelStrip.substrip(0, 10));
 
     private final ScrollingAnimation allianceColorAnimation = new ScrollingAnimation((x) -> {
         var colors = new Color[]{
-            (DriverStation.getAlliance().isEmpty() ? Color.kFirstRed : Color.kBlack),
-            (DriverStation.getAlliance().equals(Optional.of(Alliance.Red)) ? Color.kFirstRed : Color.kFirstBlue)
+            (DriverStation.getAlliance().isEmpty() ? Color.kRed : Color.kBlack),
+            (DriverStation.getAlliance().equals(Optional.of(Alliance.Red)) ? Color.kRed : Color.kFirstBlue)
         };
         return InterpolationStyle.Linear.interpolate(x, colors);
     }, TilingFunction.Sinusoidal, parallelStrip);
 
     private final LEDStrip armManualStrip = parallelStrip.substrip(55);
-    private final LEDAnimation armCoast = new FillAnimation(Color.kGreen, armManualStrip);
-    private final LEDAnimation armBrake = new FillAnimation(Color.kOrange, armManualStrip);
+    private final LEDAnimation armCoast = new FillAnimation(Color.kGreenYellow, armManualStrip);
+    private final LEDAnimation armBrake = new FillAnimation(Color.kYellow, armManualStrip);
 
     private final LEDStrip driveManualStrip = parallelStrip.substrip(0, 5);
-    private final LEDAnimation driveCoast = new FillAnimation(Color.kGreen, driveManualStrip);
-    private final LEDAnimation driveBrake = new FillAnimation(Color.kOrange, driveManualStrip);
+    private final LEDAnimation driveCoast = new FillAnimation(Color.kGreenYellow, driveManualStrip);
+    private final LEDAnimation driveBrake = new FillAnimation(Color.kYellow, driveManualStrip);
 
     private final LedData data;
     private final AnimationRunner[] runners;
@@ -78,10 +78,10 @@ public class Leds extends VirtualSubsystem {
         this.runners = new AnimationRunner[]{
             new AnimationRunner(data.hasBall, hasBallAnimation),
             new AnimationRunner(data.intaking, intakingAnimation),
-            new AnimationRunner(() -> data.armManual.get().equals(Boolean.FALSE), armCoast),
-            new AnimationRunner(() -> data.armManual.get().equals(Boolean.TRUE), armBrake),
-            new AnimationRunner(() -> data.driveManual.get().equals(Boolean.FALSE), driveCoast),
-            new AnimationRunner(() -> data.driveManual.get().equals(Boolean.TRUE), driveBrake),
+            new AnimationRunner(() -> Boolean.FALSE.equals(data.armManual.get()), armCoast),
+            new AnimationRunner(() -> Boolean.TRUE.equals(data.armManual.get()), armBrake),
+            new AnimationRunner(() -> Boolean.FALSE.equals(data.driveManual.get()), driveCoast),
+            new AnimationRunner(() -> Boolean.TRUE.equals(data.driveManual.get()), driveBrake),
             new AnimationRunner(() -> DriverStation.isTeleopEnabled() && DriverStation.getMatchType() != MatchType.None && DriverStation.getMatchTime() <= 30, endgameNotification),
             new AnimationRunner(data.auto, robotAutonomousAnimation),
             new AnimationRunner(DriverStation::isDisabled, driverStationConnected),
