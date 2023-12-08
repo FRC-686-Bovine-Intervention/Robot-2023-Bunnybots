@@ -178,4 +178,4 @@ networktables.json
 !NetworkAlerts.jar
 
 # Allow photonvision settings
-!photonvision-settings*
+!photonvision*settings*
