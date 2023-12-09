@@ -96,8 +96,8 @@ public class Arm extends SubsystemBase {
         Logger.processInputs("Arm", armIOInputs);
         measuredArmLig.setAngle(-Units.radiansToDegrees(armIOInputs.armPositionRad));
         setpointArmLig.setAngle(-Units.radiansToDegrees(armPID.getSetpoint().position));
-        Logger.recordOutput("Mechanism2d/Arm Side Profile", armMech);
-        Logger.recordOutput("Mechanism3d/Arm", new Pose3d(pivot, new Rotation3d(0, armIOInputs.armPositionRad, 0)));
+        // Logger.recordOutput("Mechanism2d/Arm Side Profile", armMech);
+        // Logger.recordOutput("Mechanism3d/Arm", new Pose3d(pivot, new Rotation3d(0, armIOInputs.armPositionRad, 0)));
         updateTunables();
     }
 

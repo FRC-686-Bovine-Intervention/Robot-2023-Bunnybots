@@ -6,8 +6,6 @@ package frc.robot;
 
 import java.util.ArrayList;
 
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -49,6 +47,8 @@ import frc.robot.subsystems.leds.Leds.LedData;
 import frc.robot.subsystems.manualOverrides.ManualOverrides;
 import frc.robot.subsystems.vision.AprilTagCamera;
 import frc.robot.subsystems.vision.AprilTagCameraIO;
+import frc.robot.subsystems.vision.AprilTagCameraIOCustomPhoton;
+import frc.robot.subsystems.vision.AprilTagCameraIOLimelight;
 import frc.robot.subsystems.vision.AprilTagCameraIOPhotonVision;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.Alert;
@@ -98,16 +98,18 @@ public class RobotContainer implements IRobotContainer {
                 vision = new Vision(
                     // new AprilTagCamera(Camera.Front.name(), new AprilTagCameraIO() {}),
                     // new AprilTagCamera(Camera.Back.name(), new AprilTagCameraIO() {})
-                    new AprilTagCamera(Camera.Front.name(), new AprilTagCameraIOPhotonVision(Camera.Front.hardwareName, Camera.Front.robotToCamera))
-                    // new AprilTagCamera(Camera.Back.name(), new AprilTagCameraIOPhotonVision(Camera.Back.hardwareName, Camera.Back.robotToCamera))
+                    // new AprilTagCamera(Camera.Front.name(), new AprilTagCameraIOCustomPhoton(Camera.Front.hardwareName, Camera.Front.robotToCamera))
+                    // ,new AprilTagCamera(Camera.Back.name(), new AprilTagCameraIOCustomPhoton(Camera.Back.hardwareName, Camera.Back.robotToCamera))
+                    new AprilTagCamera(Camera.Limelight.name(), new AprilTagCameraIOLimelight(Camera.Limelight))
                 );
                 manip = new Manipulator(new ManipulatorIOTalon());
                 arm = new Arm(new ArmIOFalcon());
                 manuOverrides = new ManualOverrides(arm, drive);
+                // ledSystem = null;
                 ledSystem = new Leds(new LedData(
                     manip::hasBall,
                     manip::intaking,
-                    () -> drive.getCurrentCommand() != null && drive.getCurrentCommand() == drive.getDefaultCommand(),
+                    () -> drive.getCurrentCommand() != null && drive.getCurrentCommand() != drive.getDefaultCommand(),
                     () -> manuOverrides.armOverridingBrake,
                     () -> manuOverrides.driveOverridingBreak
                 ));
@@ -282,7 +284,7 @@ public class RobotContainer implements IRobotContainer {
 
     public void robotPeriodic() {
         RobotState.getInstance().logOdometry();
-        Logger.recordOutput("Mechanism2d/Robot Side Profile", robotSideProfile);
+        // Logger.recordOutput("Mechanism2d/Robot Side Profile", robotSideProfile);
     }
 }
 

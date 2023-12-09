@@ -153,6 +153,11 @@ public final class Constants {
                 new Transform3d(new Translation3d(-95.75 / 100, 0, 13.25 / 100), new Rotation3d(0, 0, Units.degreesToRadians(0))),
                 new Transform3d(new Translation3d(1.171, 0.0415, -0.2687), new Rotation3d(new Quaternion(0.0197, 0.1799, 0, -0.9835)))
             ),
+            Limelight(
+                "limelight",
+                new Transform3d(new Translation3d(-95.75 / 100, 0, 13.25 / 100), new Rotation3d(0, 0, Units.degreesToRadians(0))),
+                new Transform3d(new Translation3d(1.171, 0.0415, -0.2687), new Rotation3d(new Quaternion(0.0197, 0.1799, 0, -0.9835)))
+            ),
             ;
             public final String hardwareName;
             public final Transform3d robotToCamera;

@@ -98,8 +98,8 @@ public class Drive extends SubsystemBase {
             }
 
             // Clear setpoint logs
-            Logger.recordOutput("SwerveStates/Setpoints", new double[] {});
-            Logger.recordOutput("SwerveStates/SetpointsOptimized", new double[] {});
+            // Logger.recordOutput("SwerveStates/Setpoints", new double[] {});
+            // Logger.recordOutput("SwerveStates/SetpointsOptimized", new double[] {});
 
         } else if (isCharacterizing) {
             // Run in characterization mode
@@ -108,8 +108,8 @@ public class Drive extends SubsystemBase {
             }
 
             // Clear setpoint logs
-            Logger.recordOutput("SwerveStates/Setpoints", new double[] {});
-            Logger.recordOutput("SwerveStates/SetpointsOptimized", new double[] {});
+            // Logger.recordOutput("SwerveStates/Setpoints", new double[] {});
+            // Logger.recordOutput("SwerveStates/SetpointsOptimized", new double[] {});
 
         } else {
             /**
@@ -139,8 +139,8 @@ public class Drive extends SubsystemBase {
             }
 
             // Log setpoint states
-            Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
-            Logger.recordOutput("SwerveStates/SetpointsOptimized", optimizedStates);
+            // Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
+            // Logger.recordOutput("SwerveStates/SetpointsOptimized", optimizedStates);
         }
 
         // Log measured states
@@ -148,7 +148,7 @@ public class Drive extends SubsystemBase {
         for (int i = 0; i < DriveConstants.numDriveModules; i++) {
             measuredStates[i] = modules[i].getState();
         }
-        Logger.recordOutput("SwerveStates/Measured", measuredStates);
+        // Logger.recordOutput("SwerveStates/Measured", measuredStates);
         lastMeasuredStates = measuredStates;
 
         // Update odometry
@@ -164,7 +164,7 @@ public class Drive extends SubsystemBase {
         }
         RobotState.getInstance().addDriveMeasurement(gyroAngle, getModulePositions());
 
-        Logger.recordOutput("Odometry/Robot", getPose());
+        // Logger.recordOutput("Odometry/Robot", getPose());
 
         // Update field velocity
         ChassisSpeeds chassisSpeeds = kinematics.toChassisSpeeds(measuredStates);
