@@ -37,6 +37,10 @@ import frc.robot.subsystems.arm.manipulator.Manipulator;
 import frc.robot.subsystems.arm.manipulator.ManipulatorIO;
 import frc.robot.subsystems.arm.manipulator.ManipulatorIOSim;
 import frc.robot.subsystems.arm.manipulator.ManipulatorIOTalon;
+import frc.robot.subsystems.bunnyIntake.BunnyIntake;
+import frc.robot.subsystems.bunnyIntake.BunnyIntakeIO;
+import frc.robot.subsystems.bunnyIntake.BunnyIntakeIONeo;
+import frc.robot.subsystems.bunnyIntake.BunnyIntakeIOSim;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -68,6 +72,7 @@ public class RobotContainer implements IRobotContainer {
     private final Vision vision;
     private final Arm arm;
     private final Manipulator manip;
+    private final BunnyIntake bunnyIntake;
     @SuppressWarnings("unused")
     private final ManualOverrides manuOverrides;
     private final Leds ledSystem;
@@ -103,6 +108,7 @@ public class RobotContainer implements IRobotContainer {
                 );
                 manip = new Manipulator(new ManipulatorIOTalon());
                 arm = new Arm(new ArmIOFalcon());
+                bunnyIntake = new BunnyIntake(new BunnyIntakeIONeo());
                 manuOverrides = new ManualOverrides(arm, drive);
                 ledSystem = new Leds(new LedData(
                     manip::hasBall,
@@ -122,6 +128,7 @@ public class RobotContainer implements IRobotContainer {
                 );
                 vision = new Vision();
                 manip = new Manipulator(new ManipulatorIOSim());
+                bunnyIntake = new BunnyIntake(new BunnyIntakeIOSim());
                 arm = new Arm(new ArmIOSim());
                 manuOverrides = null;
                 ledSystem = null;
@@ -137,6 +144,7 @@ public class RobotContainer implements IRobotContainer {
                 );
                 vision = new Vision();
                 manip = new Manipulator(new ManipulatorIO() {});
+                bunnyIntake = new BunnyIntake(new BunnyIntakeIO() {});
                 arm = new Arm(new ArmIO() {});
                 manuOverrides = null;
                 ledSystem = null;
