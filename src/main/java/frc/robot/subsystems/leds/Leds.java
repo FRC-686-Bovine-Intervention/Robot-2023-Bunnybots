@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.Constants;
 import frc.robot.util.VirtualSubsystem;
 import frc.robot.util.led.animation.EndgameNotificationAnim;
+import frc.robot.util.led.animation.EndgameTimerAnimation;
 import frc.robot.util.led.animation.FillAnimation;
 import frc.robot.util.led.animation.LEDAnimation;
 import frc.robot.util.led.animation.LEDManager;
@@ -38,7 +39,8 @@ public class Leds extends VirtualSubsystem {
 
     private final LEDAnimation hasBallAnimation = new FillAnimation(Color.kGreen, parallelStrip);
     private final LEDAnimation intakingAnimation = new FillAnimation(Color.kPurple, parallelStrip);
-    private final LEDAnimation endgameNotification = new EndgameNotificationAnim(parallelStrip);
+    // private final LEDAnimation endgameNotification = new EndgameNotificationAnim(parallelStrip);
+    private final LEDAnimation endgameNotification = new EndgameTimerAnimation(parallelStrip);
     private final ScrollingAnimation robotAutonomousAnimation = new ScrollingAnimation(new BasicGradient(InterpolationStyle.Linear, Color.kRed, Color.kYellow), TilingFunction.Sinusoidal, parallelStrip);
     private final LEDAnimation driverStationConnected = new FillAnimation(() -> (DriverStation.isDSAttached() ? Color.kGreen : Color.kOrange), parallelStrip.substrip(0, 10));
 
@@ -82,7 +84,7 @@ public class Leds extends VirtualSubsystem {
             new AnimationRunner(() -> Boolean.TRUE.equals(data.armManual.get()), armBrake),
             new AnimationRunner(() -> Boolean.FALSE.equals(data.driveManual.get()), driveCoast),
             new AnimationRunner(() -> Boolean.TRUE.equals(data.driveManual.get()), driveBrake),
-            new AnimationRunner(() -> DriverStation.isTeleopEnabled() && DriverStation.getMatchType() != MatchType.None && DriverStation.getMatchTime() <= 30, endgameNotification),
+            new AnimationRunner(() -> DriverStation.isTeleopEnabled() && DriverStation.getMatchTime() <= 30, endgameNotification),
             new AnimationRunner(data.auto, robotAutonomousAnimation),
             new AnimationRunner(DriverStation::isDisabled, driverStationConnected),
         };

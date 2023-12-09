@@ -23,17 +23,21 @@ public class AprilTagCamera {
     }
 
     public void periodic() {
+        // System.out.println("[DEBUG AprilTagCamera] Pre-Update Inputs");
         cameraIO.updateInputs(inputs);
+        // System.out.println("[DEBUG AprilTagCamera] Pre-Process Inputs");
         Logger.processInputs("Vision/Camera/" + name, inputs);
-
+        
         // update RobotState
         inputs.visionPose.ifPresent((pose) -> {
+            // System.out.println("[DEBUG AprilTagCamera] Pre-Add Vision");
             RobotState.getInstance().addVisionMeasurement(
                 pose.toPose2d(),
                 computeStdDevs(0),  // TODO: figure out vision stdDevs 
                 inputs.timestamp
             );
         });
+        // System.out.println("[DEBUG AprilTagCamera] End Cam Loop");
     }
 
     private Matrix<N3, N1> computeStdDevs(double distance) {
