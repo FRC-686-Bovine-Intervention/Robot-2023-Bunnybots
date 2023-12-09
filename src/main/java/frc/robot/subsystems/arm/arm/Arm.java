@@ -33,7 +33,7 @@ public class Arm extends SubsystemBase {
     public static enum ArmPos {
         Defense     (+0),
         Ground      (+2.371534),
-        Hedge       (+2.133767),
+        Hedge       (+2.033767),
         LowFront    (+1.93588),
         HighFront   (+0.89124),
         LowBack     (-1.852874),

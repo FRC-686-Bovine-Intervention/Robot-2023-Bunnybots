@@ -26,6 +26,10 @@ public class ArmIOFalcon implements ArmIO {
         var armMotorConfig = new TalonFXConfiguration();
         armMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         armMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        armMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        armMotorConfig.CurrentLimits.SupplyCurrentLimit = 10;
+        armMotorConfig.CurrentLimits.SupplyCurrentThreshold = 15;
+        armMotorConfig.CurrentLimits.SupplyTimeThreshold = 0.25;
         armMotor.getConfigurator().apply(armMotorConfig);
 
         var armEncoderConfig = new CANcoderConfiguration();

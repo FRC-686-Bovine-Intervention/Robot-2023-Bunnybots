@@ -84,7 +84,7 @@ public class Leds extends VirtualSubsystem {
             new AnimationRunner(() -> Boolean.TRUE.equals(data.armManual.get()), armBrake),
             new AnimationRunner(() -> Boolean.FALSE.equals(data.driveManual.get()), driveCoast),
             new AnimationRunner(() -> Boolean.TRUE.equals(data.driveManual.get()), driveBrake),
-            new AnimationRunner(() -> DriverStation.isTeleopEnabled() && DriverStation.getMatchTime() <= 30, endgameNotification),
+            new AnimationRunner(() -> DriverStation.isTeleopEnabled() && DriverStation.getMatchType() != MatchType.None && DriverStation.getMatchTime() <= 30, endgameNotification),
             new AnimationRunner(data.auto, robotAutonomousAnimation),
             new AnimationRunner(DriverStation::isDisabled, driverStationConnected),
         };
