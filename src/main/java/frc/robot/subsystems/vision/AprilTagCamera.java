@@ -6,6 +6,7 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.RobotState;
 import frc.robot.subsystems.vision.AprilTagCameraIO.AprilTagCameraIOInputs;
@@ -40,7 +41,7 @@ public class AprilTagCamera {
             VisionConstants.minimumStdDev, 
             VisionConstants.stdDevEulerMultiplier * Math.exp(distance * VisionConstants.stdDevDistanceMultiplier)
         );
-        return VecBuilder.fill(stdDev, stdDev, 1000);
+        return VecBuilder.fill(stdDev, stdDev, (DriverStation.isDisabled() ? VisionConstants.minimumStdDev : 1000));
     }
     
 }

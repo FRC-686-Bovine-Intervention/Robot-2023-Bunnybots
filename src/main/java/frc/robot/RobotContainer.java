@@ -6,8 +6,6 @@ package frc.robot;
 
 import java.util.ArrayList;
 
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -99,7 +97,7 @@ public class RobotContainer implements IRobotContainer {
                     // new AprilTagCamera(Camera.Front.name(), new AprilTagCameraIO() {}),
                     // new AprilTagCamera(Camera.Back.name(), new AprilTagCameraIO() {})
                     new AprilTagCamera(Camera.Front.name(), new AprilTagCameraIOPhotonVision(Camera.Front.hardwareName, Camera.Front.robotToCamera))
-                    // new AprilTagCamera(Camera.Back.name(), new AprilTagCameraIOPhotonVision(Camera.Back.hardwareName, Camera.Back.robotToCamera))
+                    ,new AprilTagCamera(Camera.Back.name(), new AprilTagCameraIOPhotonVision(Camera.Back.hardwareName, Camera.Back.robotToCamera))
                 );
                 manip = new Manipulator(new ManipulatorIOTalon());
                 arm = new Arm(new ArmIOFalcon());
@@ -107,7 +105,7 @@ public class RobotContainer implements IRobotContainer {
                 ledSystem = new Leds(new LedData(
                     manip::hasBall,
                     manip::intaking,
-                    () -> drive.getCurrentCommand() != null && drive.getCurrentCommand() == drive.getDefaultCommand(),
+                    () -> drive.getCurrentCommand() != null && drive.getCurrentCommand() != drive.getDefaultCommand(),
                     () -> manuOverrides.armOverridingBrake,
                     () -> manuOverrides.driveOverridingBreak
                 ));
@@ -282,7 +280,7 @@ public class RobotContainer implements IRobotContainer {
 
     public void robotPeriodic() {
         RobotState.getInstance().logOdometry();
-        Logger.recordOutput("Mechanism2d/Robot Side Profile", robotSideProfile);
+        // Logger.recordOutput("Mechanism2d/Robot Side Profile", robotSideProfile);
     }
 }
 
