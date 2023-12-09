@@ -179,3 +179,5 @@ networktables.json
 
 # Allow photonvision settings
 !photonvision*settings*
+
+*.asv
