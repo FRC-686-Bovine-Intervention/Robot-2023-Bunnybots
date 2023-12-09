@@ -20,10 +20,10 @@ table = [
     163.5, 229.5,  9.0,   0];
 
 for k=1:14
-    tag(k).translation(1) = table(k,1) * 2.54/100 - layout.field.length/2;  % x
-    tag(k).translation(2) = table(k,2) * 2.54/100 - layout.field.width/2;  % y
+    tag(k).translation(1) = table(k,1) * 2.54/100;  % x
+    tag(k).translation(2) = table(k,2) * 2.54/100;  % y
     tag(k).translation(3) = table(k,3) * 2.54/100;  % z
-    tag(k).rollPitchYaw = [0, 0, -table(k,4)] * pi/180;  % yaw
+    tag(k).rollPitchYaw = [0, 0, table(k,4)] * pi/180;  % yaw
 end
 %% limelight fmap
 
