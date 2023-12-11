@@ -6,19 +6,20 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.util.controllers.Joystick;
 
 public class SwerveJoysticks {
 
-    public static Supplier<ProcessedJoysticks> process(DoubleSupplier xSupplier, DoubleSupplier ySupplier, DoubleSupplier turnSupplier,
-            boolean squareLinearInputs, boolean squareTurnInputs, double slewRatePerSec) {
+    public static Supplier<ProcessedJoysticks> process(Joystick joystick, DoubleSupplier turnSupplier, boolean squareLinearInputs, boolean squareTurnInputs, double slewRatePerSec) {
         return new Supplier<ProcessedJoysticks>() {
 
-            SlewRateLimiter slewRateLimiter = new SlewRateLimiter(slewRatePerSec);
+            private final SlewRateLimiter slewRateLimiter = new SlewRateLimiter(slewRatePerSec);
+            private final Joystick m_joystick = new Joystick(joystick.y(), joystick.x().invert());
 
             @Override
 			public ProcessedJoysticks get() {
-                double x = applyDeadband(xSupplier.getAsDouble());
-                double y = applyDeadband(ySupplier.getAsDouble());
+                double x = applyDeadband(m_joystick.x().getAsDouble());
+                double y = applyDeadband(m_joystick.y().getAsDouble());
                 double turn = applyDeadband(turnSupplier.getAsDouble());
 
                 double linearMagnitude = Math.hypot(x, y);

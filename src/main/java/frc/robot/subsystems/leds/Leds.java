@@ -39,9 +39,8 @@ public class Leds extends VirtualSubsystem {
 
     private final LEDAnimation hasBallAnimation = new FillAnimation(Color.kGreen, parallelStrip);
     private final LEDAnimation intakingAnimation = new FillAnimation(Color.kPurple, parallelStrip);
-    // private final LEDAnimation endgameNotification = new EndgameNotificationAnim(parallelStrip);
     private final LEDAnimation endgameNotification = new EndgameTimerAnimation(parallelStrip);
-    private final ScrollingAnimation robotAutonomousAnimation = new ScrollingAnimation(new BasicGradient(InterpolationStyle.Linear, Color.kRed, Color.kYellow), TilingFunction.Sinusoidal, parallelStrip);
+    private final ScrollingAnimation robotAutonomousAnimation = new ScrollingAnimation(new BasicGradient(InterpolationStyle.Step, Color.kRed, Color.kBlue), TilingFunction.Modulo, parallelStrip);
     private final LEDAnimation driverStationConnected = new FillAnimation(() -> (DriverStation.isDSAttached() ? Color.kGreen : Color.kOrange), parallelStrip.substrip(0, 10));
 
     private final ScrollingAnimation allianceColorAnimation = new ScrollingAnimation((x) -> {
@@ -53,14 +52,13 @@ public class Leds extends VirtualSubsystem {
     }, TilingFunction.Sinusoidal, parallelStrip);
 
     private final LEDStrip armManualStrip = parallelStrip.substrip(55);
-    private final LEDAnimation armCoast = new FillAnimation(Color.kGreenYellow, armManualStrip);
-    private final LEDAnimation armBrake = new FillAnimation(Color.kYellow, armManualStrip);
+    private final LEDAnimation armCoast = new FillAnimation(Color.kGreen, armManualStrip);
+    private final LEDAnimation armBrake = new FillAnimation(Color.kOrange, armManualStrip);
 
-    private final LEDStrip driveManualStrip = parallelStrip.substrip(0, 5);
-    private final LEDAnimation driveCoast = new FillAnimation(Color.kGreenYellow, driveManualStrip);
-    private final LEDAnimation driveBrake = new FillAnimation(Color.kYellow, driveManualStrip);
+    private final LEDAnimation onboardBlank = new FillAnimation(Color.kBlack, onboardLEDs);
+    private final LEDAnimation driveCoast = new FillAnimation(Color.kGreen, onboardLEDs);
+    private final LEDAnimation driveBrake = new FillAnimation(Color.kOrange, onboardLEDs);
 
-    private final LedData data;
     private final AnimationRunner[] runners;
 
     public Leds(LedData data) {
@@ -76,7 +74,6 @@ public class Leds extends VirtualSubsystem {
         m_candle.clearAnimation(0);
         m_candle.configAllSettings(configAll, 100);
 
-        this.data = data;
         this.runners = new AnimationRunner[]{
             new AnimationRunner(data.hasBall, hasBallAnimation),
             new AnimationRunner(data.intaking, intakingAnimation),
@@ -84,7 +81,7 @@ public class Leds extends VirtualSubsystem {
             new AnimationRunner(() -> Boolean.TRUE.equals(data.armManual.get()), armBrake),
             new AnimationRunner(() -> Boolean.FALSE.equals(data.driveManual.get()), driveCoast),
             new AnimationRunner(() -> Boolean.TRUE.equals(data.driveManual.get()), driveBrake),
-            new AnimationRunner(() -> DriverStation.isTeleopEnabled() && DriverStation.getMatchType() != MatchType.None && DriverStation.getMatchTime() <= 30, endgameNotification),
+            new AnimationRunner(() -> DriverStation.isTeleopEnabled() /* && DriverStation.getMatchType() != MatchType.None */ && DriverStation.getMatchTime() <= 30, endgameNotification),
             new AnimationRunner(data.auto, robotAutonomousAnimation),
             new AnimationRunner(DriverStation::isDisabled, driverStationConnected),
         };
@@ -94,6 +91,7 @@ public class Leds extends VirtualSubsystem {
         robotAutonomousAnimation.setVelocity(2);
 
         allianceColorAnimation.setPriority(0);
+        onboardBlank.setPriority(0);
         driverStationConnected.setPriority(1);
         armCoast.setPriority(2);
         armBrake.setPriority(2);
@@ -105,6 +103,7 @@ public class Leds extends VirtualSubsystem {
         endgameNotification.setPriority(10);
 
         allianceColorAnimation.start();
+        onboardBlank.start();
     }
 
     @Override

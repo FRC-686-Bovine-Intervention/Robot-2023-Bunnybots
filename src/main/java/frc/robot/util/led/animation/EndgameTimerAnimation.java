@@ -1,7 +1,6 @@
 package frc.robot.util.led.animation;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.util.led.strips.LEDStrip;
 
@@ -19,7 +18,7 @@ public class EndgameTimerAnimation extends LEDAnimation {
     protected void runAnimation(LEDManager manager) {
         strip.foreach((index) -> {
             int seg = index * 10 / strip.getLength();
-            double timeDec = DriverStation.getMatchTime();
+            double timeDec = 30 - animationTimer.get();
             int timeMod = (int)Math.ceil(timeDec) % 10;
             int topColorInd = MathUtil.clamp((int)Math.ceil(timeDec / 10), 0, colors.length - 1);
             int botColorInd = MathUtil.clamp((int)Math.floor(timeDec / 10), 0, colors.length - 1);

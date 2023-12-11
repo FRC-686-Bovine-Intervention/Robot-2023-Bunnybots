@@ -2,8 +2,7 @@ package frc.robot.commands;
 
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
-import java.util.function.DoubleSupplier;
-import java.util.function.DoubleUnaryOperator;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.MathUtil;
@@ -11,79 +10,69 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.drive.SwerveJoysticks.ProcessedJoysticks;
+import frc.robot.util.AllianceFlipUtil;
+import frc.robot.util.AllianceFlipUtil.FieldFlipType;
+import frc.robot.util.controllers.Joystick;
 
 public class DriveWithCustomFlick extends Command {
 
 	private final Drive drive;
-    private final Supplier<ProcessedJoysticks> joystickSupplier;
-	private final Supplier<Optional<Double>> headingSupplier; // rotation
+    private final Joystick translationalJoystick;
+	private final Supplier<Optional<Rotation2d>> headingSupplier; // rotation
 	private final BooleanSupplier precisionSupplier; // slow-down for precision positioning
 
-	private double desiredHeadingRadians;
+	private Rotation2d desiredHeading;
 	private final double headingKp = 0.3 /* / DriveConstants.maxTurnRateRadiansPerSec */;
 	private final double headingKi = 0;
 	private final double headingKd = 0;
 	private final double headingTolerance = Units.degreesToRadians(1.0);
 	private final PIDController headingPID;
 
-	public static Supplier<Optional<Double>> headingFromJoystick(DoubleSupplier xSupplier, DoubleSupplier ySupplier, double radialDeadband, DoubleSupplier forwardDirectionSupplier) {
-		return new Supplier<Optional<Double>>() {
+	public static Supplier<Optional<Rotation2d>> headingFromJoystick(Joystick joystick, Supplier<Rotation2d> forwardDirectionSupplier) {
+		return new Supplier<Optional<Rotation2d>>() {
 			private final Timer preciseTurnTimer = new Timer();
 			private final double preciseTurnTimeThreshold = 0.5;
-			private final double[] snapPoints = new double[]{
-				Units.degreesToRadians(0),
-				Units.degreesToRadians(90),
-				Units.degreesToRadians(135),
-				Units.degreesToRadians(180),
-				Units.degreesToRadians(270),
+			private final Rotation2d[] snapPoints = new Rotation2d[]{
+				Rotation2d.fromRadians(MathUtil.angleModulus(Units.degreesToRadians(0))),
+				Rotation2d.fromRadians(MathUtil.angleModulus(Units.degreesToRadians(90))),
+				Rotation2d.fromRadians(MathUtil.angleModulus(Units.degreesToRadians(135))),
+				Rotation2d.fromRadians(MathUtil.angleModulus(Units.degreesToRadians(180))),
+				Rotation2d.fromRadians(MathUtil.angleModulus(Units.degreesToRadians(270))),
 			};
 			@Override
-			public Optional<Double> get() {
-				DoubleUnaryOperator outputFilter = (i) -> MathUtil.inputModulus(i - forwardDirectionSupplier.getAsDouble() + (DriverStation.getAlliance().equals(Optional.of(Alliance.Red)) ? Math.PI : 0), 0, Math.PI * 2);
-				double joyX = xSupplier.getAsDouble();
-				double joyY = ySupplier.getAsDouble();
-				if(Math.hypot(joyX, joyY) <= radialDeadband) {
-					preciseTurnTimer.stop();
-					preciseTurnTimer.reset();
+			public Optional<Rotation2d> get() {
+				Function<Rotation2d, Optional<Rotation2d>> outputFilter = (i) -> Optional.of(i.minus(forwardDirectionSupplier.get()));
+				if(joystick.magnitude() == 0) {
+					preciseTurnTimer.restart();
 					return Optional.empty();
-				} else {
-					preciseTurnTimer.start();
 				}
-				double joyHeading = -Math.atan2(-joyX, joyY);
-				if (preciseTurnTimer.hasElapsed(preciseTurnTimeThreshold)) {
-					return Optional.of(outputFilter.applyAsDouble(joyHeading));
+				Rotation2d joyHeading = AllianceFlipUtil.apply(Rotation2d.fromRadians(joystick.radsFromPosYCCW()), FieldFlipType.CenterPointFlip);
+				if(preciseTurnTimer.hasElapsed(preciseTurnTimeThreshold)) {
+					return outputFilter.apply(joyHeading);
 				}
-				double[] distancesToSnapPoints = new double[snapPoints.length];
+				int smallestDistanceIndex = 0;
+				double smallestDistance = Double.MAX_VALUE;
 				for(int i = 0; i < snapPoints.length; i++) {
-					double snapPoint = snapPoints[i];
-					double distanceToPoint = Math.abs(joyHeading - snapPoint);
-					double distanceToPointWithPosRot = Math.abs(joyHeading - (snapPoint + 2 * Math.PI));
-					double distanceToPointWithNegRot = Math.abs(joyHeading - (snapPoint - 2 * Math.PI));
-					distancesToSnapPoints[i] = Math.min(Math.min(distanceToPoint, distanceToPointWithPosRot), distanceToPointWithNegRot);
-				}
-				int smallestIndex = 0;
-				for(int i = 1; i < distancesToSnapPoints.length; i++) {
-					if(distancesToSnapPoints[i] < distancesToSnapPoints[smallestIndex]) {
-						smallestIndex = i;
+					var dist = Math.abs(joyHeading.minus(AllianceFlipUtil.apply(snapPoints[i])).getRadians());
+					if(dist < smallestDistance) {
+						smallestDistance = dist;
+						smallestDistanceIndex = i;
 					}
 				}
-				return Optional.of(outputFilter.applyAsDouble(snapPoints[smallestIndex]));
+				return outputFilter.apply(AllianceFlipUtil.apply(snapPoints[smallestDistanceIndex]));
 			}
 		};
 	}
 
   	/** Creates a new DriveWithJoysticks. */
-	public DriveWithCustomFlick(Drive drive, Supplier<ProcessedJoysticks> joystickSupplier, Supplier<Optional<Double>> headingSupplier, BooleanSupplier precisionSupplier) {
+	public DriveWithCustomFlick(Drive drive, Joystick translationalJoystick, Supplier<Optional<Rotation2d>> headingSupplier, BooleanSupplier precisionSupplier) {
 		addRequirements(drive);
 		this.drive = drive;
-        this.joystickSupplier = joystickSupplier;
+        this.translationalJoystick = translationalJoystick;
         this.headingSupplier = headingSupplier;
 		this.precisionSupplier = precisionSupplier;
 
@@ -94,31 +83,28 @@ public class DriveWithCustomFlick extends Command {
 
 	@Override
 	public void initialize() {
-		desiredHeadingRadians = drive.getPose().getRotation().getRadians();
+		desiredHeading = drive.getPose().getRotation();
 	}
 
 	@Override
 	public void execute() {
-
-        ProcessedJoysticks processedJoysticks = joystickSupplier.get();
-
 		// update desired direction
-		Optional<Double> desiredHeading = headingSupplier.get();
-		if (desiredHeading.isPresent()) {
-			desiredHeadingRadians = desiredHeading.get();
+		Optional<Rotation2d> optDesiredHeading = headingSupplier.get();
+		if(optDesiredHeading.isPresent()) {
+			desiredHeading = optDesiredHeading.get();
 		}
 
 		// PID control of turn
-		double turnInput = headingPID.calculate(drive.getPose().getRotation().getRadians(), desiredHeadingRadians);
+		double turnInput = headingPID.calculate(drive.getPose().getRotation().getRadians(), desiredHeading.getRadians());
 		turnInput = headingPID.atSetpoint() ? 0 : turnInput;
 		turnInput = MathUtil.clamp(turnInput, -0.5, +0.5);
 
         // Convert to meters/sec and radians/sec
-        double vxMetersPerSecond = processedJoysticks.getX() * drive.getMaxLinearSpeedMetersPerSec();
-        double vyMetersPerSecond = processedJoysticks.getY() * drive.getMaxLinearSpeedMetersPerSec();
+        double vxMetersPerSecond = translationalJoystick.y().getAsDouble() * drive.getMaxLinearSpeedMetersPerSec();
+        double vyMetersPerSecond = -translationalJoystick.x().getAsDouble() * drive.getMaxLinearSpeedMetersPerSec();
         double omegaRadiansPerSecond = turnInput * drive.getMaxAngularSpeedRadiansPerSec();
 
-        if (precisionSupplier.getAsBoolean()) {
+        if(precisionSupplier.getAsBoolean()) {
             vxMetersPerSecond *= DriveConstants.precisionLinearMultiplier;
             vyMetersPerSecond *= DriveConstants.precisionLinearMultiplier;
             omegaRadiansPerSecond *= DriveConstants.precisionTurnMulitiplier;
@@ -128,10 +114,7 @@ public class DriveWithCustomFlick extends Command {
 		ChassisSpeeds speeds = new ChassisSpeeds(vxMetersPerSecond, vyMetersPerSecond, omegaRadiansPerSecond);
 
 		// field relative controls
-		var driveRotation = drive.getRotation(); // angle from alliance wall normal
-		if (DriverStation.getAlliance().equals(Optional.of(Alliance.Blue))) {
-			driveRotation = driveRotation.rotateBy(new Rotation2d(Math.PI));
-		}
+		var driveRotation = AllianceFlipUtil.apply(drive.getRotation(), FieldFlipType.CenterPointFlip);
 		speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, driveRotation);
 
 		drive.driveVelocity(speeds);

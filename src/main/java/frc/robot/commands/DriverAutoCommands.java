@@ -21,10 +21,10 @@ import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.LoggedTunableNumber;
 
 public class DriverAutoCommands {
-    private static final LoggedTunableNumber tP = new LoggedTunableNumber("AutoDrive/tP", 0);
+    private static final LoggedTunableNumber tP = new LoggedTunableNumber("AutoDrive/tP", 1);
     private static final LoggedTunableNumber tI = new LoggedTunableNumber("AutoDrive/tI", 0);
     private static final LoggedTunableNumber tD = new LoggedTunableNumber("AutoDrive/tD", 0);
-    private static final LoggedTunableNumber rP = new LoggedTunableNumber("AutoDrive/rP", 0);
+    private static final LoggedTunableNumber rP = new LoggedTunableNumber("AutoDrive/rP", 1.5);
     private static final LoggedTunableNumber rI = new LoggedTunableNumber("AutoDrive/rI", 0);
     private static final LoggedTunableNumber rD = new LoggedTunableNumber("AutoDrive/rD", 0);
     private static final Supplier<HolonomicPathFollowerConfig> configSup = () -> {
@@ -55,7 +55,7 @@ public class DriverAutoCommands {
             followPathConstructor.apply(hedgeToBushPath, drive)
             .alongWith(arm.gotoArmPosWithWait(ArmPos.LowBack))
             .andThen(manip.intake())
-            .andThen(arm.gotoArmPos(ArmPos.Defense))
+            // .andThen(arm.gotoArmPos(ArmPos.Defense))
             .withName("Hedge To Bush")
             ;
     }
@@ -65,7 +65,7 @@ public class DriverAutoCommands {
             followPathConstructor.apply(bushToHedgePath, drive)
             .deadlineWith(
                 Commands.waitSeconds(1.5)
-                .andThen(arm.gotoArmPosWithWait(ArmPos.HighFront))
+                .andThen(arm.gotoArmPosWithWait(ArmPos.Defense))
             )
             .andThen(arm.gotoArmPosWithWait(ArmPos.Hedge))
             .andThen(manip.hedge().withTimeout(0.5))

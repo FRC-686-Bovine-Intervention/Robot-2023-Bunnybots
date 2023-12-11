@@ -12,6 +12,7 @@ import java.util.Optional;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -28,9 +29,14 @@ public class AllianceFlipUtil {
     CenterPointFlip,
     MirrorFlip,
   }
-  public static final FieldFlipType flipType = FieldFlipType.CenterPointFlip;
+  public static final FieldFlipType defaultFlipType = FieldFlipType.CenterPointFlip;
+
   /** Flips a translation to the correct side of the field based on the current alliance color. */
   public static Translation2d apply(Translation2d translation) {
+    return apply(translation, defaultFlipType);
+  }
+  /** Flips a translation to the correct side of the field based on the current alliance color. */
+  public static Translation2d apply(Translation2d translation, FieldFlipType flipType) {
     if(!shouldFlip()) return translation;
     switch(flipType) {
       default:
@@ -39,17 +45,12 @@ public class AllianceFlipUtil {
     }
   }
 
-  /** Flips an x coordinate to the correct side of the field based on the current alliance color. */
-  public static double apply(double xCoordinate) {
-    if (shouldFlip()) {
-      return FieldConstants.fieldLength - xCoordinate;
-    } else {
-      return xCoordinate;
-    }
-  }
-
   /** Flips a rotation based on the current alliance color. */
   public static Rotation2d apply(Rotation2d rotation) {
+    return apply(rotation, defaultFlipType);
+  }
+  /** Flips a rotation based on the current alliance color. */
+  public static Rotation2d apply(Rotation2d rotation, FieldFlipType flipType) {
     if(!shouldFlip()) return rotation;
     switch(flipType) {
       default:
@@ -60,8 +61,17 @@ public class AllianceFlipUtil {
 
   /** Flips a pose to the correct side of the field based on the current alliance color. */
   public static Pose2d apply(Pose2d pose) {
+    return apply(pose, defaultFlipType);
+  }
+  /** Flips a pose to the correct side of the field based on the current alliance color. */
+  public static Pose2d apply(Pose2d pose, FieldFlipType flipType) {
     if(!shouldFlip()) return pose;
-    return new Pose2d(apply(pose.getTranslation()), apply(pose.getRotation()));
+    return new Pose2d(apply(pose.getTranslation(), flipType), apply(pose.getRotation(), flipType));
+  }
+
+  public static ChassisSpeeds apply(ChassisSpeeds speeds) {
+    var translation = apply(new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond), FieldFlipType.CenterPointFlip);
+    return new ChassisSpeeds(translation.getX(), translation.getY(), speeds.omegaRadiansPerSecond);
   }
 
   /**
@@ -96,7 +106,7 @@ public class AllianceFlipUtil {
     }
   }
 
-  private static boolean shouldFlip() {
+  public static boolean shouldFlip() {
     return DriverStation.getAlliance().equals(Optional.of(Alliance.Red));
   }
 }

@@ -19,8 +19,8 @@
         "y": 7.11
       },
       "prevControl": {
-        "x": 10.560895955742174,
-        "y": 6.458348491260835
+        "x": 10.598813582895522,
+        "y": 5.278165279052079
       },
       "nextControl": null,
       "isLocked": false
@@ -32,7 +32,19 @@
       "rotationDegrees": 180.0
     }
   ],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "Slow down to see tag",
+      "minWaypointRelativePos": 0.7,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 0.5,
+        "maxAcceleration": 3,
+        "maxAngularVelocity": 540,
+        "maxAngularAcceleration": 720
+      }
+    }
+  ],
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 1.0,

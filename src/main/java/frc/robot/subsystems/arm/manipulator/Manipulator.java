@@ -35,7 +35,7 @@ public class Manipulator extends SubsystemBase {
     private final LoggedTunableNumber manipHedgePower =     new LoggedTunableNumber("Manipulator/Hedge Power",      +0.5);
 
     private final LoggedTunableNumber spikeThreshold =  new LoggedTunableNumber("Manipulator/Current Spike Threshold",  +40.0);
-    private final LoggedTunableNumber spikeTime =       new LoggedTunableNumber("Manipulator/Current Spike Time",       +0.5);
+    private final LoggedTunableNumber spikeTime =       new LoggedTunableNumber("Manipulator/Current Spike Time",       +0.25);
 
     private final Timer currentSpikeTimer = new Timer();
     private boolean hasBall = false;

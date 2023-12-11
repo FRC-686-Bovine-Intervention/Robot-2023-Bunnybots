@@ -6,20 +6,22 @@ package frc.robot;
 
 import java.util.ArrayList;
 
+import org.littletonrobotics.junction.Logger;
+
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ProxyCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.DriveConstants.DriveModulePosition;
 import frc.robot.Constants.VisionConstants.Camera;
+import frc.robot.RobotType.Mode;
 import frc.robot.auto.AutoSelector;
 import frc.robot.auto.AutoSelector.AutoRoutine;
 import frc.robot.auto.ScoreHighThenBunny;
@@ -28,6 +30,7 @@ import frc.robot.commands.DriverAutoCommands;
 import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.subsystems.arm.arm.Arm;
+import frc.robot.subsystems.arm.arm.Arm.ArmPos;
 import frc.robot.subsystems.arm.arm.ArmIO;
 import frc.robot.subsystems.arm.arm.ArmIOFalcon;
 import frc.robot.subsystems.arm.arm.ArmIOSim;
@@ -41,18 +44,15 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIO550Falcon;
 import frc.robot.subsystems.drive.ModuleIOSim;
-import frc.robot.subsystems.drive.SwerveJoysticks;
 import frc.robot.subsystems.leds.Leds;
 import frc.robot.subsystems.leds.Leds.LedData;
 import frc.robot.subsystems.manualOverrides.ManualOverrides;
 import frc.robot.subsystems.vision.AprilTagCamera;
-import frc.robot.subsystems.vision.AprilTagCameraIO;
-import frc.robot.subsystems.vision.AprilTagCameraIOCustomPhoton;
 import frc.robot.subsystems.vision.AprilTagCameraIOLimelight;
-import frc.robot.subsystems.vision.AprilTagCameraIOPhotonVision;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
+import frc.robot.util.controllers.XboxController;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -70,6 +70,7 @@ public class RobotContainer implements IRobotContainer {
     private final Manipulator manip;
     @SuppressWarnings("unused")
     private final ManualOverrides manuOverrides;
+    @SuppressWarnings("unused")
     private final Leds ledSystem;
 
     private final AutoSelector autoSelector = new AutoSelector("Auto");
@@ -77,7 +78,8 @@ public class RobotContainer implements IRobotContainer {
     private final Mechanism2d robotSideProfile = new Mechanism2d(3, 2, new Color8Bit(Color.kBlack));
 
     // Controller
-    private final CommandXboxController driveController = new CommandXboxController(0);
+    private final XboxController driveController = new XboxController(0);
+    private final CommandJoystick buttonBoard = new CommandJoystick(1);
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -105,7 +107,6 @@ public class RobotContainer implements IRobotContainer {
                 manip = new Manipulator(new ManipulatorIOTalon());
                 arm = new Arm(new ArmIOFalcon());
                 manuOverrides = new ManualOverrides(arm, drive);
-                // ledSystem = null;
                 ledSystem = new Leds(new LedData(
                     manip::hasBall,
                     manip::intaking,
@@ -182,44 +183,66 @@ public class RobotContainer implements IRobotContainer {
      * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
-        var aCom = new ProxyCommand(() -> {
-            var pos =  arm.getTargetPos();
-            if(pos == null) return Arm.ArmPos.Defense.goTo(arm);
-            switch(pos) {
-                case Defense:   return Arm.ArmPos.HighFront.goTo(arm);
-                case Ground:    return Arm.ArmPos.Ground.goTo(arm);
-                case Hedge:     return Arm.ArmPos.Ground.goTo(arm);
-                case HighBack:  return Arm.ArmPos.Defense.goTo(arm);
-                case HighFront: return Arm.ArmPos.LowFront.goTo(arm);
-                case LowBack:   return Arm.ArmPos.HighBack.goTo(arm);
-                case LowFront:  return Arm.ArmPos.Hedge.goTo(arm);
-                default:        return Arm.ArmPos.Defense.goTo(arm);
-            }
-        });
-        driveController.a().onTrue(aCom).onFalse(Commands.runOnce(() -> aCom.end(false)));
-        var yCom = new ProxyCommand(() -> {
-            var pos =  arm.getTargetPos();
-            if(pos == null) return Arm.ArmPos.Defense.goTo(arm);
-            switch(pos) {
-                case Defense:   return Arm.ArmPos.HighBack.goTo(arm);
-                case Ground:    return Arm.ArmPos.Hedge.goTo(arm);
-                case Hedge:     return Arm.ArmPos.LowFront.goTo(arm);
-                case HighBack:  return Arm.ArmPos.LowBack.goTo(arm);
-                case HighFront: return Arm.ArmPos.Defense.goTo(arm);
-                case LowBack:   return Arm.ArmPos.LowBack.goTo(arm);
-                case LowFront:  return Arm.ArmPos.HighFront.goTo(arm);
-                default:        return Arm.ArmPos.Defense.goTo(arm);
-            }
-        });
-        driveController.y().onTrue(yCom).onFalse(Commands.runOnce(() -> yCom.end(false)));
+        // var aCom = Commands.deferredProxy(() -> {
+        //     var pos =  arm.getTargetPos();
+        //     if(pos == null) return Arm.ArmPos.Defense.goTo(arm);
+        //     switch(pos) {
+        //         case Defense:   return Arm.ArmPos.HighFront.goTo(arm);
+        //         case Ground:    return Arm.ArmPos.Ground.goTo(arm);
+        //         case Hedge:     return Arm.ArmPos.Ground.goTo(arm);
+        //         case HighBack:  return Arm.ArmPos.Defense.goTo(arm);
+        //         case HighFront: return Arm.ArmPos.LowFront.goTo(arm);
+        //         case LowBack:   return Arm.ArmPos.HighBack.goTo(arm);
+        //         case LowFront:  return Arm.ArmPos.Hedge.goTo(arm);
+        //         default:        return Arm.ArmPos.Defense.goTo(arm);
+        //     }
+        // });
+        // driveController.a().onTrue(aCom).onFalse(Commands.runOnce(() -> aCom.end(false)));
+        // var yCom = Commands.deferredProxy(() -> {
+        //     var pos =  arm.getTargetPos();
+        //     if(pos == null) return Arm.ArmPos.Defense.goTo(arm);
+        //     switch(pos) {
+        //         case Defense:   return Arm.ArmPos.HighBack.goTo(arm);
+        //         case Ground:    return Arm.ArmPos.Hedge.goTo(arm);
+        //         case Hedge:     return Arm.ArmPos.LowFront.goTo(arm);
+        //         case HighBack:  return Arm.ArmPos.LowBack.goTo(arm);
+        //         case HighFront: return Arm.ArmPos.Defense.goTo(arm);
+        //         case LowBack:   return Arm.ArmPos.LowBack.goTo(arm);
+        //         case LowFront:  return Arm.ArmPos.HighFront.goTo(arm);
+        //         default:        return Arm.ArmPos.Defense.goTo(arm);
+        //     }
+        // });
+        // driveController.y().onTrue(yCom).onFalse(Commands.runOnce(() -> yCom.end(false)));
+        if(RobotType.getRobot().mode == Mode.SIM) {
+            buttonBoard.povLeft().onTrue(arm.gotoArmPos(ArmPos.LowBack));
+            buttonBoard.povUpLeft().onTrue(arm.gotoArmPos(ArmPos.HighBack));
+            buttonBoard.povUp().onTrue(arm.gotoArmPos(ArmPos.Defense));
+            buttonBoard.povUpRight().onTrue(arm.gotoArmPos(ArmPos.HighFront));
+            buttonBoard.povRight().onTrue(arm.gotoArmPos(ArmPos.LowFront));
+            buttonBoard.povDownRight().onTrue(arm.gotoArmPos(ArmPos.Ground));
+            buttonBoard.povDown().onTrue(arm.gotoArmPos(ArmPos.Hedge));
+        } else {
+            buttonBoard.button(4).onTrue(arm.gotoArmPos(ArmPos.LowBack));
+            buttonBoard.button(1).onTrue(arm.gotoArmPos(ArmPos.HighBack));
+            buttonBoard.button(2).onTrue(arm.gotoArmPos(ArmPos.Defense));
+            buttonBoard.button(3).onTrue(arm.gotoArmPos(ArmPos.HighFront));
+            buttonBoard.button(6).onTrue(arm.gotoArmPos(ArmPos.LowFront));
+            buttonBoard.button(9).onTrue(arm.gotoArmPos(ArmPos.Ground));
+            buttonBoard.button(5).onTrue(arm.gotoArmPos(ArmPos.Hedge));
+        }
 
-        driveController.b().whileTrue(manip.intake());
-        driveController.x().whileTrue(manip.score());
-
-        driveController.rightBumper().toggleOnTrue(
+        driveController.rightTrigger.aboveThreshold(0.5).whileTrue(
             Commands.either(
-                DriverAutoCommands.bushToHedge(drive, arm, manip).asProxy().andThen(DriverAutoCommands.hedgeToBush(drive, arm, manip).asProxy()).asProxy().repeatedly(),
-                DriverAutoCommands.hedgeToBush(drive, arm, manip).asProxy().andThen(DriverAutoCommands.bushToHedge(drive, arm, manip).asProxy()).asProxy().repeatedly(),
+                manip.score(),
+                manip.intake(),
+                manip::hasBall
+            )
+        );
+
+        driveController.povUp().toggleOnTrue(
+            Commands.either(
+                Commands.deferredProxy(() -> DriverAutoCommands.bushToHedge(drive, arm, manip)).andThen(Commands.deferredProxy(() -> DriverAutoCommands.hedgeToBush(drive, arm, manip))).asProxy().repeatedly().ignoringDisable(false),
+                Commands.deferredProxy(() -> DriverAutoCommands.hedgeToBush(drive, arm, manip)).andThen(Commands.deferredProxy(() -> DriverAutoCommands.bushToHedge(drive, arm, manip))).asProxy().repeatedly().ignoringDisable(false),
                 manip::hasBall
             )
         );
@@ -230,23 +253,18 @@ public class RobotContainer implements IRobotContainer {
         drive.setDefaultCommand(
             new DriveWithCustomFlick(
                 drive,
-                SwerveJoysticks.process(
-                    () -> driveController.getLeftY(),  // forward is field +x axis
-                    () -> driveController.getLeftX(),  //   right is field +y axis
-                    () -> 0,
-                    true,           // squareLinearInputs
-                    true,             // squareTurnInputs
-                    DriveConstants.joystickSlewRateLimit
-                ),
+                driveController.leftStick
+                    .smoothRadialDeadband(DriveConstants.driveJoystickDeadbandPercent)
+                    .radialSensitivity(0.75)
+                    .radialSlewRateLimit(DriveConstants.joystickSlewRateLimit)
+                ,
                 DriveWithCustomFlick.headingFromJoystick(
-                    () -> -driveController.getRightX(),
-                    () -> -driveController.getRightY(),
-                    0.85,
+                    driveController.rightStick.smoothRadialDeadband(0.85),
                     () -> {
                         switch (arm.getTargetPos()) {
-                            default:        return Units.degreesToRadians(0);
+                            default:        return Rotation2d.fromDegrees(0);
                             case HighBack:
-                            case LowBack:   return Units.degreesToRadians(180);
+                            case LowBack:   return Rotation2d.fromDegrees(180);
                         }
                     }
                 ),
@@ -284,7 +302,7 @@ public class RobotContainer implements IRobotContainer {
 
     public void robotPeriodic() {
         RobotState.getInstance().logOdometry();
-        // Logger.recordOutput("Mechanism2d/Robot Side Profile", robotSideProfile);
+        Logger.recordOutput("Mechanism2d/Robot Side Profile", robotSideProfile);
     }
 }
 

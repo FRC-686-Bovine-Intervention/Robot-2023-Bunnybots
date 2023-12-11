@@ -1,8 +1,10 @@
 package frc.robot.util.controllers;
 
 import java.util.function.DoubleSupplier;
+import java.util.function.DoubleUnaryOperator;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -17,6 +19,14 @@ public class Joystick {
     public Joystick(Axis x, Axis y) {
         this.x = x;
         this.y = y;
+    }
+
+    public Joystick(DoubleSupplier x, DoubleSupplier y) {
+        this(new Axis(x), new Axis(y));
+    }
+
+    public static Joystick fromAngleMagnitude(DoubleSupplier angle, DoubleSupplier magnitude) {
+        return new Axis(()->Math.cos(angle.getAsDouble())*magnitude.getAsDouble()).asXwithY(new Axis(()->Math.sin(angle.getAsDouble())*magnitude.getAsDouble()));
     }
 
     public Axis x() {
@@ -54,44 +64,64 @@ public class Joystick {
         return new Joystick(x.multiply(xCoef), y.multiply(yCoef));
     }
 
-    public DoubleSupplier magnitude() {
-        return () -> Math.hypot(x.getAsDouble(), y.getAsDouble());
+    public double magnitude() {
+        return Math.hypot(x.getAsDouble(), y.getAsDouble());
     }
 
-    public DoubleSupplier radsFromPosXCCW() {
-        return () -> Math.atan2(y.getAsDouble(), x.getAsDouble());
+    public double radsFromPosXCCW() {
+        return Math.atan2(y.getAsDouble(), x.getAsDouble());
     }
-    public DoubleSupplier radsFromPosYCCW() {
-        return () -> Math.atan2(-x.getAsDouble(), y.getAsDouble());
+    public double radsFromPosYCCW() {
+        return Math.atan2(-x.getAsDouble(), y.getAsDouble());
     }
-    public DoubleSupplier radsFromNegXCCW() {
-        return () -> Math.atan2(-y.getAsDouble(), -x.getAsDouble());
+    public double radsFromNegXCCW() {
+        return Math.atan2(-y.getAsDouble(), -x.getAsDouble());
     }
-    public DoubleSupplier radsFromNegYCCW() {
-        return () -> Math.atan2(x.getAsDouble(), -y.getAsDouble());
+    public double radsFromNegYCCW() {
+        return Math.atan2(x.getAsDouble(), -y.getAsDouble());
     }
 
-    public DoubleSupplier radsFromPosXCW() {
-        return () -> MathUtil.inputModulus(-Math.atan2(y.getAsDouble(), x.getAsDouble()), 0, 2*Math.PI);
+    public double radsFromPosXCW() {
+        return -radsFromPosXCCW();
     }
-    public DoubleSupplier radsFromPosYCW() {
-        return () -> MathUtil.inputModulus(-Math.atan2(-x.getAsDouble(), y.getAsDouble()), 0, 2*Math.PI);
+    public double radsFromPosYCW() {
+        return -radsFromPosYCCW();
     }
-    public DoubleSupplier radsFromNegXCW() {
-        return () -> MathUtil.inputModulus(-Math.atan2(-y.getAsDouble(), -x.getAsDouble()), 0, 2*Math.PI);
+    public double radsFromNegXCW() {
+        return -radsFromNegXCCW();
     }
-    public DoubleSupplier radsFromNegYCW() {
-        return () -> MathUtil.inputModulus(-Math.atan2(x.getAsDouble(), -y.getAsDouble()), 0, 2*Math.PI);
+    public double radsFromNegYCW() {
+        return -radsFromNegYCCW();
     }
 
     // public Joystick roughRadialDeadband() {
 
     // }
 
+    private Joystick fromMagnitude(DoubleSupplier mag) {
+        return fromAngleMagnitude(this::radsFromPosXCCW, mag);
+    }
+
     public Joystick smoothRadialDeadband(double deadband) {
-        DoubleSupplier magnitude = ()->MathUtil.applyDeadband(magnitude().getAsDouble(), deadband);
-        DoubleSupplier angle = radsFromPosXCCW();
-        return new Axis(()->Math.cos(angle.getAsDouble())*magnitude.getAsDouble()).asXwithY(new Axis(()->Math.sin(angle.getAsDouble())*magnitude.getAsDouble()));
+        return fromMagnitude(() -> MathUtil.applyDeadband(magnitude(), deadband));
+    }
+
+    public Joystick radialSlewRateLimit(double slewRatePerSec) {
+        SlewRateLimiter slewRateLimiter = new SlewRateLimiter(slewRatePerSec);
+        return fromMagnitude(() -> slewRateLimiter.calculate(magnitude()));
+    }
+
+    private DoubleUnaryOperator sensitivityFunction(double sensitivityVal) {
+        return (x) -> sensitivityVal * x * x * x - sensitivityVal * x + x;
+    }
+
+    public Joystick radialSensitivity(double sensitivityVal) {
+        return fromMagnitude(() -> sensitivityFunction(sensitivityVal).applyAsDouble(magnitude()));
+    }
+
+    public Joystick individualSensitivity(double sensitivityVal) {
+        var sensFunc = sensitivityFunction(sensitivityVal);
+        return new Joystick(() -> sensFunc.applyAsDouble(x.getAsDouble()), () -> sensFunc.applyAsDouble(y.getAsDouble()));
     }
 
     public static class Axis implements DoubleSupplier {
@@ -107,7 +137,7 @@ public class Joystick {
         }
 
         public Axis multiply(DoubleSupplier coef) {
-            return new Axis(() -> source.getAsDouble() * coef.getAsDouble());
+            return new Axis(() -> getAsDouble() * coef.getAsDouble());
         }
 
         public Axis multiply(double coef) {
@@ -119,7 +149,7 @@ public class Joystick {
         }
 
         public Axis add(DoubleSupplier other) {
-            return new Axis(() -> source.getAsDouble() + other.getAsDouble());
+            return new Axis(() -> getAsDouble() + other.getAsDouble());
         }
 
         public Axis add(double other) {
@@ -127,19 +157,19 @@ public class Joystick {
         }
 
         public Axis roughDeadband(double deadband) {
-            return new Axis(() -> Math.abs(source.getAsDouble()) < deadband ? 0 : source.getAsDouble());
+            return new Axis(() -> Math.abs(getAsDouble()) < deadband ? 0 : getAsDouble());
         }
 
         public Axis smoothDeadband(double deadband) {
-            return new Axis(() -> Math.copySign(Math.max((Math.abs(source.getAsDouble()) - deadband) / (1 - deadband), 0), source.getAsDouble()));
+            return new Axis(() -> MathUtil.applyDeadband(getAsDouble(), deadband));
         }
 
         public Trigger aboveThreshold(double threshold) {
-            return aboveThreshold(CommandScheduler.getInstance().getDefaultButtonLoop(), threshold);
+            return aboveThreshold(threshold, CommandScheduler.getInstance().getDefaultButtonLoop());
         }
 
-        public Trigger aboveThreshold(EventLoop loop, double threshold) {
-            return new Trigger(loop, () -> source.getAsDouble() >= threshold);
+        public Trigger aboveThreshold(double threshold, EventLoop loop) {
+            return new Trigger(loop, () -> getAsDouble() >= threshold);
         }
 
         public Joystick asXwithY(Axis yAxis) {
