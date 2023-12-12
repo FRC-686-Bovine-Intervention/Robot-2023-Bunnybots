@@ -5,6 +5,7 @@ import org.littletonrobotics.junction.AutoLog;
 public interface BunnyIntakeIO {
     @AutoLog
     public static class BunnyIntakeIOInputs {
+        public double bunnyIntakePositionRad = 0.0;
         public double bunnyIntakeAppliedVolts = 0.0;
         public double bunnyIntakeCurrentAmps = 0.0;
     }

@@ -162,6 +162,9 @@ public class RobotContainer implements IRobotContainer {
         topBeam.append(new MechanismLigament2d("Mid Beam", 0.74930000, 90, 5, new Color8Bit(Color.kDarkGray)));
         topBeam.append(new MechanismLigament2d("Angled Beam", 0.74930000 / Math.sin(Units.degreesToRadians(56.098899)), 56.098899, 5, new Color8Bit(Color.kDarkGray)));
 
+        var bunnyIntakePivot = robotSideProfile.getRoot("BunnyIntake Pivot", 1.175, 0.225).append(new MechanismLigament2d("Root", 0, 90, 0, new Color8Bit(Color.kBlack)));
+        bunnyIntakePivot.append(bunnyIntake.measuredBunnyIntakeLig);
+
         robotSideProfile.getRoot("Bumper", 1.5 + 0.384175, 0.1143).append(new MechanismLigament2d("Bumper", 0.384175 * 2, 180, 50, new Color8Bit(Color.kBlue)));
 
         // Configure the button bindings
