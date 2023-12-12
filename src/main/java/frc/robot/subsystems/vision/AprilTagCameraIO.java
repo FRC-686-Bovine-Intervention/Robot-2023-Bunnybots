@@ -14,7 +14,8 @@ public interface AprilTagCameraIO {
     public class AprilTagCameraIOInputs implements LoggableInputs {
     
         public boolean isConnected;
-        public Optional<Pose3d> visionPose = Optional.empty();   
+        public Optional<Pose3d> visionPose = Optional.empty();
+        public double cameraToTargetDist;
         public double timestamp;
     
         // AdvantageKit's @AutoLog annotation and processInputs() function 
@@ -42,6 +43,7 @@ public interface AprilTagCameraIO {
             }
             table.put("visionPose", data);
             table.put("timestamp", timestamp);
+            table.put("camToTargetDist", cameraToTargetDist);
         }
     
         @Override
@@ -51,6 +53,7 @@ public interface AprilTagCameraIO {
             double[] defaultData = {Double.NaN, Double.NaN, Double.NaN};
             double[] data = table.get("visionPose", defaultData);
             timestamp = table.get("timestamp", 0.0);
+            cameraToTargetDist = table.get("camToTargetDist", 0.0);
     
             // convert double[] back to Pose3d
             if (Double.isNaN(data[0])) {

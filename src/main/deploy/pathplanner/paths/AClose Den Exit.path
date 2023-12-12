@@ -29,7 +29,7 @@
   "rotationTargets": [
     {
       "waypointRelativePos": 0.05,
-      "rotationDegrees": 135.0
+      "rotationDegrees": -45.0
     }
   ],
   "constraintZones": [],
@@ -47,7 +47,7 @@
   "reversed": false,
   "folder": "Score Then Bunny",
   "previewStartingState": {
-    "rotation": 135.0,
+    "rotation": -45.0,
     "velocity": 0
   }
 }

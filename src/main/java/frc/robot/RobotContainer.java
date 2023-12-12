@@ -240,9 +240,14 @@ public class RobotContainer implements IRobotContainer {
         );
 
         driveController.povUp().toggleOnTrue(
+            // Commands.either(
+            //     Commands.deferredProxy(() -> DriverAutoCommands.bushToHedge(drive, arm, manip)).andThen(Commands.deferredProxy(() -> DriverAutoCommands.hedgeToBush(drive, arm, manip))).asProxy().repeatedly().ignoringDisable(false),
+            //     Commands.deferredProxy(() -> DriverAutoCommands.hedgeToBush(drive, arm, manip)).andThen(Commands.deferredProxy(() -> DriverAutoCommands.bushToHedge(drive, arm, manip))).asProxy().repeatedly().ignoringDisable(false),
+            //     manip::hasBall
+            // )
             Commands.either(
-                Commands.deferredProxy(() -> DriverAutoCommands.bushToHedge(drive, arm, manip)).andThen(Commands.deferredProxy(() -> DriverAutoCommands.hedgeToBush(drive, arm, manip))).asProxy().repeatedly().ignoringDisable(false),
-                Commands.deferredProxy(() -> DriverAutoCommands.hedgeToBush(drive, arm, manip)).andThen(Commands.deferredProxy(() -> DriverAutoCommands.bushToHedge(drive, arm, manip))).asProxy().repeatedly().ignoringDisable(false),
+                DriverAutoCommands.bushToHedge(drive, arm, manip).asProxy().andThen(DriverAutoCommands.hedgeToBush(drive, arm, manip).asProxy()).asProxy().repeatedly().ignoringDisable(false),
+                DriverAutoCommands.hedgeToBush(drive, arm, manip).asProxy().andThen(DriverAutoCommands.bushToHedge(drive, arm, manip).asProxy()).asProxy().repeatedly().ignoringDisable(false),
                 manip::hasBall
             )
         );
@@ -273,8 +278,10 @@ public class RobotContainer implements IRobotContainer {
         );
     }
 
+    private AutoRoutine auto;
     private void configureAutos() {
-        autoSelector.addRoutine(new ScoreHighThenBunny(drive, arm, manip));
+        auto = new ScoreHighThenBunny(drive, arm, manip);
+        autoSelector.addRoutine(auto);
         autoSelector.addRoutine(new AutoRoutine(
             "Drive Characterization",
             new ArrayList<>(0),
@@ -297,7 +304,7 @@ public class RobotContainer implements IRobotContainer {
         // AutoRoutine routine = autoChooser.get();
         // drive.setPose(routine.position.getPose());
         // return routine.command;
-        return autoSelector.getSelectedAutoCommand();
+        return auto.autoCommandGenerator.get();
     }
 
     public void robotPeriodic() {

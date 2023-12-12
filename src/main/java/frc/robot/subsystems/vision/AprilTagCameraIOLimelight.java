@@ -24,6 +24,7 @@ public class AprilTagCameraIOLimelight implements AprilTagCameraIO {
         inputs.isConnected = false;
         inputs.visionPose = Optional.empty();
         inputs.timestamp = Timer.getFPGATimestamp();
+        inputs.cameraToTargetDist = 0;
 
         // get parsed results from JSON on NetworkTables.  
         // Use this JSON results to make sure all values are from the same snapshot
@@ -33,7 +34,7 @@ public class AprilTagCameraIOLimelight implements AprilTagCameraIO {
         inputs.isConnected = true;
         if (!inputs.isConnected || LimelightHelpers.getFiducialID(cameraName) < 0) 
             return;
-
+        inputs.cameraToTargetDist = LimelightHelpers.getTargetPose3d_CameraSpace(cameraName).getTranslation().getNorm();
         if (DriverStation.getAlliance().equals(Optional.of(Alliance.Blue))) {
             inputs.visionPose = Optional.of(result.getBotPose3d_wpiBlue());
         } else {

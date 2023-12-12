@@ -7,6 +7,7 @@ import java.util.function.Function;
 import com.pathplanner.lib.commands.FollowPathHolonomic;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -40,7 +41,21 @@ public class ScoreHighThenBunny extends AutoRoutine {
     private static final AutoQuestion<CloseFar> denExitQuestion = new AutoQuestion<>("Den Exit", () -> CloseFar.values());
     private static final AutoQuestion<LeftRight> yardSideQuestion = new AutoQuestion<>("Yard Side", () -> LeftRight.values());
 
-    private static final HolonomicPathFollowerConfig config = new HolonomicPathFollowerConfig(Constants.DriveConstants.maxDriveSpeedMetersPerSec, 0.46, new ReplanningConfig());
+    private static final HolonomicPathFollowerConfig config = new HolonomicPathFollowerConfig(
+        new PIDConstants(
+            1,
+            0,
+            0
+        ),
+        new PIDConstants(
+            1.5,
+            0,
+            0
+        ),
+        Constants.DriveConstants.maxDriveSpeedMetersPerSec,
+        0.46,
+        new ReplanningConfig()
+    );
     private static final String pracPath1Format = "A%s Start %s Burrow";
     private static final String pracPath2Format = "A%s Den Exit";
     private static final String pracPath3Format = "A%s Den %s Yard";
@@ -80,13 +95,13 @@ public class ScoreHighThenBunny extends AutoRoutine {
                 var exitToYard =    PathPlannerPath.fromPathFile(String.format((RobotType.getRobot() == RobotType.ROBOT_2023_PRAC ? pracPath3Format : compPath3format), den.name(), yard.name()));
 
                 return
-                    Commands.runOnce(() -> robotState.setPose(drive.getGyroRotation(), drive.getModulePositions(), AllianceFlipUtil.apply(new Pose2d(startToBurrow.getPoint(0).position, new Rotation2d(Units.degreesToRadians(180))))))
+                    Commands.runOnce(() -> robotState.setPose(drive.getGyroRotation(), drive.getModulePositions(), AllianceFlipUtil.apply(new Pose2d(startToBurrow.getPoint(0).position, new Rotation2d(Units.degreesToRadians(-90))))))
                     .andThen(followPathConstructor.apply(startToBurrow))
-                    .andThen(arm.gotoArmPosWithWait(ArmPos.HighFront))
+                    .deadlineWith(arm.gotoArmPosWithWait(ArmPos.HighBack))
                     .andThen(manip.score().withTimeout(0.5))
-                    .andThen(arm.gotoArmPos(ArmPos.Defense))
-                    .andThen(followPathConstructor.apply(burrowToExit))
-                    .andThen(followPathConstructor.apply(exitToYard))
+                    // .andThen(arm.gotoArmPos(ArmPos.Defense))
+                    // .andThen(followPathConstructor.apply(burrowToExit))
+                    // .andThen(followPathConstructor.apply(exitToYard))
                     .withName("Score High Then Bunny");
             }
         );

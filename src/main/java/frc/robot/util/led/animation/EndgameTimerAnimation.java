@@ -12,7 +12,7 @@ public class EndgameTimerAnimation extends LEDAnimation {
     }
 
     private static final Color[] colors = {Color.kBlack, Color.kRed, Color.kYellow, Color.kGreen};
-    private static final double darkScalar = 0.2;
+    private static final double darkScalar = 0.8;
 
     @Override
     protected void runAnimation(LEDManager manager) {
@@ -29,9 +29,9 @@ public class EndgameTimerAnimation extends LEDAnimation {
                 color = new Color(color.red * scalar, color.green * scalar, color.blue * scalar);
             } else if (seg % 2 == 0) {
                 color = new Color(
-                    color.red * darkScalar + 255 * (1 - darkScalar), 
-                    color.green * darkScalar + 255 * (1 - darkScalar),
-                    color.blue * darkScalar + 255 * (1 - darkScalar)
+                    color.red * (1 - darkScalar),
+                    color.green * (1 - darkScalar),
+                    color.blue * (1 - darkScalar)
                 );
             }
             strip.setLED(index, color);

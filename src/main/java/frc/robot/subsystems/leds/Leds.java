@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj.DriverStation.MatchType;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.Constants;
 import frc.robot.util.VirtualSubsystem;
-import frc.robot.util.led.animation.EndgameNotificationAnim;
 import frc.robot.util.led.animation.EndgameTimerAnimation;
 import frc.robot.util.led.animation.FillAnimation;
 import frc.robot.util.led.animation.LEDAnimation;
@@ -38,7 +37,7 @@ public class Leds extends VirtualSubsystem {
     private final LEDStrip parallelStrip =  rightStrip.parallel(leftStrip);
 
     private final LEDAnimation hasBallAnimation = new FillAnimation(Color.kGreen, parallelStrip);
-    private final LEDAnimation intakingAnimation = new FillAnimation(Color.kPurple, parallelStrip);
+    private final ScrollingAnimation intakingAnimation = new ScrollingAnimation(new BasicGradient(InterpolationStyle.Linear, Color.kRed, Color.kYellow), TilingFunction.Sinusoidal, parallelStrip.substrip(0, 30).parallel(parallelStrip.substrip(30).reverse()));
     private final LEDAnimation endgameNotification = new EndgameTimerAnimation(parallelStrip);
     private final ScrollingAnimation robotAutonomousAnimation = new ScrollingAnimation(new BasicGradient(InterpolationStyle.Step, Color.kRed, Color.kBlue), TilingFunction.Modulo, parallelStrip);
     private final LEDAnimation driverStationConnected = new FillAnimation(() -> (DriverStation.isDSAttached() ? Color.kGreen : Color.kOrange), parallelStrip.substrip(0, 10));
@@ -81,12 +80,14 @@ public class Leds extends VirtualSubsystem {
             new AnimationRunner(() -> Boolean.TRUE.equals(data.armManual.get()), armBrake),
             new AnimationRunner(() -> Boolean.FALSE.equals(data.driveManual.get()), driveCoast),
             new AnimationRunner(() -> Boolean.TRUE.equals(data.driveManual.get()), driveBrake),
-            new AnimationRunner(() -> DriverStation.isTeleopEnabled() /* && DriverStation.getMatchType() != MatchType.None */ && DriverStation.getMatchTime() <= 30, endgameNotification),
+            new AnimationRunner(() -> DriverStation.isTeleopEnabled() && (DriverStation.getMatchType() != MatchType.None ? DriverStation.getMatchTime() <= 30 : !endgameNotification.animationTimer.hasElapsed(30)), endgameNotification),
             new AnimationRunner(data.auto, robotAutonomousAnimation),
             new AnimationRunner(DriverStation::isDisabled, driverStationConnected),
         };
 
         allianceColorAnimation.setWavelength(4);
+        intakingAnimation.setWavelength(2);
+        intakingAnimation.setVelocity(2);
         robotAutonomousAnimation.setWavelength(4);
         robotAutonomousAnimation.setVelocity(2);
 
@@ -97,9 +98,9 @@ public class Leds extends VirtualSubsystem {
         armBrake.setPriority(2);
         driveCoast.setPriority(2);
         driveBrake.setPriority(2);
-        intakingAnimation.setPriority(3);
-        hasBallAnimation.setPriority(4);
-        robotAutonomousAnimation.setPriority(5);
+        hasBallAnimation.setPriority(3);
+        robotAutonomousAnimation.setPriority(4);
+        intakingAnimation.setPriority(5);
         endgameNotification.setPriority(10);
 
         allianceColorAnimation.start();
@@ -145,7 +146,7 @@ public class Leds extends VirtualSubsystem {
                 if(curVal) {
                     animation.start();
                 } else {
-                    animation.stop();
+                    animation.pause();
                 }
             }
             lastVal = curVal;
