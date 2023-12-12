@@ -38,6 +38,10 @@ import frc.robot.subsystems.arm.manipulator.Manipulator;
 import frc.robot.subsystems.arm.manipulator.ManipulatorIO;
 import frc.robot.subsystems.arm.manipulator.ManipulatorIOSim;
 import frc.robot.subsystems.arm.manipulator.ManipulatorIOTalon;
+import frc.robot.subsystems.bunnyIntake.BunnyIntake;
+import frc.robot.subsystems.bunnyIntake.BunnyIntakeIO;
+import frc.robot.subsystems.bunnyIntake.BunnyIntakeIONeo;
+import frc.robot.subsystems.bunnyIntake.BunnyIntakeIOSim;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -68,6 +72,7 @@ public class RobotContainer implements IRobotContainer {
     private final Vision vision;
     private final Arm arm;
     private final Manipulator manip;
+    private final BunnyIntake bunnyIntake;
     @SuppressWarnings("unused")
     private final ManualOverrides manuOverrides;
     @SuppressWarnings("unused")
@@ -106,6 +111,7 @@ public class RobotContainer implements IRobotContainer {
                 );
                 manip = new Manipulator(new ManipulatorIOTalon());
                 arm = new Arm(new ArmIOFalcon());
+                bunnyIntake = new BunnyIntake(new BunnyIntakeIONeo());
                 manuOverrides = new ManualOverrides(arm, drive);
                 ledSystem = new Leds(new LedData(
                     manip::hasBall,
@@ -125,6 +131,7 @@ public class RobotContainer implements IRobotContainer {
                 );
                 vision = new Vision();
                 manip = new Manipulator(new ManipulatorIOSim());
+                bunnyIntake = new BunnyIntake(new BunnyIntakeIOSim());
                 arm = new Arm(new ArmIOSim());
                 manuOverrides = null;
                 ledSystem = null;
@@ -140,6 +147,7 @@ public class RobotContainer implements IRobotContainer {
                 );
                 vision = new Vision();
                 manip = new Manipulator(new ManipulatorIO() {});
+                bunnyIntake = new BunnyIntake(new BunnyIntakeIO() {});
                 arm = new Arm(new ArmIO() {});
                 manuOverrides = null;
                 ledSystem = null;
@@ -156,6 +164,9 @@ public class RobotContainer implements IRobotContainer {
         var topBeam = frontBeam.append(new MechanismLigament2d("Top Beam", 0.16510000, 90, 5, new Color8Bit(Color.kDarkGray)));
         topBeam.append(new MechanismLigament2d("Mid Beam", 0.74930000, 90, 5, new Color8Bit(Color.kDarkGray)));
         topBeam.append(new MechanismLigament2d("Angled Beam", 0.74930000 / Math.sin(Units.degreesToRadians(56.098899)), 56.098899, 5, new Color8Bit(Color.kDarkGray)));
+
+        var bunnyIntakePivot = robotSideProfile.getRoot("BunnyIntake Pivot", 1.175, 0.225).append(new MechanismLigament2d("Root", 0, 90, 0, new Color8Bit(Color.kBlack)));
+        bunnyIntakePivot.append(bunnyIntake.measuredBunnyIntakeLig);
 
         robotSideProfile.getRoot("Bumper", 1.5 + 0.384175, 0.1143).append(new MechanismLigament2d("Bumper", 0.384175 * 2, 180, 50, new Color8Bit(Color.kBlue)));
 

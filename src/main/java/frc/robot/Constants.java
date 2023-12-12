@@ -60,6 +60,9 @@ public final class Constants {
         // | Manipulator
         public static final int manipMotorID        = 53;
 
+        // Bunny Intake
+        public static final int bunnyIntakeMotorID  = 61;
+
 
         public static final int pigeonCanID = 0;
         public static final int candleCanID = 0;
