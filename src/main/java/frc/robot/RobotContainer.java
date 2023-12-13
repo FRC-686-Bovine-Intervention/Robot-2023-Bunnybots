@@ -42,6 +42,7 @@ import frc.robot.subsystems.bunnyIntake.BunnyIntake;
 import frc.robot.subsystems.bunnyIntake.BunnyIntakeIO;
 import frc.robot.subsystems.bunnyIntake.BunnyIntakeIONeo;
 import frc.robot.subsystems.bunnyIntake.BunnyIntakeIOSim;
+import frc.robot.subsystems.bunnyIntake.BunnyIntake.BunnyPos;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -250,6 +251,13 @@ public class RobotContainer implements IRobotContainer {
             )
         );
 
+        driveController.a().onTrue(bunnyIntake.gotoPosWithWait(BunnyPos.Inside));
+        driveController.b().onTrue(bunnyIntake.gotoPosWithWait(BunnyPos.Bar));
+        driveController.y().onTrue(bunnyIntake.gotoPosWithWait(BunnyPos.Floor));
+
+        driveController.leftBumper().whileTrue(bunnyIntake.setVolts(4));
+        driveController.rightBumper().whileTrue(bunnyIntake.setVolts(-4));
+
         driveController.povUp().toggleOnTrue(
             // Commands.either(
             //     Commands.deferredProxy(() -> DriverAutoCommands.bushToHedge(drive, arm, manip)).andThen(Commands.deferredProxy(() -> DriverAutoCommands.hedgeToBush(drive, arm, manip))).asProxy().repeatedly().ignoringDisable(false),
@@ -291,7 +299,7 @@ public class RobotContainer implements IRobotContainer {
 
     private AutoRoutine auto;
     private void configureAutos() {
-        auto = new ScoreHighThenBunny(drive, arm, manip);
+        auto = new ScoreHighThenBunny(drive, arm, manip, bunnyIntake);
         autoSelector.addRoutine(auto);
         autoSelector.addRoutine(new AutoRoutine(
             "Drive Characterization",
@@ -321,6 +329,10 @@ public class RobotContainer implements IRobotContainer {
     public void robotPeriodic() {
         RobotState.getInstance().logOdometry();
         Logger.recordOutput("Mechanism2d/Robot Side Profile", robotSideProfile);
+    }
+
+    public void enabledInit() {
+        bunnyIntake.calibrate();
     }
 }
 

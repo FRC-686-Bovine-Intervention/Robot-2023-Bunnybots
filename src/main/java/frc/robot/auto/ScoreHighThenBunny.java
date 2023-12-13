@@ -23,6 +23,8 @@ import frc.robot.auto.AutoSelector.AutoRoutine;
 import frc.robot.subsystems.arm.arm.Arm;
 import frc.robot.subsystems.arm.arm.Arm.ArmPos;
 import frc.robot.subsystems.arm.manipulator.Manipulator;
+import frc.robot.subsystems.bunnyIntake.BunnyIntake;
+import frc.robot.subsystems.bunnyIntake.BunnyIntake.BunnyPos;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.AllianceFlipUtil;
 
@@ -59,9 +61,11 @@ public class ScoreHighThenBunny extends AutoRoutine {
     private static final String pracPath1Format = "A%s Start %s Burrow";
     private static final String pracPath2Format = "A%s Den Exit";
     private static final String pracPath3Format = "A%s Den %s Yard";
+    private static final String pracPath4Format = "A%s Yard Driveaway";
     private static final String compPath1Format = "%s Start %s Burrow";
     private static final String compPath2Format = "%s Den Exit";
     private static final String compPath3format = "%s Den %s Yard";
+    private static final String compPath4format = "%s Yard Driveaway";
 
     private enum LeftRight {
         Left,
@@ -72,7 +76,7 @@ public class ScoreHighThenBunny extends AutoRoutine {
         Far,
     }
 
-    public ScoreHighThenBunny(final Drive drive, final Arm arm, final Manipulator manip) {
+    public ScoreHighThenBunny(Drive drive, Arm arm, Manipulator manip, BunnyIntake bunny) {
         super(
             "Score High then Bunny",
 
@@ -93,15 +97,28 @@ public class ScoreHighThenBunny extends AutoRoutine {
                 var startToBurrow = PathPlannerPath.fromPathFile(String.format((RobotType.getRobot() == RobotType.ROBOT_2023_PRAC ? pracPath1Format : compPath1Format), startPosition.name(), burrow.name()));
                 var burrowToExit =  PathPlannerPath.fromPathFile(String.format((RobotType.getRobot() == RobotType.ROBOT_2023_PRAC ? pracPath2Format : compPath2Format), den.name()));
                 var exitToYard =    PathPlannerPath.fromPathFile(String.format((RobotType.getRobot() == RobotType.ROBOT_2023_PRAC ? pracPath3Format : compPath3format), den.name(), yard.name()));
+                var yardDriveaway = PathPlannerPath.fromPathFile(String.format((RobotType.getRobot() == RobotType.ROBOT_2023_PRAC ? pracPath4Format : compPath4format), yard.name()));
 
                 return
                     Commands.runOnce(() -> robotState.setPose(drive.getGyroRotation(), drive.getModulePositions(), AllianceFlipUtil.apply(new Pose2d(startToBurrow.getPoint(0).position, new Rotation2d(Units.degreesToRadians(-90))))))
-                    .andThen(followPathConstructor.apply(startToBurrow))
-                    .deadlineWith(arm.gotoArmPosWithWait(ArmPos.HighBack))
-                    .andThen(manip.score().withTimeout(0.5))
-                    // .andThen(arm.gotoArmPos(ArmPos.Defense))
-                    // .andThen(followPathConstructor.apply(burrowToExit))
-                    // .andThen(followPathConstructor.apply(exitToYard))
+                    .andThen(
+                        bunny.gotoPosWithWait(BunnyPos.Floor),
+                        bunny.gotoPosWithWait(BunnyPos.Inside)
+                        .alongWith(
+                            Commands.waitSeconds(0.5)
+                            .andThen(
+                                followPathConstructor.apply(startToBurrow)
+                                .alongWith(arm.gotoArmPosWithWait(ArmPos.HighBack)),
+                                manip.score().withTimeout(0.5),
+                                arm.gotoArmPos(ArmPos.Defense),
+                                followPathConstructor.apply(burrowToExit),
+                                followPathConstructor.apply(exitToYard),
+                                bunny.gotoPosWithWait(BunnyPos.Bar),
+                                followPathConstructor.apply(yardDriveaway),
+                                bunny.gotoPosWithWait(BunnyPos.Inside)
+                            )
+                        )
+                    )
                     .withName("Score High Then Bunny");
             }
         );

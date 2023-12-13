@@ -6,89 +6,86 @@ package frc.robot.subsystems.bunnyIntake;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.util.LoggedTunableNumber;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 
 public class BunnyIntake extends SubsystemBase {
   private final BunnyIntakeIO bunnyIntakeIO;
   private final BunnyIntakeIOInputsAutoLogged bunnyIntakeIOInputs = new BunnyIntakeIOInputsAutoLogged();
 
-  private final LoggedTunableNumber spikeThreshold =    new LoggedTunableNumber("BunnyIntake/Current Spike Threshold",  +10.0);
-  private final LoggedTunableNumber spikeTime =         new LoggedTunableNumber("BunnyIntake/Current Spike Time",       +0.5);
-
-  private final Timer currentSpikeTimer = new Timer();
-
-  private final Mechanism2d bunnyIntakeMech = new Mechanism2d(1, 1, new Color8Bit(Color.kBlack));
+  private final ProfiledPIDController pid =  new ProfiledPIDController(
+    10,
+    0,
+    0,
+    new Constraints(
+      6,
+      15
+    )
+  );
+  // private final Mechanism2d bunnyIntakeMech = new Mechanism2d(1, 1, new Color8Bit(Color.kBlack));
   public final MechanismLigament2d measuredBunnyIntakeLig = new MechanismLigament2d("BunnyIntake Measured", Units.inchesToMeters(7.604), 0, 5, new Color8Bit(Color.kPink));
 
-  private static final ShuffleboardTab SBTab = Shuffleboard.getTab("BunnyIntake");
   public BunnyIntake(BunnyIntakeIO bunnyIntakeIO) {
     System.out.println("[Init BunnyIntake] Instantiating BunnyIntake");
     this.bunnyIntakeIO = bunnyIntakeIO;
     System.out.println("[Init BunnyIntake] BunnyIntake IO: " + this.bunnyIntakeIO.getClass().getSimpleName());
-    SBTab.add("BunnyIntake Subsystem", this);
-    var mechRoot = bunnyIntakeMech.getRoot("Pivot", 0, 0).append(new MechanismLigament2d("Fixed", 0, 90, 0, new Color8Bit(Color.kBlack)));
-    mechRoot.append(measuredBunnyIntakeLig.append(new MechanismLigament2d("BunnyIntake Extension", Units.inchesToMeters(7.748), 45, 5, new Color8Bit(Color.kLightPink))));
+    pid.setTolerance(Units.degreesToRadians(5));
+    // var mechRoot = bunnyIntakeMech.getRoot("Pivot", 0, 0).append(new MechanismLigament2d("Fixed", 0, 90, 0, new Color8Bit(Color.kBlack)));
+    // mechRoot.append(measuredBunnyIntakeLig.append(new MechanismLigament2d("BunnyIntake Extension", Units.inchesToMeters(7.748), 45, 5, new Color8Bit(Color.kLightPink))));
   }
 
   @Override
   public void periodic() {
     bunnyIntakeIO.updateInputs(bunnyIntakeIOInputs);
     Logger.processInputs("BunnyIntake", bunnyIntakeIOInputs);
-    measuredBunnyIntakeLig.setAngle(-Units.radiansToDegrees(bunnyIntakeIOInputs.bunnyIntakePositionRad));
-    if (Math.abs(bunnyIntakeIOInputs.bunnyIntakeCurrentAmps) >= spikeThreshold.get()) {
-      currentSpikeTimer.start();
-    } else {
-      currentSpikeTimer.stop();
-      currentSpikeTimer.restart();
+    // measuredBunnyIntakeLig.setAngle(-Units.radiansToDegrees(bunnyIntakeIOInputs.bunnyIntakePositionRad));
+  }
+
+  public static enum BunnyPos {
+    Inside(0),
+    Floor(3.74),
+    Bar(3.91),
+    ;
+    public final double pos;
+    BunnyPos(double pos) {
+      this.pos = pos;
     }
   }
 
-  private final LoggedTunableNumber manualBunnyIntakeVolts = new LoggedTunableNumber("BunnyIntake/Manual Arm Volts", 2);
-  public Command setBunnyIntakeVolts(double dir) {
-      return new StartEndCommand(
-          () -> bunnyIntakeIO.setVoltage(manualBunnyIntakeVolts.get() * dir),
-          () -> bunnyIntakeIO.setVoltage(0),
-          this
-      ).withName("Manual Volts: " + (manualBunnyIntakeVolts.get() * dir));
+  public Command setVolts(double volts) {
+    return Commands.runEnd(() -> bunnyIntakeIO.setVoltage(volts), () -> bunnyIntakeIO.setVoltage(0), this);
   }
 
-  public Command lower() {
-    return new FunctionalCommand(
-      ()->{},
-      ()->{
-          bunnyIntakeIO.setVoltage(manualBunnyIntakeVolts.get());
-      },
-      (Boolean interrupted)->{
-          bunnyIntakeIO.setVoltage(0);
-      },
-      ()->currentSpikeTimer.hasElapsed(spikeTime.get()),
+  public Command setPos(BunnyPos pos) {
+    return new ProfiledPIDCommand(
+      pid,
+      () -> bunnyIntakeIOInputs.bunnyIntakePositionRad, pos.pos,
+      (output, setpoint) -> bunnyIntakeIO.setVoltage(output),
       this
-    );
+    ).withName(pos.name());
   }
 
-  public Command raise() {
-    return new FunctionalCommand(
-      ()->{},
-      ()->{
-          bunnyIntakeIO.setVoltage(-1 * manualBunnyIntakeVolts.get());
-      },
-      (Boolean interrupted)->{
-          bunnyIntakeIO.setVoltage(0);
-      },
-      ()->currentSpikeTimer.hasElapsed(spikeTime.get()),
-      this
-    );
+  public Command gotoPos(BunnyPos pos) {
+    return Commands.runOnce(() -> setPos(pos).schedule());
+  }
+  public Command gotoPosWithWait(BunnyPos pos) {
+    return gotoPos(pos).andThen(waitUntilAtGoal());
+  }
+
+  public Command waitUntilAtGoal() {
+    return new WaitUntilCommand(pid::atGoal);
+  }
+
+  public void calibrate() {
+    bunnyIntakeIO.zeroEncoders();
   }
 }
