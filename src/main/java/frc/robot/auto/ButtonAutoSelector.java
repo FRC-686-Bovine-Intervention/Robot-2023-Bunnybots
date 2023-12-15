@@ -59,6 +59,10 @@ public class ButtonAutoSelector extends VirtualSubsystem {
             if(incrementAuto) {
                 selectedAutoIndex = (selectedAutoIndex + 1) % routines.size();
             }
+            System.out.println("Selected Auto: " + getSelectedAuto().name);
+            for(var question : getSelectedAuto().questions) {
+                System.out.println(question.name + ": " + question.getResponse().name());
+            }
         }
 
         lastButton = butVal;

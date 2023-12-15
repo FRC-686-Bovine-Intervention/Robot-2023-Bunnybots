@@ -8,34 +8,34 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.1398068207313172,
-        "y": 4.144369709125916
+        "x": 2.1191273386490668,
+        "y": 4.164920302724888
       },
       "isLocked": false
     },
     {
       "anchor": {
-        "x": 2.995952665538517,
-        "y": 5.911720758637466
+        "x": 2.62604198075703,
+        "y": 5.815817988508932
       },
       "prevControl": {
-        "x": 2.9642099196417675,
-        "y": 4.840403084622157
+        "x": 2.6938579423474165,
+        "y": 5.175333906821951
       },
       "nextControl": {
-        "x": 3.0233534570038123,
-        "y": 6.836497470591182
+        "x": 2.5643901999601155,
+        "y": 6.398084807146457
       },
       "isLocked": false
     },
     {
       "anchor": {
-        "x": 1.064196867235197,
-        "y": 7.185857561773697
+        "x": 0.8997921184434249,
+        "y": 7.3571125084317925
       },
       "prevControl": {
-        "x": 2.7150945530192403,
-        "y": 7.158456770308401
+        "x": 2.5232890127621728,
+        "y": 7.137906176709429
       },
       "nextControl": null,
       "isLocked": false
@@ -43,8 +43,8 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 1.55,
-      "rotationDegrees": 180.0
+      "waypointRelativePos": 0.2,
+      "rotationDegrees": -90.0
     }
   ],
   "constraintZones": [],
@@ -57,12 +57,12 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 135.0
+    "rotation": -45.0
   },
   "reversed": false,
   "folder": "Score Then Bunny",
   "previewStartingState": {
-    "rotation": 180.0,
+    "rotation": -90.0,
     "velocity": 0
   }
 }

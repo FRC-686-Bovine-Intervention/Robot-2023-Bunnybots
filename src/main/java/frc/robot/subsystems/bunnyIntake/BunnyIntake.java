@@ -47,7 +47,7 @@ public class BunnyIntake extends SubsystemBase {
   public void periodic() {
     bunnyIntakeIO.updateInputs(bunnyIntakeIOInputs);
     Logger.processInputs("BunnyIntake", bunnyIntakeIOInputs);
-    // measuredBunnyIntakeLig.setAngle(-Units.radiansToDegrees(bunnyIntakeIOInputs.bunnyIntakePositionRad));
+    measuredBunnyIntakeLig.setAngle(-Units.radiansToDegrees(bunnyIntakeIOInputs.bunnyIntakePositionRad));
   }
 
   public static enum BunnyPos {

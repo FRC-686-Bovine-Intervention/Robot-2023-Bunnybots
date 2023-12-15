@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.DriverStation.MatchType;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.util.VirtualSubsystem;
 import frc.robot.util.led.animation.EndgameTimerAnimation;
 import frc.robot.util.led.animation.FillAnimation;
@@ -24,54 +25,70 @@ import frc.robot.util.led.functions.Gradient.BasicGradient;
 import frc.robot.util.led.functions.Gradient.BasicGradient.InterpolationStyle;
 import frc.robot.util.led.functions.TilingFunction;
 import frc.robot.util.led.strips.LEDStrip;
+import frc.robot.util.led.strips.hardware.SimulatedStrip;
 import frc.robot.util.led.strips.hardware.CANdleStrip;
 
 public class Leds extends VirtualSubsystem {
     private final LEDManager ledManager = LEDManager.getInstance();
-    private final CANdle m_candle = new CANdle(Constants.CANDevices.candleCanID, "rio");
-    private final CANdleStrip candleLEDs =  new CANdleStrip(m_candle, 60*2);
-    private final LEDStrip onboardLEDs =    candleLEDs.getOnboardLEDs();
-    private final LEDStrip offboardLEDs =   candleLEDs.getOffboardLEDs();
-    private final LEDStrip rightStrip =     offboardLEDs.substrip(0, offboardLEDs.getLength() / 2);
-    private final LEDStrip leftStrip =      offboardLEDs.substrip(offboardLEDs.getLength() / 2).reverse();
-    private final LEDStrip parallelStrip =  rightStrip.parallel(leftStrip);
-
-    private final LEDAnimation hasBallAnimation = new FillAnimation(Color.kGreen, parallelStrip);
-    private final ScrollingAnimation intakingAnimation = new ScrollingAnimation(new BasicGradient(InterpolationStyle.Linear, Color.kRed, Color.kYellow), TilingFunction.Sinusoidal, parallelStrip.substrip(0, 30).parallel(parallelStrip.substrip(30).reverse()));
-    private final LEDAnimation endgameNotification = new EndgameTimerAnimation(parallelStrip);
-    private final ScrollingAnimation robotAutonomousAnimation = new ScrollingAnimation(new BasicGradient(InterpolationStyle.Step, Color.kRed, Color.kBlue), TilingFunction.Modulo, parallelStrip);
-    private final LEDAnimation driverStationConnected = new FillAnimation(() -> (DriverStation.isDSAttached() ? Color.kGreen : Color.kOrange), parallelStrip.substrip(0, 10));
-
-    private final ScrollingAnimation allianceColorAnimation = new ScrollingAnimation((x) -> {
-        var colors = new Color[]{
-            (DriverStation.getAlliance().isEmpty() ? Color.kRed : Color.kBlack),
-            (DriverStation.getAlliance().equals(Optional.of(Alliance.Red)) ? Color.kRed : Color.kFirstBlue)
-        };
-        return InterpolationStyle.Linear.interpolate(x, colors);
-    }, TilingFunction.Sinusoidal, parallelStrip);
-
-    private final LEDStrip armManualStrip = parallelStrip.substrip(55);
-    private final LEDAnimation armCoast = new FillAnimation(Color.kGreen, armManualStrip);
-    private final LEDAnimation armBrake = new FillAnimation(Color.kOrange, armManualStrip);
-
-    private final LEDAnimation onboardBlank = new FillAnimation(Color.kBlack, onboardLEDs);
-    private final LEDAnimation driveCoast = new FillAnimation(Color.kGreen, onboardLEDs);
-    private final LEDAnimation driveBrake = new FillAnimation(Color.kOrange, onboardLEDs);
+    private final LEDStrip onboardLEDs;
+    private final LEDStrip offboardLEDs;
 
     private final AnimationRunner[] runners;
 
     public Leds(LedData data) {
         System.out.println("[Init Leds] Instantiating Leds");
-        ledManager.register(candleLEDs);
-        CANdleConfiguration configAll = new CANdleConfiguration();
-        configAll.statusLedOffWhenActive = true;
-        configAll.disableWhenLOS = false;
-        configAll.stripType = LEDStripType.GRB;
-        configAll.brightnessScalar = 0.5;
-        configAll.vBatOutputMode = VBatOutputMode.Modulated;
-        m_candle.configFactoryDefault();
-        m_candle.clearAnimation(0);
-        m_candle.configAllSettings(configAll, 100);
+        if(Robot.isReal()) {
+            var m_candle = new CANdle(Constants.CANDevices.candleCanID, "rio");
+            var candleStrip = new CANdleStrip(m_candle, 60*2);
+
+            ledManager.register(candleStrip);
+
+            onboardLEDs = candleStrip.getOnboardLEDs();
+            offboardLEDs = candleStrip.getOffboardLEDs();
+            
+            CANdleConfiguration configAll = new CANdleConfiguration();
+            configAll.statusLedOffWhenActive = true;
+            configAll.disableWhenLOS = false;
+            configAll.stripType = LEDStripType.GRB;
+            configAll.brightnessScalar = 0.5;
+            configAll.vBatOutputMode = VBatOutputMode.Modulated;
+            m_candle.configFactoryDefault();
+            m_candle.clearAnimation(0);
+            m_candle.configAllSettings(configAll, 100);
+        } else {
+            var m_addressable = new SimulatedStrip(0, 60*2+8);
+
+            ledManager.register(m_addressable);
+
+            onboardLEDs = m_addressable.substrip(0, 8);
+            offboardLEDs = m_addressable.substrip(8);
+        }
+
+        var rightStrip =    offboardLEDs.substrip(0, offboardLEDs.getLength() / 2);
+        var leftStrip =     offboardLEDs.substrip(offboardLEDs.getLength() / 2).reverse();
+        var parallelStrip = rightStrip.parallel(leftStrip);
+
+        var hasBallAnimation = new FillAnimation(Color.kGreen, parallelStrip);
+        var intakingAnimation = new ScrollingAnimation(new BasicGradient(InterpolationStyle.Linear, Color.kRed, Color.kYellow), TilingFunction.Sinusoidal, parallelStrip.substrip(0, 30).parallel(parallelStrip.substrip(30).reverse()));
+        var endgameNotification = new EndgameTimerAnimation(parallelStrip);
+        var robotAutonomousAnimation = new ScrollingAnimation(new BasicGradient(InterpolationStyle.Step, Color.kRed, Color.kBlue), TilingFunction.Modulo, parallelStrip);
+        var driverStationConnected = new FillAnimation(() -> (DriverStation.isDSAttached() ? Color.kGreen : Color.kOrange), parallelStrip.substrip(0, 10));
+
+        var allianceColorAnimation = new ScrollingAnimation((x) -> {
+            var colors = new Color[]{
+                (DriverStation.getAlliance().isEmpty() ? Color.kRed : Color.kBlack),
+                (DriverStation.getAlliance().equals(Optional.of(Alliance.Red)) ? Color.kRed : Color.kFirstBlue)
+            };
+            return InterpolationStyle.Linear.interpolate(x, colors);
+        }, TilingFunction.Sinusoidal, parallelStrip);
+
+        var armManualStrip = parallelStrip.substrip(55);
+        var armCoast = new FillAnimation(Color.kGreen, armManualStrip);
+        var armBrake = new FillAnimation(Color.kOrange, armManualStrip);
+        var onboardBlank = new FillAnimation(Color.kBlack, onboardLEDs);
+        var driveCoast = new FillAnimation(Color.kGreen, onboardLEDs);
+        var driveBrake = new FillAnimation(Color.kOrange, onboardLEDs);
+
 
         var question1Strip = parallelStrip.substrip(10, 13);
         var question2Strip = parallelStrip.substrip(13, 16);
