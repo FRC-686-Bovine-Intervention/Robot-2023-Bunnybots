@@ -68,7 +68,7 @@ public class DriverAutoCommands {
                 .andThen(arm.gotoArmPosWithWait(ArmPos.Defense))
             )
             .andThen(arm.gotoArmPosWithWait(ArmPos.Hedge))
-            .andThen(manip.hedge().withTimeout(0.5))
+            .andThen(manip.hedge().withTimeout(0.75))
             .andThen(arm.gotoArmPos(ArmPos.Defense))
             .withName("Bush To Hedge")
             ;

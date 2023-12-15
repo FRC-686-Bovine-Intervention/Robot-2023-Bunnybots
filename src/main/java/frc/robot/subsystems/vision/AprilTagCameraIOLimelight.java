@@ -2,8 +2,6 @@ package frc.robot.subsystems.vision;
 
 import java.util.Optional;
 
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.VisionConstants.Camera;
 
@@ -35,11 +33,7 @@ public class AprilTagCameraIOLimelight implements AprilTagCameraIO {
         if (!inputs.isConnected || LimelightHelpers.getFiducialID(cameraName) < 0) 
             return;
         inputs.cameraToTargetDist = LimelightHelpers.getTargetPose3d_CameraSpace(cameraName).getTranslation().getNorm();
-        if (DriverStation.getAlliance().equals(Optional.of(Alliance.Blue))) {
-            inputs.visionPose = Optional.of(result.getBotPose3d_wpiBlue());
-        } else {
-            inputs.visionPose = Optional.of(result.getBotPose3d_wpiRed());
-        }
+        inputs.visionPose = Optional.of(result.getBotPose3d_wpiBlue());
         double latencySeconds = (result.latency_capture + result.latency_pipeline + result.latency_jsonParse) / 1000.0;
         inputs.timestamp = Timer.getFPGATimestamp() - latencySeconds;
     }

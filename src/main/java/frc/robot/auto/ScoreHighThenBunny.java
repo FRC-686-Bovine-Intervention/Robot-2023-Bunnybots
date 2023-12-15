@@ -33,12 +33,13 @@ public class ScoreHighThenBunny extends AutoRoutine {
 
     private static final AutoQuestion<LeftRight> startPositionQuestion = new AutoQuestion<>("Start position", () -> LeftRight.values());
     private static final AutoQuestion<CloseFar> burrowApproachQuestion = new AutoQuestion<>("Burrow Approach", () -> {
-        List<CloseFar> a = new ArrayList<>();
-        a.add(CloseFar.Close);
-        if(startPositionQuestion.getResponse().equals(LeftRight.Right)) {
-            a.add(CloseFar.Far);
-        }
-        return a.toArray(CloseFar[]::new);
+        // List<CloseFar> a = new ArrayList<>();
+        // a.add(CloseFar.Close);
+        // if(startPositionQuestion.getResponse().equals(LeftRight.Right)) {
+        //     a.add(CloseFar.Far);
+        // }
+        // return a.toArray(CloseFar[]::new);
+        return CloseFar.values();
     });
     private static final AutoQuestion<CloseFar> denExitQuestion = new AutoQuestion<>("Den Exit", () -> CloseFar.values());
     private static final AutoQuestion<LeftRight> yardSideQuestion = new AutoQuestion<>("Yard Side", () -> LeftRight.values());
@@ -92,6 +93,11 @@ public class ScoreHighThenBunny extends AutoRoutine {
                 CloseFar  burrow        =  burrowApproachQuestion.getResponse();
                 CloseFar  den           =  denExitQuestion.getResponse();
                 LeftRight yard          =  yardSideQuestion.getResponse();
+
+                // startPosition = LeftRight.Left;
+                // burrow =        CloseFar.Close;
+                // den =           CloseFar.Far;
+                // yard =          LeftRight.Left;
 
                 Function<PathPlannerPath, Command> followPathConstructor = (path) -> new FollowPathHolonomic(path, () -> AllianceFlipUtil.apply(robotState.getPose()), drive::getChassisSpeeds, drive::driveVelocity, config, drive);
                 var startToBurrow = PathPlannerPath.fromPathFile(String.format((RobotType.getRobot() == RobotType.ROBOT_2023_PRAC ? pracPath1Format : compPath1Format), startPosition.name(), burrow.name()));

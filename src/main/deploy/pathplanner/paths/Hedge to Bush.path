@@ -15,12 +15,12 @@
     },
     {
       "anchor": {
-        "x": 10.560895955742174,
-        "y": 7.11
+        "x": 10.499621887482405,
+        "y": 7.457168638182849
       },
       "prevControl": {
-        "x": 10.598813582895522,
-        "y": 5.278165279052079
+        "x": 10.537539514635753,
+        "y": 5.6253339172349275
       },
       "nextControl": null,
       "isLocked": false
@@ -28,14 +28,14 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.1,
+      "waypointRelativePos": 0.15,
       "rotationDegrees": 180.0
     }
   ],
   "constraintZones": [
     {
       "name": "Slow down to see tag",
-      "minWaypointRelativePos": 0.7,
+      "minWaypointRelativePos": 0.75,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
         "maxVelocity": 0.5,
@@ -47,7 +47,7 @@
   ],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 1.0,
+    "maxVelocity": 3.0,
     "maxAcceleration": 3,
     "maxAngularVelocity": 540,
     "maxAngularAcceleration": 720

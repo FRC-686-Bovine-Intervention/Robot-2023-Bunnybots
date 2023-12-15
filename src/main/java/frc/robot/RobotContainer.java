@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import java.util.ArrayList;
-
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -22,13 +20,10 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.DriveConstants.DriveModulePosition;
 import frc.robot.Constants.VisionConstants.Camera;
 import frc.robot.RobotType.Mode;
-import frc.robot.auto.AutoSelector;
-import frc.robot.auto.AutoSelector.AutoRoutine;
+import frc.robot.auto.ButtonAutoSelector;
 import frc.robot.auto.ScoreHighThenBunny;
 import frc.robot.commands.DriveWithCustomFlick;
 import frc.robot.commands.DriverAutoCommands;
-import frc.robot.commands.FeedForwardCharacterization;
-import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.subsystems.arm.arm.Arm;
 import frc.robot.subsystems.arm.arm.Arm.ArmPos;
 import frc.robot.subsystems.arm.arm.ArmIO;
@@ -39,10 +34,10 @@ import frc.robot.subsystems.arm.manipulator.ManipulatorIO;
 import frc.robot.subsystems.arm.manipulator.ManipulatorIOSim;
 import frc.robot.subsystems.arm.manipulator.ManipulatorIOTalon;
 import frc.robot.subsystems.bunnyIntake.BunnyIntake;
+import frc.robot.subsystems.bunnyIntake.BunnyIntake.BunnyPos;
 import frc.robot.subsystems.bunnyIntake.BunnyIntakeIO;
 import frc.robot.subsystems.bunnyIntake.BunnyIntakeIONeo;
 import frc.robot.subsystems.bunnyIntake.BunnyIntakeIOSim;
-import frc.robot.subsystems.bunnyIntake.BunnyIntake.BunnyPos;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -79,7 +74,7 @@ public class RobotContainer implements IRobotContainer {
     @SuppressWarnings("unused")
     private final Leds ledSystem;
 
-    private final AutoSelector autoSelector = new AutoSelector("Auto");
+    private final ButtonAutoSelector autoSelector = new ButtonAutoSelector();
 
     private final Mechanism2d robotSideProfile = new Mechanism2d(3, 2, new Color8Bit(Color.kBlack));
 
@@ -119,7 +114,8 @@ public class RobotContainer implements IRobotContainer {
                     manip::intaking,
                     () -> drive.getCurrentCommand() != null && drive.getCurrentCommand() != drive.getDefaultCommand(),
                     () -> manuOverrides.armOverridingBrake,
-                    () -> manuOverrides.driveOverridingBreak
+                    () -> manuOverrides.driveOverridingBreak,
+                    autoSelector::getLEDColors
                 ));
             break;
             case SIM:
@@ -297,21 +293,19 @@ public class RobotContainer implements IRobotContainer {
         );
     }
 
-    private AutoRoutine auto;
     private void configureAutos() {
-        auto = new ScoreHighThenBunny(drive, arm, manip, bunnyIntake);
-        autoSelector.addRoutine(auto);
-        autoSelector.addRoutine(new AutoRoutine(
-            "Drive Characterization",
-            new ArrayList<>(0),
-            () -> new FeedForwardCharacterization(
-                drive,
-                true,
-                new FeedForwardCharacterizationData("drive"),
-                drive::runCharacterizationVolts,
-                drive::getCharacterizationVelocity
-            )
-        ));
+        autoSelector.addRoutine(new ScoreHighThenBunny(drive, arm, manip, bunnyIntake));
+        // autoSelector.addRoutine(new AutoRoutine(
+        //     "Drive Characterization",
+        //     new ArrayList<>(0),
+        //     () -> new FeedForwardCharacterization(
+        //         drive,
+        //         true,
+        //         new FeedForwardCharacterizationData("drive"),
+        //         drive::runCharacterizationVolts,
+        //         drive::getCharacterizationVelocity
+        //     )
+        // ));
     }
 
     /**
@@ -323,7 +317,7 @@ public class RobotContainer implements IRobotContainer {
         // AutoRoutine routine = autoChooser.get();
         // drive.setPose(routine.position.getPose());
         // return routine.command;
-        return auto.autoCommandGenerator.get();
+        return autoSelector.getSelectedAutoCommand();
     }
 
     public void robotPeriodic() {

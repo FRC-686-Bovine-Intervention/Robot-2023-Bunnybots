@@ -40,8 +40,8 @@ public class AprilTagCamera {
         // System.out.println("[DEBUG AprilTagCamera] End Cam Loop");
     }
 
-    private static final LoggedTunableNumber kTransA = new LoggedTunableNumber("Vision/StdDevs/Translational/aCoef", 2);
-    private static final LoggedTunableNumber kTransC = new LoggedTunableNumber("Vision/StdDevs/Translational/cCoef", 1);
+    private static final LoggedTunableNumber kTransA = new LoggedTunableNumber("Vision/StdDevs/Translational/aCoef", 1);
+    private static final LoggedTunableNumber kTransC = new LoggedTunableNumber("Vision/StdDevs/Translational/cCoef", 0.75);
     private static final LoggedTunableNumber kRotA = new LoggedTunableNumber("Vision/StdDevs/Rotational/aCoef", 5);
     private static final LoggedTunableNumber kRotC = new LoggedTunableNumber("Vision/StdDevs/Rotational/cCoef", 1000);
     private static final LoggedTunableNumber kRotCDisabled = new LoggedTunableNumber("Vision/StdDevs/Rotational/disabledcCoef", 5);

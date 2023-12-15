@@ -73,6 +73,11 @@ public class Leds extends VirtualSubsystem {
         m_candle.clearAnimation(0);
         m_candle.configAllSettings(configAll, 100);
 
+        var question1Strip = parallelStrip.substrip(10, 13);
+        var question2Strip = parallelStrip.substrip(13, 16);
+        var question3Strip = parallelStrip.substrip(16, 19);
+        var question4Strip = parallelStrip.substrip(19, 22);
+
         this.runners = new AnimationRunner[]{
             new AnimationRunner(data.hasBall, hasBallAnimation),
             new AnimationRunner(data.intaking, intakingAnimation),
@@ -83,6 +88,38 @@ public class Leds extends VirtualSubsystem {
             new AnimationRunner(() -> DriverStation.isTeleopEnabled() && (DriverStation.getMatchType() != MatchType.None ? DriverStation.getMatchTime() <= 30 : !endgameNotification.animationTimer.hasElapsed(30)), endgameNotification),
             new AnimationRunner(data.auto, robotAutonomousAnimation),
             new AnimationRunner(DriverStation::isDisabled, driverStationConnected),
+            new AnimationRunner(DriverStation::isDisabled, new LEDAnimation() {
+                @Override
+                protected void runAnimation(LEDManager manager) {
+                    question1Strip.foreach((i) -> {
+                        question1Strip.setLED(i, data.autoColors.get()[0]);
+                    });
+                }
+            }),
+            new AnimationRunner(DriverStation::isDisabled, new LEDAnimation() {
+                @Override
+                protected void runAnimation(LEDManager manager) {
+                    question2Strip.foreach((i) -> {
+                        question2Strip.setLED(i, data.autoColors.get()[1]);
+                    });
+                }
+            }),
+            new AnimationRunner(DriverStation::isDisabled, new LEDAnimation() {
+                @Override
+                protected void runAnimation(LEDManager manager) {
+                    question3Strip.foreach((i) -> {
+                        question3Strip.setLED(i, data.autoColors.get()[2]);
+                    });
+                }
+            }),
+            new AnimationRunner(DriverStation::isDisabled, new LEDAnimation() {
+                @Override
+                protected void runAnimation(LEDManager manager) {
+                    question4Strip.foreach((i) -> {
+                        question4Strip.setLED(i, data.autoColors.get()[3]);
+                    });
+                }
+            }),
         };
 
         allianceColorAnimation.setWavelength(4);
@@ -121,12 +158,14 @@ public class Leds extends VirtualSubsystem {
         public final BooleanSupplier auto;
         public final Supplier<Boolean> armManual;
         public final Supplier<Boolean> driveManual;
-        public LedData(BooleanSupplier hasBall, BooleanSupplier intaking, BooleanSupplier auto, Supplier<Boolean> armManual, Supplier<Boolean> driveManual) {
+        public final Supplier<Color[]> autoColors;
+        public LedData(BooleanSupplier hasBall, BooleanSupplier intaking, BooleanSupplier auto, Supplier<Boolean> armManual, Supplier<Boolean> driveManual, Supplier<Color[]> autoColors) {
             this.hasBall = hasBall;
             this.intaking = intaking;
             this.auto = auto;
             this.armManual = armManual;
             this.driveManual = driveManual;
+            this.autoColors = autoColors;
         }
     }
 
