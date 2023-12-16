@@ -10,7 +10,7 @@ public enum RobotType {
     RobotType(Mode mode) {
         this.mode = mode;
     }
-    private static final RobotType realDefault =        RobotType.ROBOT_2023_PRAC;
+    private static final RobotType realDefault =        RobotType.ROBOT_2023_COMP;
     private static final RobotType simulationDefault =  RobotType.SIM;
     public static RobotType getRobot() {
         return Robot.isReal() ? realDefault : simulationDefault;
