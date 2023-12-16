@@ -47,6 +47,7 @@ public class DriverAutoCommands {
     // private static final HolonomicPathFollowerConfig config = new HolonomicPathFollowerConfig(Constants.DriveConstants.maxDriveSpeedMetersPerSec, 0.46, new ReplanningConfig());
     private static final BiFunction<PathPlannerPath, Drive, Command> followPathConstructor = (path, drive) -> new FollowPathHolonomic(path, () -> AllianceFlipUtil.apply(RobotState.getInstance().getPose()), drive::getChassisSpeeds, drive::driveVelocity, configSup.get(), drive);
 
+    private static final PathPlannerPath burrow = PathPlannerPath.fromPathFile("Burrow");
     private static final PathPlannerPath hedgeToBushPath = PathPlannerPath.fromPathFile("Hedge to Bush");
     private static final PathPlannerPath bushToHedgePath = PathPlannerPath.fromPathFile("Bush to Hedge");
 
@@ -55,7 +56,6 @@ public class DriverAutoCommands {
             followPathConstructor.apply(hedgeToBushPath, drive)
             .alongWith(arm.gotoArmPosWithWait(ArmPos.LowBack))
             .andThen(manip.intake())
-            // .andThen(arm.gotoArmPos(ArmPos.Defense))
             .withName("Hedge To Bush")
             ;
     }
@@ -64,13 +64,26 @@ public class DriverAutoCommands {
         return
             followPathConstructor.apply(bushToHedgePath, drive)
             .deadlineWith(
-                Commands.waitSeconds(1.5)
+                Commands.waitSeconds(0.75)
                 .andThen(arm.gotoArmPosWithWait(ArmPos.Defense))
             )
-            .andThen(arm.gotoArmPosWithWait(ArmPos.Hedge))
-            .andThen(manip.hedge().withTimeout(0.75))
-            .andThen(arm.gotoArmPos(ArmPos.Defense))
+            .andThen(
+                arm.gotoArmPosWithWait(ArmPos.Hedge),
+                manip.hedge().withTimeout(0.75)
+            )
             .withName("Bush To Hedge")
+            ;
+    }
+
+    public static Command autoBurrow(Drive drive, Arm arm, Manipulator manip) {
+        return
+            followPathConstructor.apply(burrow, drive)
+            .alongWith(arm.gotoArmPosWithWait(ArmPos.HighBack))
+            .andThen(
+                manip.score().withTimeout(0.5),
+                arm.gotoArmPos(ArmPos.Ground)
+            )
+            .withName("Autoscore")
             ;
     }
 }

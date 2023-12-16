@@ -6,6 +6,7 @@ package frc.robot;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -21,6 +22,7 @@ import frc.robot.Constants.DriveConstants.DriveModulePosition;
 import frc.robot.Constants.VisionConstants.Camera;
 import frc.robot.RobotType.Mode;
 import frc.robot.auto.ButtonAutoSelector;
+import frc.robot.auto.ScoreBunny;
 import frc.robot.auto.ScoreHighThenBunny;
 import frc.robot.commands.DriveWithCustomFlick;
 import frc.robot.commands.DriverAutoCommands;
@@ -241,18 +243,20 @@ public class RobotContainer implements IRobotContainer {
 
         driveController.rightTrigger.aboveThreshold(0.5).whileTrue(
             Commands.either(
-                manip.score(),
+                Commands.either(
+                    manip.hedge(),
+                    manip.score(),
+                    () -> arm.getTargetPos() == ArmPos.Ground || arm.getTargetPos() == ArmPos.Hedge
+                ),
                 manip.intake(),
                 manip::hasBall
             )
         );
 
-        driveController.a().onTrue(bunnyIntake.gotoPosWithWait(BunnyPos.Inside));
-        driveController.b().onTrue(bunnyIntake.gotoPosWithWait(BunnyPos.Bar));
-        driveController.y().onTrue(bunnyIntake.gotoPosWithWait(BunnyPos.Floor));
+        driveController.leftBumper().and(driveController.rightBumper()).onTrue(Commands.runOnce(() -> drive.setPose(new Pose2d(drive.getPose().getTranslation(), new Rotation2d()))));
 
-        driveController.leftBumper().whileTrue(bunnyIntake.setVolts(4));
-        driveController.rightBumper().whileTrue(bunnyIntake.setVolts(-4));
+        buttonBoard.button(7).onTrue(bunnyIntake.gotoPosWithWait(BunnyPos.Inside));
+        buttonBoard.button(8).onTrue(bunnyIntake.gotoPosWithWait(BunnyPos.Floor));
 
         driveController.povUp().toggleOnTrue(
             // Commands.either(
@@ -266,6 +270,8 @@ public class RobotContainer implements IRobotContainer {
                 manip::hasBall
             )
         );
+
+        driveController.povDown().and(manip::hasBall).onTrue(DriverAutoCommands.autoBurrow(drive, arm, manip));
     }
 
 
@@ -295,6 +301,7 @@ public class RobotContainer implements IRobotContainer {
 
     private void configureAutos() {
         autoSelector.addRoutine(new ScoreHighThenBunny(drive, arm, manip, bunnyIntake));
+        autoSelector.addRoutine(new ScoreBunny(drive, arm, bunnyIntake));
         // autoSelector.addRoutine(new AutoRoutine(
         //     "Drive Characterization",
         //     new ArrayList<>(0),

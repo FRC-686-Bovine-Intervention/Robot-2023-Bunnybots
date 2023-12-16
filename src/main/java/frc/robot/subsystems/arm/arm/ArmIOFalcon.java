@@ -56,7 +56,7 @@ public class ArmIOFalcon implements ArmIO {
 
     @Override
     public void zeroEncoders() {
-        armEncoder.setPosition(MathUtil.inputModulus(armEncoder.getAbsolutePosition().getValue() + Units.degreesToRadians(90), 0, 2 * Math.PI) - Units.degreesToRadians(90));
+        armEncoder.setPosition(MathUtil.inputModulus(armEncoder.getAbsolutePosition().getValue() + Units.degreesToRadians(100), 0, 2 * Math.PI) - Units.degreesToRadians(100));
     }
 
     @Override

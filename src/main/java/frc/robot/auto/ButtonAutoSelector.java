@@ -59,6 +59,7 @@ public class ButtonAutoSelector extends VirtualSubsystem {
             if(incrementAuto) {
                 selectedAutoIndex = (selectedAutoIndex + 1) % routines.size();
             }
+            System.out.println("-------------------");
             System.out.println("Selected Auto: " + getSelectedAuto().name);
             for(var question : getSelectedAuto().questions) {
                 System.out.println(question.name + ": " + question.getResponse().name());
@@ -68,18 +69,25 @@ public class ButtonAutoSelector extends VirtualSubsystem {
         lastButton = butVal;
     }
 
+    private static final Color[] ordinalColors = new Color[] {
+        Color.kYellow,
+        Color.kGreen,
+        Color.kBlue,
+    };
+
     public Color[] getLEDColors() {
-        if(getSelectedAuto().questions.size() == 0) {
-            return new Color[] {
-                Color.kRed,
-                Color.kRed,
-                Color.kRed,
-                Color.kRed,
-            };
+        var ret = new Color[] {
+            Color.kRed,
+            Color.kRed,
+            Color.kRed,
+            Color.kRed,
+            Color.kRed,
+        };
+        if(selectedAutoIndex > 0) {
+            ret[0] = ordinalColors[selectedAutoIndex - 1];
         }
-        var ret = new Color[4];
         for(int i = 0; i < getSelectedAuto().questions.size(); i++) {
-            ret[i] = (getSelectedAuto().questions.get(i).getResponse().ordinal() == 0 ? Color.kYellow : Color.kGreen);
+            ret[i + 1] = ordinalColors[getSelectedAuto().questions.get(i).getResponse().ordinal()];
         }
         return ret;
     }

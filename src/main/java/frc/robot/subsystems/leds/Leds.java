@@ -90,10 +90,11 @@ public class Leds extends VirtualSubsystem {
         var driveBrake = new FillAnimation(Color.kOrange, onboardLEDs);
 
 
-        var question1Strip = parallelStrip.substrip(10, 13);
-        var question2Strip = parallelStrip.substrip(13, 16);
-        var question3Strip = parallelStrip.substrip(16, 19);
-        var question4Strip = parallelStrip.substrip(19, 22);
+        var autoroutineStrip = parallelStrip.substrip(10, 13);
+        var question1Strip = parallelStrip.substrip(13, 16);
+        var question2Strip = parallelStrip.substrip(16, 19);
+        var question3Strip = parallelStrip.substrip(19, 22);
+        var question4Strip = parallelStrip.substrip(22, 25);
 
         this.runners = new AnimationRunner[]{
             new AnimationRunner(data.hasBall, hasBallAnimation),
@@ -108,8 +109,16 @@ public class Leds extends VirtualSubsystem {
             new AnimationRunner(DriverStation::isDisabled, new LEDAnimation() {
                 @Override
                 protected void runAnimation(LEDManager manager) {
+                    autoroutineStrip.foreach((i) -> {
+                        autoroutineStrip.setLED(i, data.autoColors.get()[0]);
+                    });
+                }
+            }),
+            new AnimationRunner(DriverStation::isDisabled, new LEDAnimation() {
+                @Override
+                protected void runAnimation(LEDManager manager) {
                     question1Strip.foreach((i) -> {
-                        question1Strip.setLED(i, data.autoColors.get()[0]);
+                        question1Strip.setLED(i, data.autoColors.get()[1]);
                     });
                 }
             }),
@@ -117,7 +126,7 @@ public class Leds extends VirtualSubsystem {
                 @Override
                 protected void runAnimation(LEDManager manager) {
                     question2Strip.foreach((i) -> {
-                        question2Strip.setLED(i, data.autoColors.get()[1]);
+                        question2Strip.setLED(i, data.autoColors.get()[2]);
                     });
                 }
             }),
@@ -125,7 +134,7 @@ public class Leds extends VirtualSubsystem {
                 @Override
                 protected void runAnimation(LEDManager manager) {
                     question3Strip.foreach((i) -> {
-                        question3Strip.setLED(i, data.autoColors.get()[2]);
+                        question3Strip.setLED(i, data.autoColors.get()[3]);
                     });
                 }
             }),
@@ -133,7 +142,7 @@ public class Leds extends VirtualSubsystem {
                 @Override
                 protected void runAnimation(LEDManager manager) {
                     question4Strip.foreach((i) -> {
-                        question4Strip.setLED(i, data.autoColors.get()[3]);
+                        question4Strip.setLED(i, data.autoColors.get()[4]);
                     });
                 }
             }),

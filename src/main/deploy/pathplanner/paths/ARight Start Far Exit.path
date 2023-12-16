@@ -30,16 +30,19 @@
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3,
+    "maxVelocity": 2.0,
     "maxAcceleration": 3,
     "maxAngularVelocity": 540,
     "maxAngularAcceleration": 720
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": 0
+    "velocity": 2.0,
+    "rotation": -90.0
   },
   "reversed": false,
   "folder": "Bunny",
-  "previewStartingState": null
+  "previewStartingState": {
+    "rotation": -90.0,
+    "velocity": 0.0
+  }
 }

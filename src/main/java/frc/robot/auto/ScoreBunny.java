@@ -48,11 +48,11 @@ public class ScoreBunny extends AutoRoutine {
         0.46,
         new ReplanningConfig()
     );
-    private static final String pracPath1Format = "A%s Start %s Den Exit";
+    private static final String pracPath1Format = "A%s Start %s Exit";
     private static final String pracPath2Format = "A%s Den %s Yard";
     private static final String pracPath3Format = "A%s Yard Driveaway";
 
-    private static final String compPath1Format = "%s Start %s Den Exit";
+    private static final String compPath1Format = "%s Start %s Exit";
     private static final String compPath2Format = "%s Den %s Yard";
     private static final String compPath3Format = "%s Yard Driveaway";
 

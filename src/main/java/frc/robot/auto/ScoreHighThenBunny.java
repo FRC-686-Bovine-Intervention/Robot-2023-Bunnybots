@@ -94,11 +94,6 @@ public class ScoreHighThenBunny extends AutoRoutine {
                 CloseFar  den           =  denExitQuestion.getResponse();
                 LeftRight yard          =  yardSideQuestion.getResponse();
 
-                // startPosition = LeftRight.Left;
-                // burrow =        CloseFar.Close;
-                // den =           CloseFar.Far;
-                // yard =          LeftRight.Left;
-
                 Function<PathPlannerPath, Command> followPathConstructor = (path) -> new FollowPathHolonomic(path, () -> AllianceFlipUtil.apply(robotState.getPose()), drive::getChassisSpeeds, drive::driveVelocity, config, drive);
                 var startToBurrow = PathPlannerPath.fromPathFile(String.format((RobotType.getRobot() == RobotType.ROBOT_2023_PRAC ? pracPath1Format : compPath1Format), startPosition.name(), burrow.name()));
                 var burrowToExit =  PathPlannerPath.fromPathFile(String.format((RobotType.getRobot() == RobotType.ROBOT_2023_PRAC ? pracPath2Format : compPath2Format), den.name()));
@@ -118,10 +113,10 @@ public class ScoreHighThenBunny extends AutoRoutine {
                                 manip.score().withTimeout(0.5),
                                 arm.gotoArmPos(ArmPos.Defense),
                                 followPathConstructor.apply(burrowToExit),
-                                followPathConstructor.apply(exitToYard),
-                                bunny.gotoPosWithWait(BunnyPos.Bar),
-                                followPathConstructor.apply(yardDriveaway),
-                                bunny.gotoPosWithWait(BunnyPos.Inside)
+                                followPathConstructor.apply(exitToYard)
+                                // bunny.gotoPosWithWait(BunnyPos.Bar),
+                                // followPathConstructor.apply(yardDriveaway),
+                                // bunny.gotoPosWithWait(BunnyPos.Inside)
                             )
                         )
                     )
