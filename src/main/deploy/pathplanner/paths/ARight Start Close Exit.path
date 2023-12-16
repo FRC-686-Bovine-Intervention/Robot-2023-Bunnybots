@@ -3,24 +3,24 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.56,
-        "y": 6.88
+        "x": 0.5779821280133011,
+        "y": 5.2
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.3064430258229418,
-        "y": 6.517063629267758
+        "x": 0.5779821280133011,
+        "y": 4.2
       },
       "isLocked": false
     },
     {
       "anchor": {
-        "x": 0.8586909312454819,
-        "y": 7.377663102030764
+        "x": 3.82,
+        "y": 4.21
       },
       "prevControl": {
-        "x": 0.9203427120423968,
-        "y": 7.179007363907374
+        "x": 0.41999999999999993,
+        "y": 4.21
       },
       "nextControl": null,
       "isLocked": false
@@ -30,19 +30,16 @@
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 1.0,
+    "maxVelocity": 3,
     "maxAcceleration": 3,
-    "maxAngularVelocity": 540.0,
-    "maxAngularAcceleration": 720.0
+    "maxAngularVelocity": 540,
+    "maxAngularAcceleration": 720
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -45.0
+    "rotation": 0
   },
   "reversed": false,
-  "folder": "Score Then Bunny",
-  "previewStartingState": {
-    "rotation": -90.0,
-    "velocity": 0
-  }
+  "folder": "Bunny",
+  "previewStartingState": null
 }
